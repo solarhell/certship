@@ -9,18 +9,6 @@ import (
 	"github.com/solarhell/certship/pkg/ent"
 )
 
-// The AdminFunc type is an adapter to allow the use of ordinary
-// function as Admin mutator.
-type AdminFunc func(context.Context, *ent.AdminMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f AdminFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.AdminMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AdminMutation", m)
-}
-
 // The AppSettingsFunc type is an adapter to allow the use of ordinary
 // function as AppSettings mutator.
 type AppSettingsFunc func(context.Context, *ent.AppSettingsMutation) (ent.Value, error)
@@ -45,18 +33,6 @@ func (f AuthTokenFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.AuthTokenMutation", m)
 }
 
-// The CertificateFunc type is an adapter to allow the use of ordinary
-// function as Certificate mutator.
-type CertificateFunc func(context.Context, *ent.CertificateMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f CertificateFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.CertificateMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CertificateMutation", m)
-}
-
 // The CloudAccountFunc type is an adapter to allow the use of ordinary
 // function as CloudAccount mutator.
 type CloudAccountFunc func(context.Context, *ent.CloudAccountMutation) (ent.Value, error)
@@ -69,6 +45,18 @@ func (f CloudAccountFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CloudAccountMutation", m)
 }
 
+// The DomainFunc type is an adapter to allow the use of ordinary
+// function as Domain mutator.
+type DomainFunc func(context.Context, *ent.DomainMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DomainFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DomainMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DomainMutation", m)
+}
+
 // The NotificationChannelFunc type is an adapter to allow the use of ordinary
 // function as NotificationChannel mutator.
 type NotificationChannelFunc func(context.Context, *ent.NotificationChannelMutation) (ent.Value, error)
@@ -79,6 +67,18 @@ func (f NotificationChannelFunc) Mutate(ctx context.Context, m ent.Mutation) (en
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.NotificationChannelMutation", m)
+}
+
+// The UserFunc type is an adapter to allow the use of ordinary
+// function as User mutator.
+type UserFunc func(context.Context, *ent.UserMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f UserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.UserMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserMutation", m)
 }
 
 // Condition is a hook condition function.

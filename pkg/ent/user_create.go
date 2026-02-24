@@ -10,36 +10,42 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/solarhell/certship/pkg/ent/admin"
+	"github.com/solarhell/certship/pkg/ent/user"
 )
 
-// AdminCreate is the builder for creating a Admin entity.
-type AdminCreate struct {
+// UserCreate is the builder for creating a User entity.
+type UserCreate struct {
 	config
-	mutation *AdminMutation
+	mutation *UserMutation
 	hooks    []Hook
 }
 
 // SetUsername sets the "username" field.
-func (_c *AdminCreate) SetUsername(v string) *AdminCreate {
+func (_c *UserCreate) SetUsername(v string) *UserCreate {
 	_c.mutation.SetUsername(v)
 	return _c
 }
 
 // SetPasswordHash sets the "password_hash" field.
-func (_c *AdminCreate) SetPasswordHash(v string) *AdminCreate {
+func (_c *UserCreate) SetPasswordHash(v string) *UserCreate {
 	_c.mutation.SetPasswordHash(v)
 	return _c
 }
 
+// SetNickname sets the "nickname" field.
+func (_c *UserCreate) SetNickname(v string) *UserCreate {
+	_c.mutation.SetNickname(v)
+	return _c
+}
+
 // SetCreatedAt sets the "created_at" field.
-func (_c *AdminCreate) SetCreatedAt(v time.Time) *AdminCreate {
+func (_c *UserCreate) SetCreatedAt(v time.Time) *UserCreate {
 	_c.mutation.SetCreatedAt(v)
 	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (_c *AdminCreate) SetNillableCreatedAt(v *time.Time) *AdminCreate {
+func (_c *UserCreate) SetNillableCreatedAt(v *time.Time) *UserCreate {
 	if v != nil {
 		_c.SetCreatedAt(*v)
 	}
@@ -47,13 +53,13 @@ func (_c *AdminCreate) SetNillableCreatedAt(v *time.Time) *AdminCreate {
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (_c *AdminCreate) SetUpdatedAt(v time.Time) *AdminCreate {
+func (_c *UserCreate) SetUpdatedAt(v time.Time) *UserCreate {
 	_c.mutation.SetUpdatedAt(v)
 	return _c
 }
 
 // SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (_c *AdminCreate) SetNillableUpdatedAt(v *time.Time) *AdminCreate {
+func (_c *UserCreate) SetNillableUpdatedAt(v *time.Time) *UserCreate {
 	if v != nil {
 		_c.SetUpdatedAt(*v)
 	}
@@ -61,32 +67,32 @@ func (_c *AdminCreate) SetNillableUpdatedAt(v *time.Time) *AdminCreate {
 }
 
 // SetID sets the "id" field.
-func (_c *AdminCreate) SetID(v string) *AdminCreate {
+func (_c *UserCreate) SetID(v string) *UserCreate {
 	_c.mutation.SetID(v)
 	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (_c *AdminCreate) SetNillableID(v *string) *AdminCreate {
+func (_c *UserCreate) SetNillableID(v *string) *UserCreate {
 	if v != nil {
 		_c.SetID(*v)
 	}
 	return _c
 }
 
-// Mutation returns the AdminMutation object of the builder.
-func (_c *AdminCreate) Mutation() *AdminMutation {
+// Mutation returns the UserMutation object of the builder.
+func (_c *UserCreate) Mutation() *UserMutation {
 	return _c.mutation
 }
 
-// Save creates the Admin in the database.
-func (_c *AdminCreate) Save(ctx context.Context) (*Admin, error) {
+// Save creates the User in the database.
+func (_c *UserCreate) Save(ctx context.Context) (*User, error) {
 	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (_c *AdminCreate) SaveX(ctx context.Context) *Admin {
+func (_c *UserCreate) SaveX(ctx context.Context) *User {
 	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -95,67 +101,75 @@ func (_c *AdminCreate) SaveX(ctx context.Context) *Admin {
 }
 
 // Exec executes the query.
-func (_c *AdminCreate) Exec(ctx context.Context) error {
+func (_c *UserCreate) Exec(ctx context.Context) error {
 	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_c *AdminCreate) ExecX(ctx context.Context) {
+func (_c *UserCreate) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (_c *AdminCreate) defaults() {
+func (_c *UserCreate) defaults() {
 	if _, ok := _c.mutation.CreatedAt(); !ok {
-		v := admin.DefaultCreatedAt()
+		v := user.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		v := admin.DefaultUpdatedAt()
+		v := user.DefaultUpdatedAt()
 		_c.mutation.SetUpdatedAt(v)
 	}
 	if _, ok := _c.mutation.ID(); !ok {
-		v := admin.DefaultID()
+		v := user.DefaultID()
 		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (_c *AdminCreate) check() error {
+func (_c *UserCreate) check() error {
 	if _, ok := _c.mutation.Username(); !ok {
-		return &ValidationError{Name: "username", err: errors.New(`ent: missing required field "Admin.username"`)}
+		return &ValidationError{Name: "username", err: errors.New(`ent: missing required field "User.username"`)}
 	}
 	if v, ok := _c.mutation.Username(); ok {
-		if err := admin.UsernameValidator(v); err != nil {
-			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "Admin.username": %w`, err)}
+		if err := user.UsernameValidator(v); err != nil {
+			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "User.username": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.PasswordHash(); !ok {
-		return &ValidationError{Name: "password_hash", err: errors.New(`ent: missing required field "Admin.password_hash"`)}
+		return &ValidationError{Name: "password_hash", err: errors.New(`ent: missing required field "User.password_hash"`)}
 	}
 	if v, ok := _c.mutation.PasswordHash(); ok {
-		if err := admin.PasswordHashValidator(v); err != nil {
-			return &ValidationError{Name: "password_hash", err: fmt.Errorf(`ent: validator failed for field "Admin.password_hash": %w`, err)}
+		if err := user.PasswordHashValidator(v); err != nil {
+			return &ValidationError{Name: "password_hash", err: fmt.Errorf(`ent: validator failed for field "User.password_hash": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Nickname(); !ok {
+		return &ValidationError{Name: "nickname", err: errors.New(`ent: missing required field "User.nickname"`)}
+	}
+	if v, ok := _c.mutation.Nickname(); ok {
+		if err := user.NicknameValidator(v); err != nil {
+			return &ValidationError{Name: "nickname", err: fmt.Errorf(`ent: validator failed for field "User.nickname": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Admin.created_at"`)}
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "User.created_at"`)}
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Admin.updated_at"`)}
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "User.updated_at"`)}
 	}
 	if v, ok := _c.mutation.ID(); ok {
-		if err := admin.IDValidator(v); err != nil {
-			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "Admin.id": %w`, err)}
+		if err := user.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "User.id": %w`, err)}
 		}
 	}
 	return nil
 }
 
-func (_c *AdminCreate) sqlSave(ctx context.Context) (*Admin, error) {
+func (_c *UserCreate) sqlSave(ctx context.Context) (*User, error) {
 	if err := _c.check(); err != nil {
 		return nil, err
 	}
@@ -170,7 +184,7 @@ func (_c *AdminCreate) sqlSave(ctx context.Context) (*Admin, error) {
 		if id, ok := _spec.ID.Value.(string); ok {
 			_node.ID = id
 		} else {
-			return nil, fmt.Errorf("unexpected Admin.ID type: %T", _spec.ID.Value)
+			return nil, fmt.Errorf("unexpected User.ID type: %T", _spec.ID.Value)
 		}
 	}
 	_c.mutation.id = &_node.ID
@@ -178,55 +192,59 @@ func (_c *AdminCreate) sqlSave(ctx context.Context) (*Admin, error) {
 	return _node, nil
 }
 
-func (_c *AdminCreate) createSpec() (*Admin, *sqlgraph.CreateSpec) {
+func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Admin{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(admin.Table, sqlgraph.NewFieldSpec(admin.FieldID, field.TypeString))
+		_node = &User{config: _c.config}
+		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeString))
 	)
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
 	if value, ok := _c.mutation.Username(); ok {
-		_spec.SetField(admin.FieldUsername, field.TypeString, value)
+		_spec.SetField(user.FieldUsername, field.TypeString, value)
 		_node.Username = value
 	}
 	if value, ok := _c.mutation.PasswordHash(); ok {
-		_spec.SetField(admin.FieldPasswordHash, field.TypeString, value)
+		_spec.SetField(user.FieldPasswordHash, field.TypeString, value)
 		_node.PasswordHash = value
 	}
+	if value, ok := _c.mutation.Nickname(); ok {
+		_spec.SetField(user.FieldNickname, field.TypeString, value)
+		_node.Nickname = value
+	}
 	if value, ok := _c.mutation.CreatedAt(); ok {
-		_spec.SetField(admin.FieldCreatedAt, field.TypeTime, value)
+		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
 	if value, ok := _c.mutation.UpdatedAt(); ok {
-		_spec.SetField(admin.FieldUpdatedAt, field.TypeTime, value)
+		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
 	return _node, _spec
 }
 
-// AdminCreateBulk is the builder for creating many Admin entities in bulk.
-type AdminCreateBulk struct {
+// UserCreateBulk is the builder for creating many User entities in bulk.
+type UserCreateBulk struct {
 	config
 	err      error
-	builders []*AdminCreate
+	builders []*UserCreate
 }
 
-// Save creates the Admin entities in the database.
-func (_c *AdminCreateBulk) Save(ctx context.Context) ([]*Admin, error) {
+// Save creates the User entities in the database.
+func (_c *UserCreateBulk) Save(ctx context.Context) ([]*User, error) {
 	if _c.err != nil {
 		return nil, _c.err
 	}
 	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
-	nodes := make([]*Admin, len(_c.builders))
+	nodes := make([]*User, len(_c.builders))
 	mutators := make([]Mutator, len(_c.builders))
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-				mutation, ok := m.(*AdminMutation)
+				mutation, ok := m.(*UserMutation)
 				if !ok {
 					return nil, fmt.Errorf("unexpected mutation type %T", m)
 				}
@@ -269,7 +287,7 @@ func (_c *AdminCreateBulk) Save(ctx context.Context) ([]*Admin, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_c *AdminCreateBulk) SaveX(ctx context.Context) []*Admin {
+func (_c *UserCreateBulk) SaveX(ctx context.Context) []*User {
 	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -278,13 +296,13 @@ func (_c *AdminCreateBulk) SaveX(ctx context.Context) []*Admin {
 }
 
 // Exec executes the query.
-func (_c *AdminCreateBulk) Exec(ctx context.Context) error {
+func (_c *UserCreateBulk) Exec(ctx context.Context) error {
 	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_c *AdminCreateBulk) ExecX(ctx context.Context) {
+func (_c *UserCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}

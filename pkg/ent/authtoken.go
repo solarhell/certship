@@ -18,8 +18,8 @@ type AuthToken struct {
 	// ID of the ent.
 	// 主键 UUID
 	ID string `json:"id,omitempty"`
-	// 管理员 ID
-	AdminID string `json:"admin_id,omitempty"`
+	// 用户 ID
+	UserID string `json:"user_id,omitempty"`
 	// Token
 	Token string `json:"token,omitempty"`
 	// 登录时的 User-Agent
@@ -42,7 +42,7 @@ func (*AuthToken) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case authtoken.FieldID, authtoken.FieldAdminID, authtoken.FieldToken, authtoken.FieldLoginUserAgent, authtoken.FieldLoginIP, authtoken.FieldLastActiveUserAgent, authtoken.FieldLastActiveIP:
+		case authtoken.FieldID, authtoken.FieldUserID, authtoken.FieldToken, authtoken.FieldLoginUserAgent, authtoken.FieldLoginIP, authtoken.FieldLastActiveUserAgent, authtoken.FieldLastActiveIP:
 			values[i] = new(sql.NullString)
 		case authtoken.FieldLoginTime, authtoken.FieldLastActiveTime:
 			values[i] = new(sql.NullTime)
@@ -67,11 +67,11 @@ func (_m *AuthToken) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ID = value.String
 			}
-		case authtoken.FieldAdminID:
+		case authtoken.FieldUserID:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field admin_id", values[i])
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				_m.AdminID = value.String
+				_m.UserID = value.String
 			}
 		case authtoken.FieldToken:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -151,8 +151,8 @@ func (_m *AuthToken) String() string {
 	var builder strings.Builder
 	builder.WriteString("AuthToken(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
-	builder.WriteString("admin_id=")
-	builder.WriteString(_m.AdminID)
+	builder.WriteString("user_id=")
+	builder.WriteString(_m.UserID)
 	builder.WriteString(", ")
 	builder.WriteString("token=")
 	builder.WriteString(_m.Token)

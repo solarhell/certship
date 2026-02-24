@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/solarhell/certship/pkg/database"
-	entadmin "github.com/solarhell/certship/pkg/ent/admin"
+	entuser "github.com/solarhell/certship/pkg/ent/user"
 	"github.com/solarhell/certship/pkg/server"
 	"github.com/solarhell/certship/pkg/server/middleware"
 )
@@ -25,8 +25,8 @@ func Run(ctx context.Context, addr string, logger *zap.Logger) error {
 	if err := ensureJWTSecret(ctx); err != nil {
 		return fmt.Errorf("初始化 JWT 密钥失败: %w", err)
 	}
-	if err := ensureDefaultAdmin(ctx); err != nil {
-		return fmt.Errorf("初始化默认管理员失败: %w", err)
+	if err := ensureDefaultUser(ctx); err != nil {
+		return fmt.Errorf("初始化默认���户失败: %w", err)
 	}
 
 	srv := &http.Server{
@@ -68,14 +68,13 @@ func ensureJWTSecret(ctx context.Context) error {
 	if _, err := rand.Read(b); err != nil {
 		return err
 	}
-	secret := hex.EncodeToString(b)
-	return settings.Update().SetJwtSecret(secret).Exec(ctx)
+	return settings.Update().SetJwtSecret(hex.EncodeToString(b)).Exec(ctx)
 }
 
-// ensureDefaultAdmin 若 t_admin 为空则创建默认管理员 admin/certship
-func ensureDefaultAdmin(ctx context.Context) error {
+// ensureDefaultUser 若 t_user 为空则创建默认用户 admin/certship
+func ensureDefaultUser(ctx context.Context) error {
 	db := database.GetClient()
-	count, err := db.Admin.Query().Where(entadmin.UsernameEQ("admin")).Count(ctx)
+	count, err := db.User.Query().Where(entuser.UsernameEQ("admin")).Count(ctx)
 	if err != nil {
 		return err
 	}
@@ -86,8 +85,9 @@ func ensureDefaultAdmin(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	return db.Admin.Create().
+	return db.User.Create().
 		SetUsername("admin").
 		SetPasswordHash(string(hash)).
+		SetNickname("Admin").
 		Exec(ctx)
 }

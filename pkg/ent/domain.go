@@ -9,11 +9,11 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/solarhell/certship/pkg/ent/certificate"
+	"github.com/solarhell/certship/pkg/ent/domain"
 )
 
-// Certificate is the model entity for the Certificate schema.
-type Certificate struct {
+// Domain is the model entity for the Domain schema.
+type Domain struct {
 	config `json:"-"`
 	// ID of the ent.
 	// 主键 UUID
@@ -35,7 +35,7 @@ type Certificate struct {
 	// 证书私钥 PEM 内容
 	KeyPem string `json:"key_pem,omitempty"`
 	// 证书状态：pending=待颁发，active=有效，error=错误
-	Status certificate.Status `json:"status,omitempty"`
+	Status domain.Status `json:"status,omitempty"`
 	// 最近一次错误信息
 	ErrorMessage string `json:"error_message,omitempty"`
 	// 创建时间
@@ -46,13 +46,13 @@ type Certificate struct {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Certificate) scanValues(columns []string) ([]any, error) {
+func (*Domain) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case certificate.FieldID, certificate.FieldDomain, certificate.FieldBucket, certificate.FieldRegion, certificate.FieldAccountName, certificate.FieldCertPem, certificate.FieldKeyPem, certificate.FieldStatus, certificate.FieldErrorMessage:
+		case domain.FieldID, domain.FieldDomain, domain.FieldBucket, domain.FieldRegion, domain.FieldAccountName, domain.FieldCertPem, domain.FieldKeyPem, domain.FieldStatus, domain.FieldErrorMessage:
 			values[i] = new(sql.NullString)
-		case certificate.FieldIssuedAt, certificate.FieldExpiresAt, certificate.FieldCreatedAt, certificate.FieldUpdatedAt:
+		case domain.FieldIssuedAt, domain.FieldExpiresAt, domain.FieldCreatedAt, domain.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -62,88 +62,88 @@ func (*Certificate) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the Certificate fields.
-func (_m *Certificate) assignValues(columns []string, values []any) error {
+// to the Domain fields.
+func (_m *Domain) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case certificate.FieldID:
+		case domain.FieldID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
 			}
-		case certificate.FieldDomain:
+		case domain.FieldDomain:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field domain", values[i])
 			} else if value.Valid {
 				_m.Domain = value.String
 			}
-		case certificate.FieldBucket:
+		case domain.FieldBucket:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field bucket", values[i])
 			} else if value.Valid {
 				_m.Bucket = value.String
 			}
-		case certificate.FieldRegion:
+		case domain.FieldRegion:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field region", values[i])
 			} else if value.Valid {
 				_m.Region = value.String
 			}
-		case certificate.FieldAccountName:
+		case domain.FieldAccountName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field account_name", values[i])
 			} else if value.Valid {
 				_m.AccountName = value.String
 			}
-		case certificate.FieldIssuedAt:
+		case domain.FieldIssuedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field issued_at", values[i])
 			} else if value.Valid {
 				_m.IssuedAt = new(time.Time)
 				*_m.IssuedAt = value.Time
 			}
-		case certificate.FieldExpiresAt:
+		case domain.FieldExpiresAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field expires_at", values[i])
 			} else if value.Valid {
 				_m.ExpiresAt = new(time.Time)
 				*_m.ExpiresAt = value.Time
 			}
-		case certificate.FieldCertPem:
+		case domain.FieldCertPem:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field cert_pem", values[i])
 			} else if value.Valid {
 				_m.CertPem = value.String
 			}
-		case certificate.FieldKeyPem:
+		case domain.FieldKeyPem:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field key_pem", values[i])
 			} else if value.Valid {
 				_m.KeyPem = value.String
 			}
-		case certificate.FieldStatus:
+		case domain.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				_m.Status = certificate.Status(value.String)
+				_m.Status = domain.Status(value.String)
 			}
-		case certificate.FieldErrorMessage:
+		case domain.FieldErrorMessage:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field error_message", values[i])
 			} else if value.Valid {
 				_m.ErrorMessage = value.String
 			}
-		case certificate.FieldCreatedAt:
+		case domain.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
 				_m.CreatedAt = value.Time
 			}
-		case certificate.FieldUpdatedAt:
+		case domain.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
@@ -156,34 +156,34 @@ func (_m *Certificate) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the Certificate.
+// Value returns the ent.Value that was dynamically selected and assigned to the Domain.
 // This includes values selected through modifiers, order, etc.
-func (_m *Certificate) Value(name string) (ent.Value, error) {
+func (_m *Domain) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// Update returns a builder for updating this Certificate.
-// Note that you need to call Certificate.Unwrap() before calling this method if this Certificate
+// Update returns a builder for updating this Domain.
+// Note that you need to call Domain.Unwrap() before calling this method if this Domain
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (_m *Certificate) Update() *CertificateUpdateOne {
-	return NewCertificateClient(_m.config).UpdateOne(_m)
+func (_m *Domain) Update() *DomainUpdateOne {
+	return NewDomainClient(_m.config).UpdateOne(_m)
 }
 
-// Unwrap unwraps the Certificate entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the Domain entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (_m *Certificate) Unwrap() *Certificate {
+func (_m *Domain) Unwrap() *Domain {
 	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: Certificate is not a transactional entity")
+		panic("ent: Domain is not a transactional entity")
 	}
 	_m.config.driver = _tx.drv
 	return _m
 }
 
 // String implements the fmt.Stringer.
-func (_m *Certificate) String() string {
+func (_m *Domain) String() string {
 	var builder strings.Builder
-	builder.WriteString("Certificate(")
+	builder.WriteString("Domain(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("domain=")
 	builder.WriteString(_m.Domain)
@@ -228,5 +228,5 @@ func (_m *Certificate) String() string {
 	return builder.String()
 }
 
-// Certificates is a parsable slice of Certificate.
-type Certificates []*Certificate
+// Domains is a parsable slice of Domain.
+type Domains []*Domain

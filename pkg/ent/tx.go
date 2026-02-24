@@ -12,18 +12,18 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
-	// Admin is the client for interacting with the Admin builders.
-	Admin *AdminClient
 	// AppSettings is the client for interacting with the AppSettings builders.
 	AppSettings *AppSettingsClient
 	// AuthToken is the client for interacting with the AuthToken builders.
 	AuthToken *AuthTokenClient
-	// Certificate is the client for interacting with the Certificate builders.
-	Certificate *CertificateClient
 	// CloudAccount is the client for interacting with the CloudAccount builders.
 	CloudAccount *CloudAccountClient
+	// Domain is the client for interacting with the Domain builders.
+	Domain *DomainClient
 	// NotificationChannel is the client for interacting with the NotificationChannel builders.
 	NotificationChannel *NotificationChannelClient
+	// User is the client for interacting with the User builders.
+	User *UserClient
 
 	// lazily loaded.
 	client     *Client
@@ -155,12 +155,12 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
-	tx.Admin = NewAdminClient(tx.config)
 	tx.AppSettings = NewAppSettingsClient(tx.config)
 	tx.AuthToken = NewAuthTokenClient(tx.config)
-	tx.Certificate = NewCertificateClient(tx.config)
 	tx.CloudAccount = NewCloudAccountClient(tx.config)
+	tx.Domain = NewDomainClient(tx.config)
 	tx.NotificationChannel = NewNotificationChannelClient(tx.config)
+	tx.User = NewUserClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
@@ -170,7 +170,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Admin.QueryXXX(), the query will be executed
+// applies a query, for example: AppSettings.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

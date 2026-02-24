@@ -11,31 +11,31 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/solarhell/certship/pkg/ent/certificate"
+	"github.com/solarhell/certship/pkg/ent/domain"
 	"github.com/solarhell/certship/pkg/ent/predicate"
 )
 
-// CertificateUpdate is the builder for updating Certificate entities.
-type CertificateUpdate struct {
+// DomainUpdate is the builder for updating Domain entities.
+type DomainUpdate struct {
 	config
 	hooks    []Hook
-	mutation *CertificateMutation
+	mutation *DomainMutation
 }
 
-// Where appends a list predicates to the CertificateUpdate builder.
-func (_u *CertificateUpdate) Where(ps ...predicate.Certificate) *CertificateUpdate {
+// Where appends a list predicates to the DomainUpdate builder.
+func (_u *DomainUpdate) Where(ps ...predicate.Domain) *DomainUpdate {
 	_u.mutation.Where(ps...)
 	return _u
 }
 
 // SetDomain sets the "domain" field.
-func (_u *CertificateUpdate) SetDomain(v string) *CertificateUpdate {
+func (_u *DomainUpdate) SetDomain(v string) *DomainUpdate {
 	_u.mutation.SetDomain(v)
 	return _u
 }
 
 // SetNillableDomain sets the "domain" field if the given value is not nil.
-func (_u *CertificateUpdate) SetNillableDomain(v *string) *CertificateUpdate {
+func (_u *DomainUpdate) SetNillableDomain(v *string) *DomainUpdate {
 	if v != nil {
 		_u.SetDomain(*v)
 	}
@@ -43,13 +43,13 @@ func (_u *CertificateUpdate) SetNillableDomain(v *string) *CertificateUpdate {
 }
 
 // SetBucket sets the "bucket" field.
-func (_u *CertificateUpdate) SetBucket(v string) *CertificateUpdate {
+func (_u *DomainUpdate) SetBucket(v string) *DomainUpdate {
 	_u.mutation.SetBucket(v)
 	return _u
 }
 
 // SetNillableBucket sets the "bucket" field if the given value is not nil.
-func (_u *CertificateUpdate) SetNillableBucket(v *string) *CertificateUpdate {
+func (_u *DomainUpdate) SetNillableBucket(v *string) *DomainUpdate {
 	if v != nil {
 		_u.SetBucket(*v)
 	}
@@ -57,13 +57,13 @@ func (_u *CertificateUpdate) SetNillableBucket(v *string) *CertificateUpdate {
 }
 
 // SetRegion sets the "region" field.
-func (_u *CertificateUpdate) SetRegion(v string) *CertificateUpdate {
+func (_u *DomainUpdate) SetRegion(v string) *DomainUpdate {
 	_u.mutation.SetRegion(v)
 	return _u
 }
 
 // SetNillableRegion sets the "region" field if the given value is not nil.
-func (_u *CertificateUpdate) SetNillableRegion(v *string) *CertificateUpdate {
+func (_u *DomainUpdate) SetNillableRegion(v *string) *DomainUpdate {
 	if v != nil {
 		_u.SetRegion(*v)
 	}
@@ -71,13 +71,13 @@ func (_u *CertificateUpdate) SetNillableRegion(v *string) *CertificateUpdate {
 }
 
 // SetAccountName sets the "account_name" field.
-func (_u *CertificateUpdate) SetAccountName(v string) *CertificateUpdate {
+func (_u *DomainUpdate) SetAccountName(v string) *DomainUpdate {
 	_u.mutation.SetAccountName(v)
 	return _u
 }
 
 // SetNillableAccountName sets the "account_name" field if the given value is not nil.
-func (_u *CertificateUpdate) SetNillableAccountName(v *string) *CertificateUpdate {
+func (_u *DomainUpdate) SetNillableAccountName(v *string) *DomainUpdate {
 	if v != nil {
 		_u.SetAccountName(*v)
 	}
@@ -85,13 +85,13 @@ func (_u *CertificateUpdate) SetNillableAccountName(v *string) *CertificateUpdat
 }
 
 // SetIssuedAt sets the "issued_at" field.
-func (_u *CertificateUpdate) SetIssuedAt(v time.Time) *CertificateUpdate {
+func (_u *DomainUpdate) SetIssuedAt(v time.Time) *DomainUpdate {
 	_u.mutation.SetIssuedAt(v)
 	return _u
 }
 
 // SetNillableIssuedAt sets the "issued_at" field if the given value is not nil.
-func (_u *CertificateUpdate) SetNillableIssuedAt(v *time.Time) *CertificateUpdate {
+func (_u *DomainUpdate) SetNillableIssuedAt(v *time.Time) *DomainUpdate {
 	if v != nil {
 		_u.SetIssuedAt(*v)
 	}
@@ -99,19 +99,19 @@ func (_u *CertificateUpdate) SetNillableIssuedAt(v *time.Time) *CertificateUpdat
 }
 
 // ClearIssuedAt clears the value of the "issued_at" field.
-func (_u *CertificateUpdate) ClearIssuedAt() *CertificateUpdate {
+func (_u *DomainUpdate) ClearIssuedAt() *DomainUpdate {
 	_u.mutation.ClearIssuedAt()
 	return _u
 }
 
 // SetExpiresAt sets the "expires_at" field.
-func (_u *CertificateUpdate) SetExpiresAt(v time.Time) *CertificateUpdate {
+func (_u *DomainUpdate) SetExpiresAt(v time.Time) *DomainUpdate {
 	_u.mutation.SetExpiresAt(v)
 	return _u
 }
 
 // SetNillableExpiresAt sets the "expires_at" field if the given value is not nil.
-func (_u *CertificateUpdate) SetNillableExpiresAt(v *time.Time) *CertificateUpdate {
+func (_u *DomainUpdate) SetNillableExpiresAt(v *time.Time) *DomainUpdate {
 	if v != nil {
 		_u.SetExpiresAt(*v)
 	}
@@ -119,19 +119,19 @@ func (_u *CertificateUpdate) SetNillableExpiresAt(v *time.Time) *CertificateUpda
 }
 
 // ClearExpiresAt clears the value of the "expires_at" field.
-func (_u *CertificateUpdate) ClearExpiresAt() *CertificateUpdate {
+func (_u *DomainUpdate) ClearExpiresAt() *DomainUpdate {
 	_u.mutation.ClearExpiresAt()
 	return _u
 }
 
 // SetCertPem sets the "cert_pem" field.
-func (_u *CertificateUpdate) SetCertPem(v string) *CertificateUpdate {
+func (_u *DomainUpdate) SetCertPem(v string) *DomainUpdate {
 	_u.mutation.SetCertPem(v)
 	return _u
 }
 
 // SetNillableCertPem sets the "cert_pem" field if the given value is not nil.
-func (_u *CertificateUpdate) SetNillableCertPem(v *string) *CertificateUpdate {
+func (_u *DomainUpdate) SetNillableCertPem(v *string) *DomainUpdate {
 	if v != nil {
 		_u.SetCertPem(*v)
 	}
@@ -139,19 +139,19 @@ func (_u *CertificateUpdate) SetNillableCertPem(v *string) *CertificateUpdate {
 }
 
 // ClearCertPem clears the value of the "cert_pem" field.
-func (_u *CertificateUpdate) ClearCertPem() *CertificateUpdate {
+func (_u *DomainUpdate) ClearCertPem() *DomainUpdate {
 	_u.mutation.ClearCertPem()
 	return _u
 }
 
 // SetKeyPem sets the "key_pem" field.
-func (_u *CertificateUpdate) SetKeyPem(v string) *CertificateUpdate {
+func (_u *DomainUpdate) SetKeyPem(v string) *DomainUpdate {
 	_u.mutation.SetKeyPem(v)
 	return _u
 }
 
 // SetNillableKeyPem sets the "key_pem" field if the given value is not nil.
-func (_u *CertificateUpdate) SetNillableKeyPem(v *string) *CertificateUpdate {
+func (_u *DomainUpdate) SetNillableKeyPem(v *string) *DomainUpdate {
 	if v != nil {
 		_u.SetKeyPem(*v)
 	}
@@ -159,19 +159,19 @@ func (_u *CertificateUpdate) SetNillableKeyPem(v *string) *CertificateUpdate {
 }
 
 // ClearKeyPem clears the value of the "key_pem" field.
-func (_u *CertificateUpdate) ClearKeyPem() *CertificateUpdate {
+func (_u *DomainUpdate) ClearKeyPem() *DomainUpdate {
 	_u.mutation.ClearKeyPem()
 	return _u
 }
 
 // SetStatus sets the "status" field.
-func (_u *CertificateUpdate) SetStatus(v certificate.Status) *CertificateUpdate {
+func (_u *DomainUpdate) SetStatus(v domain.Status) *DomainUpdate {
 	_u.mutation.SetStatus(v)
 	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (_u *CertificateUpdate) SetNillableStatus(v *certificate.Status) *CertificateUpdate {
+func (_u *DomainUpdate) SetNillableStatus(v *domain.Status) *DomainUpdate {
 	if v != nil {
 		_u.SetStatus(*v)
 	}
@@ -179,13 +179,13 @@ func (_u *CertificateUpdate) SetNillableStatus(v *certificate.Status) *Certifica
 }
 
 // SetErrorMessage sets the "error_message" field.
-func (_u *CertificateUpdate) SetErrorMessage(v string) *CertificateUpdate {
+func (_u *DomainUpdate) SetErrorMessage(v string) *DomainUpdate {
 	_u.mutation.SetErrorMessage(v)
 	return _u
 }
 
 // SetNillableErrorMessage sets the "error_message" field if the given value is not nil.
-func (_u *CertificateUpdate) SetNillableErrorMessage(v *string) *CertificateUpdate {
+func (_u *DomainUpdate) SetNillableErrorMessage(v *string) *DomainUpdate {
 	if v != nil {
 		_u.SetErrorMessage(*v)
 	}
@@ -193,30 +193,30 @@ func (_u *CertificateUpdate) SetNillableErrorMessage(v *string) *CertificateUpda
 }
 
 // ClearErrorMessage clears the value of the "error_message" field.
-func (_u *CertificateUpdate) ClearErrorMessage() *CertificateUpdate {
+func (_u *DomainUpdate) ClearErrorMessage() *DomainUpdate {
 	_u.mutation.ClearErrorMessage()
 	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (_u *CertificateUpdate) SetUpdatedAt(v time.Time) *CertificateUpdate {
+func (_u *DomainUpdate) SetUpdatedAt(v time.Time) *DomainUpdate {
 	_u.mutation.SetUpdatedAt(v)
 	return _u
 }
 
-// Mutation returns the CertificateMutation object of the builder.
-func (_u *CertificateUpdate) Mutation() *CertificateMutation {
+// Mutation returns the DomainMutation object of the builder.
+func (_u *DomainUpdate) Mutation() *DomainMutation {
 	return _u.mutation
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (_u *CertificateUpdate) Save(ctx context.Context) (int, error) {
+func (_u *DomainUpdate) Save(ctx context.Context) (int, error) {
 	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_u *CertificateUpdate) SaveX(ctx context.Context) int {
+func (_u *DomainUpdate) SaveX(ctx context.Context) int {
 	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -225,61 +225,61 @@ func (_u *CertificateUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (_u *CertificateUpdate) Exec(ctx context.Context) error {
+func (_u *DomainUpdate) Exec(ctx context.Context) error {
 	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_u *CertificateUpdate) ExecX(ctx context.Context) {
+func (_u *DomainUpdate) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (_u *CertificateUpdate) defaults() {
+func (_u *DomainUpdate) defaults() {
 	if _, ok := _u.mutation.UpdatedAt(); !ok {
-		v := certificate.UpdateDefaultUpdatedAt()
+		v := domain.UpdateDefaultUpdatedAt()
 		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (_u *CertificateUpdate) check() error {
+func (_u *DomainUpdate) check() error {
 	if v, ok := _u.mutation.Domain(); ok {
-		if err := certificate.DomainValidator(v); err != nil {
-			return &ValidationError{Name: "domain", err: fmt.Errorf(`ent: validator failed for field "Certificate.domain": %w`, err)}
+		if err := domain.DomainValidator(v); err != nil {
+			return &ValidationError{Name: "domain", err: fmt.Errorf(`ent: validator failed for field "Domain.domain": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Bucket(); ok {
-		if err := certificate.BucketValidator(v); err != nil {
-			return &ValidationError{Name: "bucket", err: fmt.Errorf(`ent: validator failed for field "Certificate.bucket": %w`, err)}
+		if err := domain.BucketValidator(v); err != nil {
+			return &ValidationError{Name: "bucket", err: fmt.Errorf(`ent: validator failed for field "Domain.bucket": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Region(); ok {
-		if err := certificate.RegionValidator(v); err != nil {
-			return &ValidationError{Name: "region", err: fmt.Errorf(`ent: validator failed for field "Certificate.region": %w`, err)}
+		if err := domain.RegionValidator(v); err != nil {
+			return &ValidationError{Name: "region", err: fmt.Errorf(`ent: validator failed for field "Domain.region": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.AccountName(); ok {
-		if err := certificate.AccountNameValidator(v); err != nil {
-			return &ValidationError{Name: "account_name", err: fmt.Errorf(`ent: validator failed for field "Certificate.account_name": %w`, err)}
+		if err := domain.AccountNameValidator(v); err != nil {
+			return &ValidationError{Name: "account_name", err: fmt.Errorf(`ent: validator failed for field "Domain.account_name": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Status(); ok {
-		if err := certificate.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Certificate.status": %w`, err)}
+		if err := domain.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Domain.status": %w`, err)}
 		}
 	}
 	return nil
 }
 
-func (_u *CertificateUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+func (_u *DomainUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(certificate.Table, certificate.Columns, sqlgraph.NewFieldSpec(certificate.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(domain.Table, domain.Columns, sqlgraph.NewFieldSpec(domain.FieldID, field.TypeString))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -288,56 +288,56 @@ func (_u *CertificateUpdate) sqlSave(ctx context.Context) (_node int, err error)
 		}
 	}
 	if value, ok := _u.mutation.Domain(); ok {
-		_spec.SetField(certificate.FieldDomain, field.TypeString, value)
+		_spec.SetField(domain.FieldDomain, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Bucket(); ok {
-		_spec.SetField(certificate.FieldBucket, field.TypeString, value)
+		_spec.SetField(domain.FieldBucket, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Region(); ok {
-		_spec.SetField(certificate.FieldRegion, field.TypeString, value)
+		_spec.SetField(domain.FieldRegion, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.AccountName(); ok {
-		_spec.SetField(certificate.FieldAccountName, field.TypeString, value)
+		_spec.SetField(domain.FieldAccountName, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.IssuedAt(); ok {
-		_spec.SetField(certificate.FieldIssuedAt, field.TypeTime, value)
+		_spec.SetField(domain.FieldIssuedAt, field.TypeTime, value)
 	}
 	if _u.mutation.IssuedAtCleared() {
-		_spec.ClearField(certificate.FieldIssuedAt, field.TypeTime)
+		_spec.ClearField(domain.FieldIssuedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ExpiresAt(); ok {
-		_spec.SetField(certificate.FieldExpiresAt, field.TypeTime, value)
+		_spec.SetField(domain.FieldExpiresAt, field.TypeTime, value)
 	}
 	if _u.mutation.ExpiresAtCleared() {
-		_spec.ClearField(certificate.FieldExpiresAt, field.TypeTime)
+		_spec.ClearField(domain.FieldExpiresAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.CertPem(); ok {
-		_spec.SetField(certificate.FieldCertPem, field.TypeString, value)
+		_spec.SetField(domain.FieldCertPem, field.TypeString, value)
 	}
 	if _u.mutation.CertPemCleared() {
-		_spec.ClearField(certificate.FieldCertPem, field.TypeString)
+		_spec.ClearField(domain.FieldCertPem, field.TypeString)
 	}
 	if value, ok := _u.mutation.KeyPem(); ok {
-		_spec.SetField(certificate.FieldKeyPem, field.TypeString, value)
+		_spec.SetField(domain.FieldKeyPem, field.TypeString, value)
 	}
 	if _u.mutation.KeyPemCleared() {
-		_spec.ClearField(certificate.FieldKeyPem, field.TypeString)
+		_spec.ClearField(domain.FieldKeyPem, field.TypeString)
 	}
 	if value, ok := _u.mutation.Status(); ok {
-		_spec.SetField(certificate.FieldStatus, field.TypeEnum, value)
+		_spec.SetField(domain.FieldStatus, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.ErrorMessage(); ok {
-		_spec.SetField(certificate.FieldErrorMessage, field.TypeString, value)
+		_spec.SetField(domain.FieldErrorMessage, field.TypeString, value)
 	}
 	if _u.mutation.ErrorMessageCleared() {
-		_spec.ClearField(certificate.FieldErrorMessage, field.TypeString)
+		_spec.ClearField(domain.FieldErrorMessage, field.TypeString)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
-		_spec.SetField(certificate.FieldUpdatedAt, field.TypeTime, value)
+		_spec.SetField(domain.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{certificate.Label}
+			err = &NotFoundError{domain.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -347,22 +347,22 @@ func (_u *CertificateUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	return _node, nil
 }
 
-// CertificateUpdateOne is the builder for updating a single Certificate entity.
-type CertificateUpdateOne struct {
+// DomainUpdateOne is the builder for updating a single Domain entity.
+type DomainUpdateOne struct {
 	config
 	fields   []string
 	hooks    []Hook
-	mutation *CertificateMutation
+	mutation *DomainMutation
 }
 
 // SetDomain sets the "domain" field.
-func (_u *CertificateUpdateOne) SetDomain(v string) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetDomain(v string) *DomainUpdateOne {
 	_u.mutation.SetDomain(v)
 	return _u
 }
 
 // SetNillableDomain sets the "domain" field if the given value is not nil.
-func (_u *CertificateUpdateOne) SetNillableDomain(v *string) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetNillableDomain(v *string) *DomainUpdateOne {
 	if v != nil {
 		_u.SetDomain(*v)
 	}
@@ -370,13 +370,13 @@ func (_u *CertificateUpdateOne) SetNillableDomain(v *string) *CertificateUpdateO
 }
 
 // SetBucket sets the "bucket" field.
-func (_u *CertificateUpdateOne) SetBucket(v string) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetBucket(v string) *DomainUpdateOne {
 	_u.mutation.SetBucket(v)
 	return _u
 }
 
 // SetNillableBucket sets the "bucket" field if the given value is not nil.
-func (_u *CertificateUpdateOne) SetNillableBucket(v *string) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetNillableBucket(v *string) *DomainUpdateOne {
 	if v != nil {
 		_u.SetBucket(*v)
 	}
@@ -384,13 +384,13 @@ func (_u *CertificateUpdateOne) SetNillableBucket(v *string) *CertificateUpdateO
 }
 
 // SetRegion sets the "region" field.
-func (_u *CertificateUpdateOne) SetRegion(v string) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetRegion(v string) *DomainUpdateOne {
 	_u.mutation.SetRegion(v)
 	return _u
 }
 
 // SetNillableRegion sets the "region" field if the given value is not nil.
-func (_u *CertificateUpdateOne) SetNillableRegion(v *string) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetNillableRegion(v *string) *DomainUpdateOne {
 	if v != nil {
 		_u.SetRegion(*v)
 	}
@@ -398,13 +398,13 @@ func (_u *CertificateUpdateOne) SetNillableRegion(v *string) *CertificateUpdateO
 }
 
 // SetAccountName sets the "account_name" field.
-func (_u *CertificateUpdateOne) SetAccountName(v string) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetAccountName(v string) *DomainUpdateOne {
 	_u.mutation.SetAccountName(v)
 	return _u
 }
 
 // SetNillableAccountName sets the "account_name" field if the given value is not nil.
-func (_u *CertificateUpdateOne) SetNillableAccountName(v *string) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetNillableAccountName(v *string) *DomainUpdateOne {
 	if v != nil {
 		_u.SetAccountName(*v)
 	}
@@ -412,13 +412,13 @@ func (_u *CertificateUpdateOne) SetNillableAccountName(v *string) *CertificateUp
 }
 
 // SetIssuedAt sets the "issued_at" field.
-func (_u *CertificateUpdateOne) SetIssuedAt(v time.Time) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetIssuedAt(v time.Time) *DomainUpdateOne {
 	_u.mutation.SetIssuedAt(v)
 	return _u
 }
 
 // SetNillableIssuedAt sets the "issued_at" field if the given value is not nil.
-func (_u *CertificateUpdateOne) SetNillableIssuedAt(v *time.Time) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetNillableIssuedAt(v *time.Time) *DomainUpdateOne {
 	if v != nil {
 		_u.SetIssuedAt(*v)
 	}
@@ -426,19 +426,19 @@ func (_u *CertificateUpdateOne) SetNillableIssuedAt(v *time.Time) *CertificateUp
 }
 
 // ClearIssuedAt clears the value of the "issued_at" field.
-func (_u *CertificateUpdateOne) ClearIssuedAt() *CertificateUpdateOne {
+func (_u *DomainUpdateOne) ClearIssuedAt() *DomainUpdateOne {
 	_u.mutation.ClearIssuedAt()
 	return _u
 }
 
 // SetExpiresAt sets the "expires_at" field.
-func (_u *CertificateUpdateOne) SetExpiresAt(v time.Time) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetExpiresAt(v time.Time) *DomainUpdateOne {
 	_u.mutation.SetExpiresAt(v)
 	return _u
 }
 
 // SetNillableExpiresAt sets the "expires_at" field if the given value is not nil.
-func (_u *CertificateUpdateOne) SetNillableExpiresAt(v *time.Time) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetNillableExpiresAt(v *time.Time) *DomainUpdateOne {
 	if v != nil {
 		_u.SetExpiresAt(*v)
 	}
@@ -446,19 +446,19 @@ func (_u *CertificateUpdateOne) SetNillableExpiresAt(v *time.Time) *CertificateU
 }
 
 // ClearExpiresAt clears the value of the "expires_at" field.
-func (_u *CertificateUpdateOne) ClearExpiresAt() *CertificateUpdateOne {
+func (_u *DomainUpdateOne) ClearExpiresAt() *DomainUpdateOne {
 	_u.mutation.ClearExpiresAt()
 	return _u
 }
 
 // SetCertPem sets the "cert_pem" field.
-func (_u *CertificateUpdateOne) SetCertPem(v string) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetCertPem(v string) *DomainUpdateOne {
 	_u.mutation.SetCertPem(v)
 	return _u
 }
 
 // SetNillableCertPem sets the "cert_pem" field if the given value is not nil.
-func (_u *CertificateUpdateOne) SetNillableCertPem(v *string) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetNillableCertPem(v *string) *DomainUpdateOne {
 	if v != nil {
 		_u.SetCertPem(*v)
 	}
@@ -466,19 +466,19 @@ func (_u *CertificateUpdateOne) SetNillableCertPem(v *string) *CertificateUpdate
 }
 
 // ClearCertPem clears the value of the "cert_pem" field.
-func (_u *CertificateUpdateOne) ClearCertPem() *CertificateUpdateOne {
+func (_u *DomainUpdateOne) ClearCertPem() *DomainUpdateOne {
 	_u.mutation.ClearCertPem()
 	return _u
 }
 
 // SetKeyPem sets the "key_pem" field.
-func (_u *CertificateUpdateOne) SetKeyPem(v string) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetKeyPem(v string) *DomainUpdateOne {
 	_u.mutation.SetKeyPem(v)
 	return _u
 }
 
 // SetNillableKeyPem sets the "key_pem" field if the given value is not nil.
-func (_u *CertificateUpdateOne) SetNillableKeyPem(v *string) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetNillableKeyPem(v *string) *DomainUpdateOne {
 	if v != nil {
 		_u.SetKeyPem(*v)
 	}
@@ -486,19 +486,19 @@ func (_u *CertificateUpdateOne) SetNillableKeyPem(v *string) *CertificateUpdateO
 }
 
 // ClearKeyPem clears the value of the "key_pem" field.
-func (_u *CertificateUpdateOne) ClearKeyPem() *CertificateUpdateOne {
+func (_u *DomainUpdateOne) ClearKeyPem() *DomainUpdateOne {
 	_u.mutation.ClearKeyPem()
 	return _u
 }
 
 // SetStatus sets the "status" field.
-func (_u *CertificateUpdateOne) SetStatus(v certificate.Status) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetStatus(v domain.Status) *DomainUpdateOne {
 	_u.mutation.SetStatus(v)
 	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (_u *CertificateUpdateOne) SetNillableStatus(v *certificate.Status) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetNillableStatus(v *domain.Status) *DomainUpdateOne {
 	if v != nil {
 		_u.SetStatus(*v)
 	}
@@ -506,13 +506,13 @@ func (_u *CertificateUpdateOne) SetNillableStatus(v *certificate.Status) *Certif
 }
 
 // SetErrorMessage sets the "error_message" field.
-func (_u *CertificateUpdateOne) SetErrorMessage(v string) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetErrorMessage(v string) *DomainUpdateOne {
 	_u.mutation.SetErrorMessage(v)
 	return _u
 }
 
 // SetNillableErrorMessage sets the "error_message" field if the given value is not nil.
-func (_u *CertificateUpdateOne) SetNillableErrorMessage(v *string) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetNillableErrorMessage(v *string) *DomainUpdateOne {
 	if v != nil {
 		_u.SetErrorMessage(*v)
 	}
@@ -520,43 +520,43 @@ func (_u *CertificateUpdateOne) SetNillableErrorMessage(v *string) *CertificateU
 }
 
 // ClearErrorMessage clears the value of the "error_message" field.
-func (_u *CertificateUpdateOne) ClearErrorMessage() *CertificateUpdateOne {
+func (_u *DomainUpdateOne) ClearErrorMessage() *DomainUpdateOne {
 	_u.mutation.ClearErrorMessage()
 	return _u
 }
 
 // SetUpdatedAt sets the "updated_at" field.
-func (_u *CertificateUpdateOne) SetUpdatedAt(v time.Time) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) SetUpdatedAt(v time.Time) *DomainUpdateOne {
 	_u.mutation.SetUpdatedAt(v)
 	return _u
 }
 
-// Mutation returns the CertificateMutation object of the builder.
-func (_u *CertificateUpdateOne) Mutation() *CertificateMutation {
+// Mutation returns the DomainMutation object of the builder.
+func (_u *DomainUpdateOne) Mutation() *DomainMutation {
 	return _u.mutation
 }
 
-// Where appends a list predicates to the CertificateUpdate builder.
-func (_u *CertificateUpdateOne) Where(ps ...predicate.Certificate) *CertificateUpdateOne {
+// Where appends a list predicates to the DomainUpdate builder.
+func (_u *DomainUpdateOne) Where(ps ...predicate.Domain) *DomainUpdateOne {
 	_u.mutation.Where(ps...)
 	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (_u *CertificateUpdateOne) Select(field string, fields ...string) *CertificateUpdateOne {
+func (_u *DomainUpdateOne) Select(field string, fields ...string) *DomainUpdateOne {
 	_u.fields = append([]string{field}, fields...)
 	return _u
 }
 
-// Save executes the query and returns the updated Certificate entity.
-func (_u *CertificateUpdateOne) Save(ctx context.Context) (*Certificate, error) {
+// Save executes the query and returns the updated Domain entity.
+func (_u *DomainUpdateOne) Save(ctx context.Context) (*Domain, error) {
 	_u.defaults()
 	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (_u *CertificateUpdateOne) SaveX(ctx context.Context) *Certificate {
+func (_u *DomainUpdateOne) SaveX(ctx context.Context) *Domain {
 	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
@@ -565,74 +565,74 @@ func (_u *CertificateUpdateOne) SaveX(ctx context.Context) *Certificate {
 }
 
 // Exec executes the query on the entity.
-func (_u *CertificateUpdateOne) Exec(ctx context.Context) error {
+func (_u *DomainUpdateOne) Exec(ctx context.Context) error {
 	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_u *CertificateUpdateOne) ExecX(ctx context.Context) {
+func (_u *DomainUpdateOne) ExecX(ctx context.Context) {
 	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (_u *CertificateUpdateOne) defaults() {
+func (_u *DomainUpdateOne) defaults() {
 	if _, ok := _u.mutation.UpdatedAt(); !ok {
-		v := certificate.UpdateDefaultUpdatedAt()
+		v := domain.UpdateDefaultUpdatedAt()
 		_u.mutation.SetUpdatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (_u *CertificateUpdateOne) check() error {
+func (_u *DomainUpdateOne) check() error {
 	if v, ok := _u.mutation.Domain(); ok {
-		if err := certificate.DomainValidator(v); err != nil {
-			return &ValidationError{Name: "domain", err: fmt.Errorf(`ent: validator failed for field "Certificate.domain": %w`, err)}
+		if err := domain.DomainValidator(v); err != nil {
+			return &ValidationError{Name: "domain", err: fmt.Errorf(`ent: validator failed for field "Domain.domain": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Bucket(); ok {
-		if err := certificate.BucketValidator(v); err != nil {
-			return &ValidationError{Name: "bucket", err: fmt.Errorf(`ent: validator failed for field "Certificate.bucket": %w`, err)}
+		if err := domain.BucketValidator(v); err != nil {
+			return &ValidationError{Name: "bucket", err: fmt.Errorf(`ent: validator failed for field "Domain.bucket": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Region(); ok {
-		if err := certificate.RegionValidator(v); err != nil {
-			return &ValidationError{Name: "region", err: fmt.Errorf(`ent: validator failed for field "Certificate.region": %w`, err)}
+		if err := domain.RegionValidator(v); err != nil {
+			return &ValidationError{Name: "region", err: fmt.Errorf(`ent: validator failed for field "Domain.region": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.AccountName(); ok {
-		if err := certificate.AccountNameValidator(v); err != nil {
-			return &ValidationError{Name: "account_name", err: fmt.Errorf(`ent: validator failed for field "Certificate.account_name": %w`, err)}
+		if err := domain.AccountNameValidator(v); err != nil {
+			return &ValidationError{Name: "account_name", err: fmt.Errorf(`ent: validator failed for field "Domain.account_name": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Status(); ok {
-		if err := certificate.StatusValidator(v); err != nil {
-			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Certificate.status": %w`, err)}
+		if err := domain.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Domain.status": %w`, err)}
 		}
 	}
 	return nil
 }
 
-func (_u *CertificateUpdateOne) sqlSave(ctx context.Context) (_node *Certificate, err error) {
+func (_u *DomainUpdateOne) sqlSave(ctx context.Context) (_node *Domain, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(certificate.Table, certificate.Columns, sqlgraph.NewFieldSpec(certificate.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(domain.Table, domain.Columns, sqlgraph.NewFieldSpec(domain.FieldID, field.TypeString))
 	id, ok := _u.mutation.ID()
 	if !ok {
-		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Certificate.id" for update`)}
+		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Domain.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
 	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, certificate.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, domain.FieldID)
 		for _, f := range fields {
-			if !certificate.ValidColumn(f) {
+			if !domain.ValidColumn(f) {
 				return nil, &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 			}
-			if f != certificate.FieldID {
+			if f != domain.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, f)
 			}
 		}
@@ -645,59 +645,59 @@ func (_u *CertificateUpdateOne) sqlSave(ctx context.Context) (_node *Certificate
 		}
 	}
 	if value, ok := _u.mutation.Domain(); ok {
-		_spec.SetField(certificate.FieldDomain, field.TypeString, value)
+		_spec.SetField(domain.FieldDomain, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Bucket(); ok {
-		_spec.SetField(certificate.FieldBucket, field.TypeString, value)
+		_spec.SetField(domain.FieldBucket, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.Region(); ok {
-		_spec.SetField(certificate.FieldRegion, field.TypeString, value)
+		_spec.SetField(domain.FieldRegion, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.AccountName(); ok {
-		_spec.SetField(certificate.FieldAccountName, field.TypeString, value)
+		_spec.SetField(domain.FieldAccountName, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.IssuedAt(); ok {
-		_spec.SetField(certificate.FieldIssuedAt, field.TypeTime, value)
+		_spec.SetField(domain.FieldIssuedAt, field.TypeTime, value)
 	}
 	if _u.mutation.IssuedAtCleared() {
-		_spec.ClearField(certificate.FieldIssuedAt, field.TypeTime)
+		_spec.ClearField(domain.FieldIssuedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ExpiresAt(); ok {
-		_spec.SetField(certificate.FieldExpiresAt, field.TypeTime, value)
+		_spec.SetField(domain.FieldExpiresAt, field.TypeTime, value)
 	}
 	if _u.mutation.ExpiresAtCleared() {
-		_spec.ClearField(certificate.FieldExpiresAt, field.TypeTime)
+		_spec.ClearField(domain.FieldExpiresAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.CertPem(); ok {
-		_spec.SetField(certificate.FieldCertPem, field.TypeString, value)
+		_spec.SetField(domain.FieldCertPem, field.TypeString, value)
 	}
 	if _u.mutation.CertPemCleared() {
-		_spec.ClearField(certificate.FieldCertPem, field.TypeString)
+		_spec.ClearField(domain.FieldCertPem, field.TypeString)
 	}
 	if value, ok := _u.mutation.KeyPem(); ok {
-		_spec.SetField(certificate.FieldKeyPem, field.TypeString, value)
+		_spec.SetField(domain.FieldKeyPem, field.TypeString, value)
 	}
 	if _u.mutation.KeyPemCleared() {
-		_spec.ClearField(certificate.FieldKeyPem, field.TypeString)
+		_spec.ClearField(domain.FieldKeyPem, field.TypeString)
 	}
 	if value, ok := _u.mutation.Status(); ok {
-		_spec.SetField(certificate.FieldStatus, field.TypeEnum, value)
+		_spec.SetField(domain.FieldStatus, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.ErrorMessage(); ok {
-		_spec.SetField(certificate.FieldErrorMessage, field.TypeString, value)
+		_spec.SetField(domain.FieldErrorMessage, field.TypeString, value)
 	}
 	if _u.mutation.ErrorMessageCleared() {
-		_spec.ClearField(certificate.FieldErrorMessage, field.TypeString)
+		_spec.ClearField(domain.FieldErrorMessage, field.TypeString)
 	}
 	if value, ok := _u.mutation.UpdatedAt(); ok {
-		_spec.SetField(certificate.FieldUpdatedAt, field.TypeTime, value)
+		_spec.SetField(domain.FieldUpdatedAt, field.TypeTime, value)
 	}
-	_node = &Certificate{config: _u.config}
+	_node = &Domain{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
 	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
-			err = &NotFoundError{certificate.Label}
+			err = &NotFoundError{domain.Label}
 		} else if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}

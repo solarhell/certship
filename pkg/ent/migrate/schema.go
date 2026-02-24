@@ -9,27 +9,6 @@ import (
 )
 
 var (
-	// TAdminColumns holds the columns for the "t_admin" table.
-	TAdminColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true, Comment: "主键 UUID"},
-		{Name: "username", Type: field.TypeString, Unique: true, Comment: "管理员用户名"},
-		{Name: "password_hash", Type: field.TypeString, Comment: "密码 bcrypt hash"},
-		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间", Default: "CURRENT_TIMESTAMP"},
-		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时间", Default: "CURRENT_TIMESTAMP"},
-	}
-	// TAdminTable holds the schema information for the "t_admin" table.
-	TAdminTable = &schema.Table{
-		Name:       "t_admin",
-		Columns:    TAdminColumns,
-		PrimaryKey: []*schema.Column{TAdminColumns[0]},
-		Indexes: []*schema.Index{
-			{
-				Name:    "admin_username",
-				Unique:  false,
-				Columns: []*schema.Column{TAdminColumns[1]},
-			},
-		},
-	}
 	// TAppSettingsColumns holds the columns for the "t_app_settings" table.
 	TAppSettingsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Comment: "固定为 default，单行配置"},
@@ -51,7 +30,7 @@ var (
 	// TAuthTokenColumns holds the columns for the "t_auth_token" table.
 	TAuthTokenColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Comment: "主键 UUID"},
-		{Name: "admin_id", Type: field.TypeString, Comment: "管理员 ID"},
+		{Name: "user_id", Type: field.TypeString, Comment: "用户 ID"},
 		{Name: "token", Type: field.TypeString, Unique: true, Comment: "Token"},
 		{Name: "login_user_agent", Type: field.TypeString, Comment: "登录时的 User-Agent"},
 		{Name: "login_ip", Type: field.TypeString, Comment: "登录时的 IP"},
@@ -67,7 +46,7 @@ var (
 		PrimaryKey: []*schema.Column{TAuthTokenColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "authtoken_admin_id",
+				Name:    "authtoken_user_id",
 				Unique:  false,
 				Columns: []*schema.Column{TAuthTokenColumns[1]},
 			},
@@ -80,45 +59,6 @@ var (
 				Name:    "authtoken_last_active_time",
 				Unique:  false,
 				Columns: []*schema.Column{TAuthTokenColumns[8]},
-			},
-		},
-	}
-	// TCertificateColumns holds the columns for the "t_certificate" table.
-	TCertificateColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true, Comment: "主键 UUID"},
-		{Name: "domain", Type: field.TypeString, Comment: "OSS 自定义域名"},
-		{Name: "bucket", Type: field.TypeString, Comment: "OSS bucket 名称"},
-		{Name: "region", Type: field.TypeString, Comment: "OSS 区域，如 cn-hangzhou"},
-		{Name: "account_name", Type: field.TypeString, Comment: "阿里云账号名称"},
-		{Name: "issued_at", Type: field.TypeTime, Nullable: true, Comment: "证书颁发时间"},
-		{Name: "expires_at", Type: field.TypeTime, Nullable: true, Comment: "证书过期时间"},
-		{Name: "cert_pem", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "证书 PEM 内容"},
-		{Name: "key_pem", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "证书私钥 PEM 内容"},
-		{Name: "status", Type: field.TypeEnum, Comment: "证书状态：pending=待颁发，active=有效，error=错误", Enums: []string{"pending", "active", "error"}, Default: "pending"},
-		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "最近一次错误信息"},
-		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间", Default: "CURRENT_TIMESTAMP"},
-		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时间", Default: "CURRENT_TIMESTAMP"},
-	}
-	// TCertificateTable holds the schema information for the "t_certificate" table.
-	TCertificateTable = &schema.Table{
-		Name:       "t_certificate",
-		Columns:    TCertificateColumns,
-		PrimaryKey: []*schema.Column{TCertificateColumns[0]},
-		Indexes: []*schema.Index{
-			{
-				Name:    "certificate_domain",
-				Unique:  true,
-				Columns: []*schema.Column{TCertificateColumns[1]},
-			},
-			{
-				Name:    "certificate_expires_at",
-				Unique:  false,
-				Columns: []*schema.Column{TCertificateColumns[6]},
-			},
-			{
-				Name:    "certificate_status",
-				Unique:  false,
-				Columns: []*schema.Column{TCertificateColumns[9]},
 			},
 		},
 	}
@@ -145,6 +85,45 @@ var (
 			},
 		},
 	}
+	// TDomainColumns holds the columns for the "t_domain" table.
+	TDomainColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Comment: "主键 UUID"},
+		{Name: "domain", Type: field.TypeString, Comment: "OSS 自定义域名"},
+		{Name: "bucket", Type: field.TypeString, Comment: "OSS bucket 名称"},
+		{Name: "region", Type: field.TypeString, Comment: "OSS 区域，如 cn-hangzhou"},
+		{Name: "account_name", Type: field.TypeString, Comment: "阿里云账号名称"},
+		{Name: "issued_at", Type: field.TypeTime, Nullable: true, Comment: "证书颁发时间"},
+		{Name: "expires_at", Type: field.TypeTime, Nullable: true, Comment: "证书过期时间"},
+		{Name: "cert_pem", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "证书 PEM 内容"},
+		{Name: "key_pem", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "证书私钥 PEM 内容"},
+		{Name: "status", Type: field.TypeEnum, Comment: "证书状态：pending=待颁发，active=有效，error=错误", Enums: []string{"pending", "active", "error"}, Default: "pending"},
+		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "最近一次错误信息"},
+		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间", Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时间", Default: "CURRENT_TIMESTAMP"},
+	}
+	// TDomainTable holds the schema information for the "t_domain" table.
+	TDomainTable = &schema.Table{
+		Name:       "t_domain",
+		Columns:    TDomainColumns,
+		PrimaryKey: []*schema.Column{TDomainColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "domain_domain",
+				Unique:  true,
+				Columns: []*schema.Column{TDomainColumns[1]},
+			},
+			{
+				Name:    "domain_expires_at",
+				Unique:  false,
+				Columns: []*schema.Column{TDomainColumns[6]},
+			},
+			{
+				Name:    "domain_status",
+				Unique:  false,
+				Columns: []*schema.Column{TDomainColumns[9]},
+			},
+		},
+	}
 	// TNotificationChannelColumns holds the columns for the "t_notification_channel" table.
 	TNotificationChannelColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Comment: "主键 UUID"},
@@ -168,34 +147,56 @@ var (
 			},
 		},
 	}
+	// TUserColumns holds the columns for the "t_user" table.
+	TUserColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString, Unique: true, Comment: "主键 UUID"},
+		{Name: "username", Type: field.TypeString, Unique: true, Comment: "用户名"},
+		{Name: "password_hash", Type: field.TypeString, Comment: "密码 bcrypt hash"},
+		{Name: "nickname", Type: field.TypeString, Comment: "昵称"},
+		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间", Default: "CURRENT_TIMESTAMP"},
+		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时间", Default: "CURRENT_TIMESTAMP"},
+	}
+	// TUserTable holds the schema information for the "t_user" table.
+	TUserTable = &schema.Table{
+		Name:       "t_user",
+		Columns:    TUserColumns,
+		PrimaryKey: []*schema.Column{TUserColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "user_username",
+				Unique:  false,
+				Columns: []*schema.Column{TUserColumns[1]},
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		TAdminTable,
 		TAppSettingsTable,
 		TAuthTokenTable,
-		TCertificateTable,
 		TCloudAccountTable,
+		TDomainTable,
 		TNotificationChannelTable,
+		TUserTable,
 	}
 )
 
 func init() {
-	TAdminTable.Annotation = &entsql.Annotation{
-		Table: "t_admin",
-	}
 	TAppSettingsTable.Annotation = &entsql.Annotation{
 		Table: "t_app_settings",
 	}
 	TAuthTokenTable.Annotation = &entsql.Annotation{
 		Table: "t_auth_token",
 	}
-	TCertificateTable.Annotation = &entsql.Annotation{
-		Table: "t_certificate",
-	}
 	TCloudAccountTable.Annotation = &entsql.Annotation{
 		Table: "t_cloud_account",
 	}
+	TDomainTable.Annotation = &entsql.Annotation{
+		Table: "t_domain",
+	}
 	TNotificationChannelTable.Annotation = &entsql.Annotation{
 		Table: "t_notification_channel",
+	}
+	TUserTable.Annotation = &entsql.Annotation{
+		Table: "t_user",
 	}
 }

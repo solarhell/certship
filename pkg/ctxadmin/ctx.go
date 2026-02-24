@@ -11,9 +11,9 @@ type ctxMarker struct{}
 var ctxMarkerKey = &ctxMarker{}
 
 type AuthContext struct {
-	Token   string
-	AdminID string
-	Admin   *ent.Admin
+	Token  string
+	UserID string
+	User   *ent.User
 }
 
 func SetInContext(ctx context.Context, info AuthContext) context.Context {

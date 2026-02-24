@@ -11,8 +11,8 @@ const (
 	Label = "auth_token"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldAdminID holds the string denoting the admin_id field in the database.
-	FieldAdminID = "admin_id"
+	// FieldUserID holds the string denoting the user_id field in the database.
+	FieldUserID = "user_id"
 	// FieldToken holds the string denoting the token field in the database.
 	FieldToken = "token"
 	// FieldLoginUserAgent holds the string denoting the login_user_agent field in the database.
@@ -34,7 +34,7 @@ const (
 // Columns holds all SQL columns for authtoken fields.
 var Columns = []string{
 	FieldID,
-	FieldAdminID,
+	FieldUserID,
 	FieldToken,
 	FieldLoginUserAgent,
 	FieldLoginIP,
@@ -71,9 +71,9 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByAdminID orders the results by the admin_id field.
-func ByAdminID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAdminID, opts...).ToFunc()
+// ByUserID orders the results by the user_id field.
+func ByUserID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
 // ByToken orders the results by the token field.

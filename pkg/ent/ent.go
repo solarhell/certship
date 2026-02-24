@@ -12,12 +12,12 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/solarhell/certship/pkg/ent/admin"
 	"github.com/solarhell/certship/pkg/ent/appsettings"
 	"github.com/solarhell/certship/pkg/ent/authtoken"
-	"github.com/solarhell/certship/pkg/ent/certificate"
 	"github.com/solarhell/certship/pkg/ent/cloudaccount"
+	"github.com/solarhell/certship/pkg/ent/domain"
 	"github.com/solarhell/certship/pkg/ent/notificationchannel"
+	"github.com/solarhell/certship/pkg/ent/user"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -78,12 +78,12 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			admin.Table:               admin.ValidColumn,
 			appsettings.Table:         appsettings.ValidColumn,
 			authtoken.Table:           authtoken.ValidColumn,
-			certificate.Table:         certificate.ValidColumn,
 			cloudaccount.Table:        cloudaccount.ValidColumn,
+			domain.Table:              domain.ValidColumn,
 			notificationchannel.Table: notificationchannel.ValidColumn,
+			user.Table:                user.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

@@ -262,12 +262,12 @@ func (_q *AuthTokenQuery) Clone() *AuthTokenQuery {
 // Example:
 //
 //	var v []struct {
-//		AdminID string `json:"admin_id,omitempty"`
+//		UserID string `json:"user_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.AuthToken.Query().
-//		GroupBy(authtoken.FieldAdminID).
+//		GroupBy(authtoken.FieldUserID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *AuthTokenQuery) GroupBy(field string, fields ...string) *AuthTokenGroupBy {
@@ -285,11 +285,11 @@ func (_q *AuthTokenQuery) GroupBy(field string, fields ...string) *AuthTokenGrou
 // Example:
 //
 //	var v []struct {
-//		AdminID string `json:"admin_id,omitempty"`
+//		UserID string `json:"user_id,omitempty"`
 //	}
 //
 //	client.AuthToken.Query().
-//		Select(authtoken.FieldAdminID).
+//		Select(authtoken.FieldUserID).
 //		Scan(ctx, &v)
 func (_q *AuthTokenQuery) Select(fields ...string) *AuthTokenSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)

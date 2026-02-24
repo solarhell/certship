@@ -64,9 +64,9 @@ func IDContainsFold(id string) predicate.AuthToken {
 	return predicate.AuthToken(sql.FieldContainsFold(FieldID, id))
 }
 
-// AdminID applies equality check predicate on the "admin_id" field. It's identical to AdminIDEQ.
-func AdminID(v string) predicate.AuthToken {
-	return predicate.AuthToken(sql.FieldEQ(FieldAdminID, v))
+// UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
+func UserID(v string) predicate.AuthToken {
+	return predicate.AuthToken(sql.FieldEQ(FieldUserID, v))
 }
 
 // Token applies equality check predicate on the "token" field. It's identical to TokenEQ.
@@ -104,69 +104,69 @@ func LastActiveTime(v time.Time) predicate.AuthToken {
 	return predicate.AuthToken(sql.FieldEQ(FieldLastActiveTime, v))
 }
 
-// AdminIDEQ applies the EQ predicate on the "admin_id" field.
-func AdminIDEQ(v string) predicate.AuthToken {
-	return predicate.AuthToken(sql.FieldEQ(FieldAdminID, v))
+// UserIDEQ applies the EQ predicate on the "user_id" field.
+func UserIDEQ(v string) predicate.AuthToken {
+	return predicate.AuthToken(sql.FieldEQ(FieldUserID, v))
 }
 
-// AdminIDNEQ applies the NEQ predicate on the "admin_id" field.
-func AdminIDNEQ(v string) predicate.AuthToken {
-	return predicate.AuthToken(sql.FieldNEQ(FieldAdminID, v))
+// UserIDNEQ applies the NEQ predicate on the "user_id" field.
+func UserIDNEQ(v string) predicate.AuthToken {
+	return predicate.AuthToken(sql.FieldNEQ(FieldUserID, v))
 }
 
-// AdminIDIn applies the In predicate on the "admin_id" field.
-func AdminIDIn(vs ...string) predicate.AuthToken {
-	return predicate.AuthToken(sql.FieldIn(FieldAdminID, vs...))
+// UserIDIn applies the In predicate on the "user_id" field.
+func UserIDIn(vs ...string) predicate.AuthToken {
+	return predicate.AuthToken(sql.FieldIn(FieldUserID, vs...))
 }
 
-// AdminIDNotIn applies the NotIn predicate on the "admin_id" field.
-func AdminIDNotIn(vs ...string) predicate.AuthToken {
-	return predicate.AuthToken(sql.FieldNotIn(FieldAdminID, vs...))
+// UserIDNotIn applies the NotIn predicate on the "user_id" field.
+func UserIDNotIn(vs ...string) predicate.AuthToken {
+	return predicate.AuthToken(sql.FieldNotIn(FieldUserID, vs...))
 }
 
-// AdminIDGT applies the GT predicate on the "admin_id" field.
-func AdminIDGT(v string) predicate.AuthToken {
-	return predicate.AuthToken(sql.FieldGT(FieldAdminID, v))
+// UserIDGT applies the GT predicate on the "user_id" field.
+func UserIDGT(v string) predicate.AuthToken {
+	return predicate.AuthToken(sql.FieldGT(FieldUserID, v))
 }
 
-// AdminIDGTE applies the GTE predicate on the "admin_id" field.
-func AdminIDGTE(v string) predicate.AuthToken {
-	return predicate.AuthToken(sql.FieldGTE(FieldAdminID, v))
+// UserIDGTE applies the GTE predicate on the "user_id" field.
+func UserIDGTE(v string) predicate.AuthToken {
+	return predicate.AuthToken(sql.FieldGTE(FieldUserID, v))
 }
 
-// AdminIDLT applies the LT predicate on the "admin_id" field.
-func AdminIDLT(v string) predicate.AuthToken {
-	return predicate.AuthToken(sql.FieldLT(FieldAdminID, v))
+// UserIDLT applies the LT predicate on the "user_id" field.
+func UserIDLT(v string) predicate.AuthToken {
+	return predicate.AuthToken(sql.FieldLT(FieldUserID, v))
 }
 
-// AdminIDLTE applies the LTE predicate on the "admin_id" field.
-func AdminIDLTE(v string) predicate.AuthToken {
-	return predicate.AuthToken(sql.FieldLTE(FieldAdminID, v))
+// UserIDLTE applies the LTE predicate on the "user_id" field.
+func UserIDLTE(v string) predicate.AuthToken {
+	return predicate.AuthToken(sql.FieldLTE(FieldUserID, v))
 }
 
-// AdminIDContains applies the Contains predicate on the "admin_id" field.
-func AdminIDContains(v string) predicate.AuthToken {
-	return predicate.AuthToken(sql.FieldContains(FieldAdminID, v))
+// UserIDContains applies the Contains predicate on the "user_id" field.
+func UserIDContains(v string) predicate.AuthToken {
+	return predicate.AuthToken(sql.FieldContains(FieldUserID, v))
 }
 
-// AdminIDHasPrefix applies the HasPrefix predicate on the "admin_id" field.
-func AdminIDHasPrefix(v string) predicate.AuthToken {
-	return predicate.AuthToken(sql.FieldHasPrefix(FieldAdminID, v))
+// UserIDHasPrefix applies the HasPrefix predicate on the "user_id" field.
+func UserIDHasPrefix(v string) predicate.AuthToken {
+	return predicate.AuthToken(sql.FieldHasPrefix(FieldUserID, v))
 }
 
-// AdminIDHasSuffix applies the HasSuffix predicate on the "admin_id" field.
-func AdminIDHasSuffix(v string) predicate.AuthToken {
-	return predicate.AuthToken(sql.FieldHasSuffix(FieldAdminID, v))
+// UserIDHasSuffix applies the HasSuffix predicate on the "user_id" field.
+func UserIDHasSuffix(v string) predicate.AuthToken {
+	return predicate.AuthToken(sql.FieldHasSuffix(FieldUserID, v))
 }
 
-// AdminIDEqualFold applies the EqualFold predicate on the "admin_id" field.
-func AdminIDEqualFold(v string) predicate.AuthToken {
-	return predicate.AuthToken(sql.FieldEqualFold(FieldAdminID, v))
+// UserIDEqualFold applies the EqualFold predicate on the "user_id" field.
+func UserIDEqualFold(v string) predicate.AuthToken {
+	return predicate.AuthToken(sql.FieldEqualFold(FieldUserID, v))
 }
 
-// AdminIDContainsFold applies the ContainsFold predicate on the "admin_id" field.
-func AdminIDContainsFold(v string) predicate.AuthToken {
-	return predicate.AuthToken(sql.FieldContainsFold(FieldAdminID, v))
+// UserIDContainsFold applies the ContainsFold predicate on the "user_id" field.
+func UserIDContainsFold(v string) predicate.AuthToken {
+	return predicate.AuthToken(sql.FieldContainsFold(FieldUserID, v))
 }
 
 // TokenEQ applies the EQ predicate on the "token" field.

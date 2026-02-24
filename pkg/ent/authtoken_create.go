@@ -20,9 +20,9 @@ type AuthTokenCreate struct {
 	hooks    []Hook
 }
 
-// SetAdminID sets the "admin_id" field.
-func (_c *AuthTokenCreate) SetAdminID(v string) *AuthTokenCreate {
-	_c.mutation.SetAdminID(v)
+// SetUserID sets the "user_id" field.
+func (_c *AuthTokenCreate) SetUserID(v string) *AuthTokenCreate {
+	_c.mutation.SetUserID(v)
 	return _c
 }
 
@@ -125,8 +125,8 @@ func (_c *AuthTokenCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *AuthTokenCreate) check() error {
-	if _, ok := _c.mutation.AdminID(); !ok {
-		return &ValidationError{Name: "admin_id", err: errors.New(`ent: missing required field "AuthToken.admin_id"`)}
+	if _, ok := _c.mutation.UserID(); !ok {
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "AuthToken.user_id"`)}
 	}
 	if _, ok := _c.mutation.Token(); !ok {
 		return &ValidationError{Name: "token", err: errors.New(`ent: missing required field "AuthToken.token"`)}
@@ -194,9 +194,9 @@ func (_c *AuthTokenCreate) createSpec() (*AuthToken, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := _c.mutation.AdminID(); ok {
-		_spec.SetField(authtoken.FieldAdminID, field.TypeString, value)
-		_node.AdminID = value
+	if value, ok := _c.mutation.UserID(); ok {
+		_spec.SetField(authtoken.FieldUserID, field.TypeString, value)
+		_node.UserID = value
 	}
 	if value, ok := _c.mutation.Token(); ok {
 		_spec.SetField(authtoken.FieldToken, field.TypeString, value)

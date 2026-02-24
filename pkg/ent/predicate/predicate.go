@@ -6,20 +6,20 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
-// Admin is the predicate function for admin builders.
-type Admin func(*sql.Selector)
-
 // AppSettings is the predicate function for appsettings builders.
 type AppSettings func(*sql.Selector)
 
 // AuthToken is the predicate function for authtoken builders.
 type AuthToken func(*sql.Selector)
 
-// Certificate is the predicate function for certificate builders.
-type Certificate func(*sql.Selector)
-
 // CloudAccount is the predicate function for cloudaccount builders.
 type CloudAccount func(*sql.Selector)
 
+// Domain is the predicate function for domain builders.
+type Domain func(*sql.Selector)
+
 // NotificationChannel is the predicate function for notificationchannel builders.
 type NotificationChannel func(*sql.Selector)
+
+// User is the predicate function for user builders.
+type User func(*sql.Selector)

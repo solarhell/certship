@@ -24,7 +24,7 @@ func (AuthToken) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").Unique().Immutable().NotEmpty().DefaultFunc(uuid.NewString).Comment("主键 UUID"),
 
-		field.String("admin_id").Immutable().Comment("管理员 ID"),
+		field.String("user_id").Immutable().Comment("用户 ID"),
 		field.String("token").Unique().Immutable().NotEmpty().Comment("Token"),
 
 		field.String("login_user_agent").Immutable().Comment("登录时的 User-Agent"),
@@ -39,7 +39,7 @@ func (AuthToken) Fields() []ent.Field {
 
 func (AuthToken) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("admin_id"),
+		index.Fields("user_id"),
 		index.Fields("token"),
 		index.Fields("last_active_time"),
 	}

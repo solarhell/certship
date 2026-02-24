@@ -11,18 +11,18 @@ import (
 	"github.com/google/uuid"
 )
 
-type Certificate struct {
+type Domain struct {
 	ent.Schema
 }
 
-func (Certificate) Annotations() []schema.Annotation {
+func (Domain) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Table("t_certificate"),
+		entsql.Table("t_domain"),
 		entsql.WithComments(true),
 	}
 }
 
-func (Certificate) Fields() []ent.Field {
+func (Domain) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").Unique().Immutable().NotEmpty().DefaultFunc(uuid.NewString).Comment("主键 UUID"),
 
@@ -51,7 +51,7 @@ func (Certificate) Fields() []ent.Field {
 	}
 }
 
-func (Certificate) Indexes() []ent.Index {
+func (Domain) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("domain").Unique(),
 		index.Fields("expires_at"),

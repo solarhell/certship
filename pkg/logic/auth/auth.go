@@ -14,7 +14,7 @@ import (
 	"github.com/solarhell/certship/pkg/ctxadmin"
 	"github.com/solarhell/certship/pkg/database"
 	"github.com/solarhell/certship/pkg/ent"
-	entadmin "github.com/solarhell/certship/pkg/ent/admin"
+	entuser "github.com/solarhell/certship/pkg/ent/user"
 	jwtmodule "github.com/solarhell/certship/pkg/module/jwt"
 )
 
@@ -32,18 +32,18 @@ func (s *Server) Login(ctx context.Context, req *connect.Request[certshipv1.Logi
 	}
 
 	db := database.GetClient()
-	admin, err := db.Admin.Query().
-		Where(entadmin.UsernameEQ(req.Msg.Username)).
+	u, err := db.User.Query().
+		Where(entuser.UsernameEQ(req.Msg.Username)).
 		Only(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return nil, connect.NewError(connect.CodeUnauthenticated, fmt.Errorf("用户名或密码错误"))
 		}
-		s.logger.Error("查询管理员失败", zap.Error(err))
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("查询管理员失败"))
+		s.logger.Error("查询用户失败", zap.Error(err))
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("查询用户失败"))
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(admin.PasswordHash), []byte(req.Msg.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(req.Msg.Password)); err != nil {
 		return nil, connect.NewError(connect.CodeUnauthenticated, fmt.Errorf("用户名或密码错误"))
 	}
 
@@ -53,7 +53,7 @@ func (s *Server) Login(ctx context.Context, req *connect.Request[certshipv1.Logi
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("获取 JWT 密钥失败"))
 	}
 
-	token, err := jwtmodule.GenerateToken(admin.ID, settings.JwtSecret)
+	token, err := jwtmodule.GenerateToken(u.ID, settings.JwtSecret)
 	if err != nil {
 		s.logger.Error("生成 token 失败", zap.Error(err))
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("生成 token 失败"))
@@ -67,7 +67,7 @@ func (s *Server) Login(ctx context.Context, req *connect.Request[certshipv1.Logi
 	}
 
 	if err := db.AuthToken.Create().
-		SetAdminID(admin.ID).
+		SetUserID(u.ID).
 		SetToken(token).
 		SetLoginUserAgent(ua).
 		SetLoginIP(ip).
@@ -90,7 +90,7 @@ func (s *Server) ChangePassword(ctx context.Context, req *connect.Request[certsh
 
 	authCtx := ctxadmin.MustExtract(ctx)
 
-	if err := bcrypt.CompareHashAndPassword([]byte(authCtx.Admin.PasswordHash), []byte(req.Msg.OldPassword)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(authCtx.User.PasswordHash), []byte(req.Msg.OldPassword)); err != nil {
 		return nil, connect.NewError(connect.CodeUnauthenticated, fmt.Errorf("旧密码错误"))
 	}
 
@@ -99,7 +99,7 @@ func (s *Server) ChangePassword(ctx context.Context, req *connect.Request[certsh
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("密码加密失败"))
 	}
 
-	if err := database.GetClient().Admin.UpdateOneID(authCtx.AdminID).
+	if err := database.GetClient().User.UpdateOneID(authCtx.UserID).
 		SetPasswordHash(string(hash)).
 		Exec(ctx); err != nil {
 		s.logger.Error("更新密码失败", zap.Error(err))

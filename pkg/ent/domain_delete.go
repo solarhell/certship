@@ -8,30 +8,30 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/solarhell/certship/pkg/ent/certificate"
+	"github.com/solarhell/certship/pkg/ent/domain"
 	"github.com/solarhell/certship/pkg/ent/predicate"
 )
 
-// CertificateDelete is the builder for deleting a Certificate entity.
-type CertificateDelete struct {
+// DomainDelete is the builder for deleting a Domain entity.
+type DomainDelete struct {
 	config
 	hooks    []Hook
-	mutation *CertificateMutation
+	mutation *DomainMutation
 }
 
-// Where appends a list predicates to the CertificateDelete builder.
-func (_d *CertificateDelete) Where(ps ...predicate.Certificate) *CertificateDelete {
+// Where appends a list predicates to the DomainDelete builder.
+func (_d *DomainDelete) Where(ps ...predicate.Domain) *DomainDelete {
 	_d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (_d *CertificateDelete) Exec(ctx context.Context) (int, error) {
+func (_d *DomainDelete) Exec(ctx context.Context) (int, error) {
 	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *CertificateDelete) ExecX(ctx context.Context) int {
+func (_d *DomainDelete) ExecX(ctx context.Context) int {
 	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
@@ -39,8 +39,8 @@ func (_d *CertificateDelete) ExecX(ctx context.Context) int {
 	return n
 }
 
-func (_d *CertificateDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(certificate.Table, sqlgraph.NewFieldSpec(certificate.FieldID, field.TypeString))
+func (_d *DomainDelete) sqlExec(ctx context.Context) (int, error) {
+	_spec := sqlgraph.NewDeleteSpec(domain.Table, sqlgraph.NewFieldSpec(domain.FieldID, field.TypeString))
 	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -56,32 +56,32 @@ func (_d *CertificateDelete) sqlExec(ctx context.Context) (int, error) {
 	return affected, err
 }
 
-// CertificateDeleteOne is the builder for deleting a single Certificate entity.
-type CertificateDeleteOne struct {
-	_d *CertificateDelete
+// DomainDeleteOne is the builder for deleting a single Domain entity.
+type DomainDeleteOne struct {
+	_d *DomainDelete
 }
 
-// Where appends a list predicates to the CertificateDelete builder.
-func (_d *CertificateDeleteOne) Where(ps ...predicate.Certificate) *CertificateDeleteOne {
+// Where appends a list predicates to the DomainDelete builder.
+func (_d *DomainDeleteOne) Where(ps ...predicate.Domain) *DomainDeleteOne {
 	_d._d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query.
-func (_d *CertificateDeleteOne) Exec(ctx context.Context) error {
+func (_d *DomainDeleteOne) Exec(ctx context.Context) error {
 	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{certificate.Label}
+		return &NotFoundError{domain.Label}
 	default:
 		return nil
 	}
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *CertificateDeleteOne) ExecX(ctx context.Context) {
+func (_d *DomainDeleteOne) ExecX(ctx context.Context) {
 	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}

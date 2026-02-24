@@ -7,6 +7,7 @@ require (
 	connectrpc.com/cors v0.1.0
 	entgo.io/ent v0.14.5
 	github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.4.0
+	github.com/dromara/carbon/v2 v2.6.16
 	github.com/go-acme/lego/v4 v4.32.0
 	github.com/go-lark/lark v1.16.0
 	github.com/golang-jwt/jwt/v5 v5.3.1
@@ -34,7 +35,6 @@ require (
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
 	github.com/cenkalti/backoff/v5 v5.0.3 // indirect
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect
-	github.com/dromara/carbon/v2 v2.6.16 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/go-acme/alidns-20150109/v4 v4.7.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.3 // indirect

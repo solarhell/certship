@@ -9,19 +9,21 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/solarhell/certship/pkg/ent/admin"
+	"github.com/solarhell/certship/pkg/ent/user"
 )
 
-// Admin is the model entity for the Admin schema.
-type Admin struct {
+// User is the model entity for the User schema.
+type User struct {
 	config `json:"-"`
 	// ID of the ent.
 	// 主键 UUID
 	ID string `json:"id,omitempty"`
-	// 管理员用户名
+	// 用户名
 	Username string `json:"username,omitempty"`
 	// 密码 bcrypt hash
 	PasswordHash string `json:"password_hash,omitempty"`
+	// 昵称
+	Nickname string `json:"nickname,omitempty"`
 	// 创建时间
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// 更新时间
@@ -30,13 +32,13 @@ type Admin struct {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Admin) scanValues(columns []string) ([]any, error) {
+func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case admin.FieldID, admin.FieldUsername, admin.FieldPasswordHash:
+		case user.FieldID, user.FieldUsername, user.FieldPasswordHash, user.FieldNickname:
 			values[i] = new(sql.NullString)
-		case admin.FieldCreatedAt, admin.FieldUpdatedAt:
+		case user.FieldCreatedAt, user.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -46,38 +48,44 @@ func (*Admin) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the Admin fields.
-func (_m *Admin) assignValues(columns []string, values []any) error {
+// to the User fields.
+func (_m *User) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case admin.FieldID:
+		case user.FieldID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				_m.ID = value.String
 			}
-		case admin.FieldUsername:
+		case user.FieldUsername:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field username", values[i])
 			} else if value.Valid {
 				_m.Username = value.String
 			}
-		case admin.FieldPasswordHash:
+		case user.FieldPasswordHash:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field password_hash", values[i])
 			} else if value.Valid {
 				_m.PasswordHash = value.String
 			}
-		case admin.FieldCreatedAt:
+		case user.FieldNickname:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field nickname", values[i])
+			} else if value.Valid {
+				_m.Nickname = value.String
+			}
+		case user.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
 				_m.CreatedAt = value.Time
 			}
-		case admin.FieldUpdatedAt:
+		case user.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
@@ -90,40 +98,43 @@ func (_m *Admin) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the Admin.
+// Value returns the ent.Value that was dynamically selected and assigned to the User.
 // This includes values selected through modifiers, order, etc.
-func (_m *Admin) Value(name string) (ent.Value, error) {
+func (_m *User) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// Update returns a builder for updating this Admin.
-// Note that you need to call Admin.Unwrap() before calling this method if this Admin
+// Update returns a builder for updating this User.
+// Note that you need to call User.Unwrap() before calling this method if this User
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (_m *Admin) Update() *AdminUpdateOne {
-	return NewAdminClient(_m.config).UpdateOne(_m)
+func (_m *User) Update() *UserUpdateOne {
+	return NewUserClient(_m.config).UpdateOne(_m)
 }
 
-// Unwrap unwraps the Admin entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the User entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (_m *Admin) Unwrap() *Admin {
+func (_m *User) Unwrap() *User {
 	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: Admin is not a transactional entity")
+		panic("ent: User is not a transactional entity")
 	}
 	_m.config.driver = _tx.drv
 	return _m
 }
 
 // String implements the fmt.Stringer.
-func (_m *Admin) String() string {
+func (_m *User) String() string {
 	var builder strings.Builder
-	builder.WriteString("Admin(")
+	builder.WriteString("User(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("username=")
 	builder.WriteString(_m.Username)
 	builder.WriteString(", ")
 	builder.WriteString("password_hash=")
 	builder.WriteString(_m.PasswordHash)
+	builder.WriteString(", ")
+	builder.WriteString("nickname=")
+	builder.WriteString(_m.Nickname)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
@@ -134,5 +145,5 @@ func (_m *Admin) String() string {
 	return builder.String()
 }
 
-// Admins is a parsable slice of Admin.
-type Admins []*Admin
+// Users is a parsable slice of User.
+type Users []*User

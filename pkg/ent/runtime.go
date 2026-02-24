@@ -5,12 +5,12 @@ package ent
 import (
 	"time"
 
-	"github.com/solarhell/certship/pkg/ent/admin"
 	"github.com/solarhell/certship/pkg/ent/appsettings"
 	"github.com/solarhell/certship/pkg/ent/authtoken"
-	"github.com/solarhell/certship/pkg/ent/certificate"
 	"github.com/solarhell/certship/pkg/ent/cloudaccount"
+	"github.com/solarhell/certship/pkg/ent/domain"
 	"github.com/solarhell/certship/pkg/ent/notificationchannel"
+	"github.com/solarhell/certship/pkg/ent/user"
 	"github.com/solarhell/certship/pkg/entschema"
 )
 
@@ -18,32 +18,6 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	adminFields := entschema.Admin{}.Fields()
-	_ = adminFields
-	// adminDescUsername is the schema descriptor for username field.
-	adminDescUsername := adminFields[1].Descriptor()
-	// admin.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
-	admin.UsernameValidator = adminDescUsername.Validators[0].(func(string) error)
-	// adminDescPasswordHash is the schema descriptor for password_hash field.
-	adminDescPasswordHash := adminFields[2].Descriptor()
-	// admin.PasswordHashValidator is a validator for the "password_hash" field. It is called by the builders before save.
-	admin.PasswordHashValidator = adminDescPasswordHash.Validators[0].(func(string) error)
-	// adminDescCreatedAt is the schema descriptor for created_at field.
-	adminDescCreatedAt := adminFields[3].Descriptor()
-	// admin.DefaultCreatedAt holds the default value on creation for the created_at field.
-	admin.DefaultCreatedAt = adminDescCreatedAt.Default.(func() time.Time)
-	// adminDescUpdatedAt is the schema descriptor for updated_at field.
-	adminDescUpdatedAt := adminFields[4].Descriptor()
-	// admin.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	admin.DefaultUpdatedAt = adminDescUpdatedAt.Default.(func() time.Time)
-	// admin.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	admin.UpdateDefaultUpdatedAt = adminDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// adminDescID is the schema descriptor for id field.
-	adminDescID := adminFields[0].Descriptor()
-	// admin.DefaultID holds the default value on creation for the id field.
-	admin.DefaultID = adminDescID.Default.(func() string)
-	// admin.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	admin.IDValidator = adminDescID.Validators[0].(func(string) error)
 	appsettingsFields := entschema.AppSettings{}.Fields()
 	_ = appsettingsFields
 	// appsettingsDescAcmeEmail is the schema descriptor for acme_email field.
@@ -88,40 +62,6 @@ func init() {
 	authtoken.DefaultID = authtokenDescID.Default.(func() string)
 	// authtoken.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	authtoken.IDValidator = authtokenDescID.Validators[0].(func(string) error)
-	certificateFields := entschema.Certificate{}.Fields()
-	_ = certificateFields
-	// certificateDescDomain is the schema descriptor for domain field.
-	certificateDescDomain := certificateFields[1].Descriptor()
-	// certificate.DomainValidator is a validator for the "domain" field. It is called by the builders before save.
-	certificate.DomainValidator = certificateDescDomain.Validators[0].(func(string) error)
-	// certificateDescBucket is the schema descriptor for bucket field.
-	certificateDescBucket := certificateFields[2].Descriptor()
-	// certificate.BucketValidator is a validator for the "bucket" field. It is called by the builders before save.
-	certificate.BucketValidator = certificateDescBucket.Validators[0].(func(string) error)
-	// certificateDescRegion is the schema descriptor for region field.
-	certificateDescRegion := certificateFields[3].Descriptor()
-	// certificate.RegionValidator is a validator for the "region" field. It is called by the builders before save.
-	certificate.RegionValidator = certificateDescRegion.Validators[0].(func(string) error)
-	// certificateDescAccountName is the schema descriptor for account_name field.
-	certificateDescAccountName := certificateFields[4].Descriptor()
-	// certificate.AccountNameValidator is a validator for the "account_name" field. It is called by the builders before save.
-	certificate.AccountNameValidator = certificateDescAccountName.Validators[0].(func(string) error)
-	// certificateDescCreatedAt is the schema descriptor for created_at field.
-	certificateDescCreatedAt := certificateFields[11].Descriptor()
-	// certificate.DefaultCreatedAt holds the default value on creation for the created_at field.
-	certificate.DefaultCreatedAt = certificateDescCreatedAt.Default.(func() time.Time)
-	// certificateDescUpdatedAt is the schema descriptor for updated_at field.
-	certificateDescUpdatedAt := certificateFields[12].Descriptor()
-	// certificate.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	certificate.DefaultUpdatedAt = certificateDescUpdatedAt.Default.(func() time.Time)
-	// certificate.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	certificate.UpdateDefaultUpdatedAt = certificateDescUpdatedAt.UpdateDefault.(func() time.Time)
-	// certificateDescID is the schema descriptor for id field.
-	certificateDescID := certificateFields[0].Descriptor()
-	// certificate.DefaultID holds the default value on creation for the id field.
-	certificate.DefaultID = certificateDescID.Default.(func() string)
-	// certificate.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	certificate.IDValidator = certificateDescID.Validators[0].(func(string) error)
 	cloudaccountFields := entschema.CloudAccount{}.Fields()
 	_ = cloudaccountFields
 	// cloudaccountDescName is the schema descriptor for name field.
@@ -156,6 +96,40 @@ func init() {
 	cloudaccount.DefaultID = cloudaccountDescID.Default.(func() string)
 	// cloudaccount.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	cloudaccount.IDValidator = cloudaccountDescID.Validators[0].(func(string) error)
+	domainFields := entschema.Domain{}.Fields()
+	_ = domainFields
+	// domainDescDomain is the schema descriptor for domain field.
+	domainDescDomain := domainFields[1].Descriptor()
+	// domain.DomainValidator is a validator for the "domain" field. It is called by the builders before save.
+	domain.DomainValidator = domainDescDomain.Validators[0].(func(string) error)
+	// domainDescBucket is the schema descriptor for bucket field.
+	domainDescBucket := domainFields[2].Descriptor()
+	// domain.BucketValidator is a validator for the "bucket" field. It is called by the builders before save.
+	domain.BucketValidator = domainDescBucket.Validators[0].(func(string) error)
+	// domainDescRegion is the schema descriptor for region field.
+	domainDescRegion := domainFields[3].Descriptor()
+	// domain.RegionValidator is a validator for the "region" field. It is called by the builders before save.
+	domain.RegionValidator = domainDescRegion.Validators[0].(func(string) error)
+	// domainDescAccountName is the schema descriptor for account_name field.
+	domainDescAccountName := domainFields[4].Descriptor()
+	// domain.AccountNameValidator is a validator for the "account_name" field. It is called by the builders before save.
+	domain.AccountNameValidator = domainDescAccountName.Validators[0].(func(string) error)
+	// domainDescCreatedAt is the schema descriptor for created_at field.
+	domainDescCreatedAt := domainFields[11].Descriptor()
+	// domain.DefaultCreatedAt holds the default value on creation for the created_at field.
+	domain.DefaultCreatedAt = domainDescCreatedAt.Default.(func() time.Time)
+	// domainDescUpdatedAt is the schema descriptor for updated_at field.
+	domainDescUpdatedAt := domainFields[12].Descriptor()
+	// domain.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	domain.DefaultUpdatedAt = domainDescUpdatedAt.Default.(func() time.Time)
+	// domain.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	domain.UpdateDefaultUpdatedAt = domainDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// domainDescID is the schema descriptor for id field.
+	domainDescID := domainFields[0].Descriptor()
+	// domain.DefaultID holds the default value on creation for the id field.
+	domain.DefaultID = domainDescID.Default.(func() string)
+	// domain.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	domain.IDValidator = domainDescID.Validators[0].(func(string) error)
 	notificationchannelFields := entschema.NotificationChannel{}.Fields()
 	_ = notificationchannelFields
 	// notificationchannelDescName is the schema descriptor for name field.
@@ -186,4 +160,34 @@ func init() {
 	notificationchannel.DefaultID = notificationchannelDescID.Default.(func() string)
 	// notificationchannel.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	notificationchannel.IDValidator = notificationchannelDescID.Validators[0].(func(string) error)
+	userFields := entschema.User{}.Fields()
+	_ = userFields
+	// userDescUsername is the schema descriptor for username field.
+	userDescUsername := userFields[1].Descriptor()
+	// user.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	user.UsernameValidator = userDescUsername.Validators[0].(func(string) error)
+	// userDescPasswordHash is the schema descriptor for password_hash field.
+	userDescPasswordHash := userFields[2].Descriptor()
+	// user.PasswordHashValidator is a validator for the "password_hash" field. It is called by the builders before save.
+	user.PasswordHashValidator = userDescPasswordHash.Validators[0].(func(string) error)
+	// userDescNickname is the schema descriptor for nickname field.
+	userDescNickname := userFields[3].Descriptor()
+	// user.NicknameValidator is a validator for the "nickname" field. It is called by the builders before save.
+	user.NicknameValidator = userDescNickname.Validators[0].(func(string) error)
+	// userDescCreatedAt is the schema descriptor for created_at field.
+	userDescCreatedAt := userFields[4].Descriptor()
+	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
+	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
+	// userDescUpdatedAt is the schema descriptor for updated_at field.
+	userDescUpdatedAt := userFields[5].Descriptor()
+	// user.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
+	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	user.UpdateDefaultUpdatedAt = userDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// userDescID is the schema descriptor for id field.
+	userDescID := userFields[0].Descriptor()
+	// user.DefaultID holds the default value on creation for the id field.
+	user.DefaultID = userDescID.Default.(func() string)
+	// user.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	user.IDValidator = userDescID.Validators[0].(func(string) error)
 }

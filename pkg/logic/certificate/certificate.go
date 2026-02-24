@@ -20,7 +20,7 @@ type Server struct {
 }
 
 func (s *Server) ListCertificates(ctx context.Context, _ *connect.Request[certshipv1.ListCertificatesRequest]) (*connect.Response[certshipv1.ListCertificatesResponse], error) {
-	certs, err := database.GetClient().Certificate.Query().All(ctx)
+	certs, err := database.GetClient().Domain.Query().All(ctx)
 	if err != nil {
 		s.logger.Error("查询证书列表失败", zap.Error(err))
 		return nil, connect.NewError(connect.CodeInternal, err)

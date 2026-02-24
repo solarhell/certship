@@ -11,7 +11,7 @@ import (
 	"github.com/solarhell/certship/internal/oss"
 	"github.com/solarhell/certship/pkg/database"
 	"github.com/solarhell/certship/pkg/ent"
-	entcertificate "github.com/solarhell/certship/pkg/ent/certificate"
+	entdomain "github.com/solarhell/certship/pkg/ent/domain"
 	entcloudaccount "github.com/solarhell/certship/pkg/ent/cloudaccount"
 )
 
@@ -72,13 +72,13 @@ func (d *Daemon) cycle(ctx context.Context) {
 	// Phase 1: 将 OSS 现状同步到 DB
 	d.syncDomains(ctx, domains)
 
-	// Phase 2: 续期需要处理的证书
-	settings, err := database.GetAppSettings(ctx)
-	if err != nil {
-		d.logger.Error("读取配置失败", zap.Error(err))
-		return
-	}
-	d.renewCerts(ctx, settings.RenewBeforeDays)
+	// Phase 2: 续期需要处理的证书（测试 Phase 1 时暂时跳过）
+	// settings, err := database.GetAppSettings(ctx)
+	// if err != nil {
+	// 	d.logger.Error("读取配置失败", zap.Error(err))
+	// 	return
+	// }
+	// d.renewCerts(ctx, settings.RenewBeforeDays)
 
 	d.logger.Info("扫描周期完成")
 }
@@ -94,13 +94,13 @@ func (d *Daemon) syncDomains(ctx context.Context, domains []oss.DomainInfo) {
 		default:
 		}
 
-		existing, err := db.Certificate.Query().
-			Where(entcertificate.DomainEQ(info.Domain)).
+		existing, err := db.Domain.Query().
+			Where(entdomain.DomainEQ(info.Domain)).
 			Only(ctx)
 
 		if ent.IsNotFound(err) {
 			// 新发现的域名
-			creator := db.Certificate.Create().
+			creator := db.Domain.Create().
 				SetDomain(info.Domain).
 				SetBucket(info.Bucket).
 				SetRegion(info.Region).
@@ -110,9 +110,9 @@ func (d *Daemon) syncDomains(ctx context.Context, domains []oss.DomainInfo) {
 				creator = creator.
 					SetIssuedAt(info.OSSCert.ValidStartDate).
 					SetExpiresAt(info.OSSCert.ValidEndDate).
-					SetStatus(entcertificate.StatusActive)
+					SetStatus(entdomain.StatusActive)
 			} else {
-				creator = creator.SetStatus(entcertificate.StatusPending)
+				creator = creator.SetStatus(entdomain.StatusPending)
 			}
 
 			if err := creator.Exec(ctx); err != nil {
@@ -145,9 +145,9 @@ func (d *Daemon) syncDomains(ctx context.Context, domains []oss.DomainInfo) {
 			updater = updater.
 				SetIssuedAt(info.OSSCert.ValidStartDate).
 				SetExpiresAt(info.OSSCert.ValidEndDate).
-				SetStatus(entcertificate.StatusActive)
+				SetStatus(entdomain.StatusActive)
 		} else if existing.CertPem == "" && info.OSSCert == nil {
-			updater = updater.SetStatus(entcertificate.StatusPending)
+			updater = updater.SetStatus(entdomain.StatusPending)
 		}
 
 		if err := updater.Exec(ctx); err != nil {
@@ -168,14 +168,14 @@ func (d *Daemon) renewCerts(ctx context.Context, renewBeforeDays int) {
 	// 查询需要续期的域名：pending、error、或 active 但即将到期
 	threshold := time.Now().Add(time.Duration(renewBeforeDays) * 24 * time.Hour)
 
-	certs, err := database.GetClient().Certificate.Query().
+	certs, err := database.GetClient().Domain.Query().
 		Where(
-			entcertificate.Or(
-				entcertificate.StatusEQ(entcertificate.StatusPending),
-				entcertificate.StatusEQ(entcertificate.StatusError),
-				entcertificate.And(
-					entcertificate.StatusEQ(entcertificate.StatusActive),
-					entcertificate.ExpiresAtLT(threshold),
+			entdomain.Or(
+				entdomain.StatusEQ(entdomain.StatusPending),
+				entdomain.StatusEQ(entdomain.StatusError),
+				entdomain.And(
+					entdomain.StatusEQ(entdomain.StatusActive),
+					entdomain.ExpiresAtLT(threshold),
 				),
 			),
 		).
@@ -197,7 +197,7 @@ func (d *Daemon) renewCerts(ctx context.Context, renewBeforeDays int) {
 	}
 }
 
-func (d *Daemon) processCert(ctx context.Context, cert *ent.Certificate, acmeMgr *acme.Manager) {
+func (d *Daemon) processCert(ctx context.Context, cert *ent.Domain, acmeMgr *acme.Manager) {
 	log := d.logger.With(
 		zap.String("domain", cert.Domain),
 		zap.String("bucket", cert.Bucket),
@@ -264,13 +264,13 @@ func (d *Daemon) processCert(ctx context.Context, cert *ent.Certificate, acmeMgr
 	log.Info("证书申请并绑定成功", zap.Time("expires_at", expiry))
 }
 
-func (d *Daemon) saveCertToDB(ctx context.Context, cert *ent.Certificate, result *acme.CertResult, expiresAt time.Time) {
+func (d *Daemon) saveCertToDB(ctx context.Context, cert *ent.Domain, result *acme.CertResult, expiresAt time.Time) {
 	err := cert.Update().
 		SetIssuedAt(time.Now()).
 		SetExpiresAt(expiresAt).
 		SetCertPem(result.CertPEM).
 		SetKeyPem(result.KeyPEM).
-		SetStatus(entcertificate.StatusActive).
+		SetStatus(entdomain.StatusActive).
 		SetErrorMessage("").
 		Exec(ctx)
 	if err != nil {
@@ -281,9 +281,9 @@ func (d *Daemon) saveCertToDB(ctx context.Context, cert *ent.Certificate, result
 	}
 }
 
-func (d *Daemon) saveErrorToDB(ctx context.Context, cert *ent.Certificate, certErr error) {
+func (d *Daemon) saveErrorToDB(ctx context.Context, cert *ent.Domain, certErr error) {
 	_ = cert.Update().
-		SetStatus(entcertificate.StatusError).
+		SetStatus(entdomain.StatusError).
 		SetErrorMessage(certErr.Error()).
 		Exec(ctx)
 }
