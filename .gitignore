@@ -1,0 +1,27 @@
+# 二进制产物
+/certship
+/dist/
+
+# 运行时数据（证书、ACME 账号密钥等敏感文件）
+/data/
+
+# 配置文件（含 AK/SK，不入库）
+configs/*
+!configs/config.example.toml
+
+# MCP 配置（含数据库凭据）
+.mcp.json
+
+# Go 工具链
+*.test
+*.out
+coverage.html
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store

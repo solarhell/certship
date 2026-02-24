@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package certship.v1;
+
+option go_package = "github.com/solarhell/certship/pkg/api/certship/v1;certshipv1";
+
+service NotificationChannelService {
+  rpc ListNotificationChannels(ListNotificationChannelsRequest) returns (ListNotificationChannelsResponse);
+  rpc CreateNotificationChannel(CreateNotificationChannelRequest) returns (CreateNotificationChannelResponse);
+  rpc UpdateNotificationChannel(UpdateNotificationChannelRequest) returns (UpdateNotificationChannelResponse);
+  rpc DeleteNotificationChannel(DeleteNotificationChannelRequest) returns (DeleteNotificationChannelResponse);
+}
+
+message ListNotificationChannelsRequest {}
+
+message NotificationChannelItem {
+  string id = 1;
+  string name = 2;
+  string type = 3;
+  string webhook_url = 4;
+  bool enabled = 5;
+  string created_at = 6;
+}
+
+message ListNotificationChannelsResponse {
+  repeated NotificationChannelItem channels = 1;
+}
+
+message CreateNotificationChannelRequest {
+  string name = 1;
+  string type = 2;
+  string webhook_url = 3;
+  bool enabled = 4;
+}
+
+message CreateNotificationChannelResponse {
+  string id = 1;
+}
+
+message UpdateNotificationChannelRequest {
+  string id = 1;
+  string name = 2;
+  string webhook_url = 3;
+  bool enabled = 4;
+}
+
+message UpdateNotificationChannelResponse {}
+
+message DeleteNotificationChannelRequest {
+  string id = 1;
+}
+
+message DeleteNotificationChannelResponse {}

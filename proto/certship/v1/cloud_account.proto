@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package certship.v1;
+
+option go_package = "github.com/solarhell/certship/pkg/api/certship/v1;certshipv1";
+
+service CloudAccountService {
+  rpc ListCloudAccounts(ListCloudAccountsRequest) returns (ListCloudAccountsResponse);
+  rpc CreateCloudAccount(CreateCloudAccountRequest) returns (CreateCloudAccountResponse);
+  rpc UpdateCloudAccount(UpdateCloudAccountRequest) returns (UpdateCloudAccountResponse);
+  rpc DeleteCloudAccount(DeleteCloudAccountRequest) returns (DeleteCloudAccountResponse);
+}
+
+message ListCloudAccountsRequest {}
+
+message CloudAccountItem {
+  string id = 1;
+  string name = 2;
+  string access_key_id = 3;
+  bool enabled = 4;
+  string created_at = 5;
+}
+
+message ListCloudAccountsResponse {
+  repeated CloudAccountItem accounts = 1;
+}
+
+message CreateCloudAccountRequest {
+  string name = 1;
+  string access_key_id = 2;
+  string access_key_secret = 3;
+  bool enabled = 4;
+}
+
+message CreateCloudAccountResponse {
+  string id = 1;
+}
+
+message UpdateCloudAccountRequest {
+  string id = 1;
+  string name = 2;
+  string access_key_id = 3;
+  string access_key_secret = 4;
+  bool enabled = 5;
+}
+
+message UpdateCloudAccountResponse {}
+
+message DeleteCloudAccountRequest {
+  string id = 1;
+}
+
+message DeleteCloudAccountResponse {}
