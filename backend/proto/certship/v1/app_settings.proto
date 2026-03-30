@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package certship.v1;
+
+option go_package = "github.com/solarhell/certship/pkg/api/certship/v1;certshipv1";
+
+service AppSettingsService {
+  rpc GetAppSettings(GetAppSettingsRequest) returns (GetAppSettingsResponse);
+  rpc UpdateAppSettings(UpdateAppSettingsRequest) returns (UpdateAppSettingsResponse);
+}
+
+message GetAppSettingsRequest {}
+
+message GetAppSettingsResponse {
+  string scan_interval = 3;
+  int32 renew_before_days = 4;
+}
+
+message UpdateAppSettingsRequest {
+  string scan_interval = 3;
+  int32 renew_before_days = 4;
+}
+
+message UpdateAppSettingsResponse {}

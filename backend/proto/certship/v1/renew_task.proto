@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package certship.v1;
+
+option go_package = "github.com/solarhell/certship/pkg/api/certship/v1;certshipv1";
+
+service RenewTaskService {
+  rpc ListRenewTasks(ListRenewTasksRequest) returns (ListRenewTasksResponse);
+  rpc CreateRenewTask(CreateRenewTaskRequest) returns (CreateRenewTaskResponse);
+}
+
+message ListRenewTasksRequest {}
+
+message RenewTaskItem {
+  string id = 1;
+  repeated string domains = 2;
+  string status = 3;
+  string trigger = 4;
+  string error_message = 5;
+  string started_at = 6;
+  string finished_at = 7;
+  string created_at = 8;
+}
+
+message ListRenewTasksResponse {
+  repeated RenewTaskItem tasks = 1;
+}
+
+message CreateRenewTaskRequest {
+  repeated string domains = 1;
+}
+
+message CreateRenewTaskResponse {
+  string id = 1;
+}
