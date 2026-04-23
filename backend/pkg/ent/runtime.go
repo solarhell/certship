@@ -116,11 +116,11 @@ func init() {
 	// domain.AccountNameValidator is a validator for the "account_name" field. It is called by the builders before save.
 	domain.AccountNameValidator = domainDescAccountName.Validators[0].(func(string) error)
 	// domainDescCreatedAt is the schema descriptor for created_at field.
-	domainDescCreatedAt := domainFields[11].Descriptor()
+	domainDescCreatedAt := domainFields[12].Descriptor()
 	// domain.DefaultCreatedAt holds the default value on creation for the created_at field.
 	domain.DefaultCreatedAt = domainDescCreatedAt.Default.(func() time.Time)
 	// domainDescUpdatedAt is the schema descriptor for updated_at field.
-	domainDescUpdatedAt := domainFields[12].Descriptor()
+	domainDescUpdatedAt := domainFields[13].Descriptor()
 	// domain.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	domain.DefaultUpdatedAt = domainDescUpdatedAt.Default.(func() time.Time)
 	// domain.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -164,7 +164,7 @@ func init() {
 	renewtaskFields := entschema.RenewTask{}.Fields()
 	_ = renewtaskFields
 	// renewtaskDescCreatedAt is the schema descriptor for created_at field.
-	renewtaskDescCreatedAt := renewtaskFields[7].Descriptor()
+	renewtaskDescCreatedAt := renewtaskFields[8].Descriptor()
 	// renewtask.DefaultCreatedAt holds the default value on creation for the created_at field.
 	renewtask.DefaultCreatedAt = renewtaskDescCreatedAt.Default.(func() time.Time)
 	// renewtaskDescID is the schema descriptor for id field.

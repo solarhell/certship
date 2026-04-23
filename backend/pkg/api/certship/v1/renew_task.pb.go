@@ -23,6 +23,8 @@ const (
 
 type ListRenewTasksRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Limit         uint64                 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Cursor        *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -57,6 +59,20 @@ func (*ListRenewTasksRequest) Descriptor() ([]byte, []int) {
 	return file_certship_v1_renew_task_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *ListRenewTasksRequest) GetLimit() uint64 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListRenewTasksRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
 type RenewTaskItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -67,6 +83,7 @@ type RenewTaskItem struct {
 	StartedAt     string                 `protobuf:"bytes,6,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
 	FinishedAt    string                 `protobuf:"bytes,7,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
 	CreatedAt     string                 `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Log           []*TaskLogEntry        `protobuf:"bytes,9,rep,name=log,proto3" json:"log,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -157,16 +174,78 @@ func (x *RenewTaskItem) GetCreatedAt() string {
 	return ""
 }
 
+func (x *RenewTaskItem) GetLog() []*TaskLogEntry {
+	if x != nil {
+		return x.Log
+	}
+	return nil
+}
+
+type TaskLogEntry struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Time          string                 `protobuf:"bytes,1,opt,name=time,proto3" json:"time,omitempty"`
+	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TaskLogEntry) Reset() {
+	*x = TaskLogEntry{}
+	mi := &file_certship_v1_renew_task_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TaskLogEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TaskLogEntry) ProtoMessage() {}
+
+func (x *TaskLogEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_certship_v1_renew_task_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TaskLogEntry.ProtoReflect.Descriptor instead.
+func (*TaskLogEntry) Descriptor() ([]byte, []int) {
+	return file_certship_v1_renew_task_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *TaskLogEntry) GetTime() string {
+	if x != nil {
+		return x.Time
+	}
+	return ""
+}
+
+func (x *TaskLogEntry) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
 type ListRenewTasksResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Tasks         []*RenewTaskItem       `protobuf:"bytes,1,rep,name=tasks,proto3" json:"tasks,omitempty"`
+	NextCursor    *string                `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
+	HasMore       bool                   `protobuf:"varint,3,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`
+	TotalCount    uint64                 `protobuf:"varint,4,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ListRenewTasksResponse) Reset() {
 	*x = ListRenewTasksResponse{}
-	mi := &file_certship_v1_renew_task_proto_msgTypes[2]
+	mi := &file_certship_v1_renew_task_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -178,7 +257,7 @@ func (x *ListRenewTasksResponse) String() string {
 func (*ListRenewTasksResponse) ProtoMessage() {}
 
 func (x *ListRenewTasksResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_certship_v1_renew_task_proto_msgTypes[2]
+	mi := &file_certship_v1_renew_task_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -191,7 +270,7 @@ func (x *ListRenewTasksResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListRenewTasksResponse.ProtoReflect.Descriptor instead.
 func (*ListRenewTasksResponse) Descriptor() ([]byte, []int) {
-	return file_certship_v1_renew_task_proto_rawDescGZIP(), []int{2}
+	return file_certship_v1_renew_task_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ListRenewTasksResponse) GetTasks() []*RenewTaskItem {
@@ -199,6 +278,27 @@ func (x *ListRenewTasksResponse) GetTasks() []*RenewTaskItem {
 		return x.Tasks
 	}
 	return nil
+}
+
+func (x *ListRenewTasksResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
+}
+
+func (x *ListRenewTasksResponse) GetHasMore() bool {
+	if x != nil {
+		return x.HasMore
+	}
+	return false
+}
+
+func (x *ListRenewTasksResponse) GetTotalCount() uint64 {
+	if x != nil {
+		return x.TotalCount
+	}
+	return 0
 }
 
 type CreateRenewTaskRequest struct {
@@ -210,7 +310,7 @@ type CreateRenewTaskRequest struct {
 
 func (x *CreateRenewTaskRequest) Reset() {
 	*x = CreateRenewTaskRequest{}
-	mi := &file_certship_v1_renew_task_proto_msgTypes[3]
+	mi := &file_certship_v1_renew_task_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -222,7 +322,7 @@ func (x *CreateRenewTaskRequest) String() string {
 func (*CreateRenewTaskRequest) ProtoMessage() {}
 
 func (x *CreateRenewTaskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_certship_v1_renew_task_proto_msgTypes[3]
+	mi := &file_certship_v1_renew_task_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -235,7 +335,7 @@ func (x *CreateRenewTaskRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRenewTaskRequest.ProtoReflect.Descriptor instead.
 func (*CreateRenewTaskRequest) Descriptor() ([]byte, []int) {
-	return file_certship_v1_renew_task_proto_rawDescGZIP(), []int{3}
+	return file_certship_v1_renew_task_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CreateRenewTaskRequest) GetDomains() []string {
@@ -254,7 +354,7 @@ type CreateRenewTaskResponse struct {
 
 func (x *CreateRenewTaskResponse) Reset() {
 	*x = CreateRenewTaskResponse{}
-	mi := &file_certship_v1_renew_task_proto_msgTypes[4]
+	mi := &file_certship_v1_renew_task_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -266,7 +366,7 @@ func (x *CreateRenewTaskResponse) String() string {
 func (*CreateRenewTaskResponse) ProtoMessage() {}
 
 func (x *CreateRenewTaskResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_certship_v1_renew_task_proto_msgTypes[4]
+	mi := &file_certship_v1_renew_task_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -279,7 +379,7 @@ func (x *CreateRenewTaskResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRenewTaskResponse.ProtoReflect.Descriptor instead.
 func (*CreateRenewTaskResponse) Descriptor() ([]byte, []int) {
-	return file_certship_v1_renew_task_proto_rawDescGZIP(), []int{4}
+	return file_certship_v1_renew_task_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CreateRenewTaskResponse) GetId() string {
@@ -293,8 +393,11 @@ var File_certship_v1_renew_task_proto protoreflect.FileDescriptor
 
 const file_certship_v1_renew_task_proto_rawDesc = "" +
 	"\n" +
-	"\x1ccertship/v1/renew_task.proto\x12\vcertship.v1\"\x17\n" +
-	"\x15ListRenewTasksRequest\"\xef\x01\n" +
+	"\x1ccertship/v1/renew_task.proto\x12\vcertship.v1\"U\n" +
+	"\x15ListRenewTasksRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x04R\x05limit\x12\x1b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01B\t\n" +
+	"\a_cursor\"\x9c\x02\n" +
 	"\rRenewTaskItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\adomains\x18\x02 \x03(\tR\adomains\x12\x16\n" +
@@ -306,9 +409,19 @@ const file_certship_v1_renew_task_proto_rawDesc = "" +
 	"\vfinished_at\x18\a \x01(\tR\n" +
 	"finishedAt\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\b \x01(\tR\tcreatedAt\"J\n" +
+	"created_at\x18\b \x01(\tR\tcreatedAt\x12+\n" +
+	"\x03log\x18\t \x03(\v2\x19.certship.v1.TaskLogEntryR\x03log\"<\n" +
+	"\fTaskLogEntry\x12\x12\n" +
+	"\x04time\x18\x01 \x01(\tR\x04time\x12\x18\n" +
+	"\acontent\x18\x02 \x01(\tR\acontent\"\xbc\x01\n" +
 	"\x16ListRenewTasksResponse\x120\n" +
-	"\x05tasks\x18\x01 \x03(\v2\x1a.certship.v1.RenewTaskItemR\x05tasks\"2\n" +
+	"\x05tasks\x18\x01 \x03(\v2\x1a.certship.v1.RenewTaskItemR\x05tasks\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01\x12\x19\n" +
+	"\bhas_more\x18\x03 \x01(\bR\ahasMore\x12\x1f\n" +
+	"\vtotal_count\x18\x04 \x01(\x04R\n" +
+	"totalCountB\x0e\n" +
+	"\f_next_cursor\"2\n" +
 	"\x16CreateRenewTaskRequest\x12\x18\n" +
 	"\adomains\x18\x01 \x03(\tR\adomains\")\n" +
 	"\x17CreateRenewTaskResponse\x12\x0e\n" +
@@ -329,25 +442,27 @@ func file_certship_v1_renew_task_proto_rawDescGZIP() []byte {
 	return file_certship_v1_renew_task_proto_rawDescData
 }
 
-var file_certship_v1_renew_task_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_certship_v1_renew_task_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_certship_v1_renew_task_proto_goTypes = []any{
 	(*ListRenewTasksRequest)(nil),   // 0: certship.v1.ListRenewTasksRequest
 	(*RenewTaskItem)(nil),           // 1: certship.v1.RenewTaskItem
-	(*ListRenewTasksResponse)(nil),  // 2: certship.v1.ListRenewTasksResponse
-	(*CreateRenewTaskRequest)(nil),  // 3: certship.v1.CreateRenewTaskRequest
-	(*CreateRenewTaskResponse)(nil), // 4: certship.v1.CreateRenewTaskResponse
+	(*TaskLogEntry)(nil),            // 2: certship.v1.TaskLogEntry
+	(*ListRenewTasksResponse)(nil),  // 3: certship.v1.ListRenewTasksResponse
+	(*CreateRenewTaskRequest)(nil),  // 4: certship.v1.CreateRenewTaskRequest
+	(*CreateRenewTaskResponse)(nil), // 5: certship.v1.CreateRenewTaskResponse
 }
 var file_certship_v1_renew_task_proto_depIdxs = []int32{
-	1, // 0: certship.v1.ListRenewTasksResponse.tasks:type_name -> certship.v1.RenewTaskItem
-	0, // 1: certship.v1.RenewTaskService.ListRenewTasks:input_type -> certship.v1.ListRenewTasksRequest
-	3, // 2: certship.v1.RenewTaskService.CreateRenewTask:input_type -> certship.v1.CreateRenewTaskRequest
-	2, // 3: certship.v1.RenewTaskService.ListRenewTasks:output_type -> certship.v1.ListRenewTasksResponse
-	4, // 4: certship.v1.RenewTaskService.CreateRenewTask:output_type -> certship.v1.CreateRenewTaskResponse
-	3, // [3:5] is the sub-list for method output_type
-	1, // [1:3] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	2, // 0: certship.v1.RenewTaskItem.log:type_name -> certship.v1.TaskLogEntry
+	1, // 1: certship.v1.ListRenewTasksResponse.tasks:type_name -> certship.v1.RenewTaskItem
+	0, // 2: certship.v1.RenewTaskService.ListRenewTasks:input_type -> certship.v1.ListRenewTasksRequest
+	4, // 3: certship.v1.RenewTaskService.CreateRenewTask:input_type -> certship.v1.CreateRenewTaskRequest
+	3, // 4: certship.v1.RenewTaskService.ListRenewTasks:output_type -> certship.v1.ListRenewTasksResponse
+	5, // 5: certship.v1.RenewTaskService.CreateRenewTask:output_type -> certship.v1.CreateRenewTaskResponse
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_certship_v1_renew_task_proto_init() }
@@ -355,13 +470,15 @@ func file_certship_v1_renew_task_proto_init() {
 	if File_certship_v1_renew_task_proto != nil {
 		return
 	}
+	file_certship_v1_renew_task_proto_msgTypes[0].OneofWrappers = []any{}
+	file_certship_v1_renew_task_proto_msgTypes[3].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_certship_v1_renew_task_proto_rawDesc), len(file_certship_v1_renew_task_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

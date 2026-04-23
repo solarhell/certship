@@ -8,7 +8,10 @@ service CertificateService {
   rpc ListCertificates(ListCertificatesRequest) returns (ListCertificatesResponse);
 }
 
-message ListCertificatesRequest {}
+message ListCertificatesRequest {
+  uint64 limit = 1;
+  optional string cursor = 2;
+}
 
 message CertificateItem {
   string id = 1;
@@ -20,8 +23,12 @@ message CertificateItem {
   string issued_at = 7;
   string expires_at = 8;
   string error_message = 9;
+  string deploy_target = 10;
 }
 
 message ListCertificatesResponse {
   repeated CertificateItem certificates = 1;
+  optional string next_cursor = 2;
+  bool has_more = 3;
+  uint64 total_count = 4;
 }

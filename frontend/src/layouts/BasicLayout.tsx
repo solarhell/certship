@@ -2,20 +2,15 @@ import { useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
 import { Layout, Menu, Dropdown, Modal, Form, Input, App, theme } from "antd";
 import {
-  DashboardOutlined,
-  SafetyCertificateOutlined,
-  SyncOutlined,
-  CloudServerOutlined,
-  BellOutlined,
-  SettingOutlined,
-  LogoutOutlined,
-  KeyOutlined,
-  UserOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
+  DashboardOutlined, SafetyCertificateOutlined, SyncOutlined, CloudServerOutlined,
+  BellOutlined, SettingOutlined, LogoutOutlined, KeyOutlined, UserOutlined,
+  MenuFoldOutlined, MenuUnfoldOutlined,
 } from "@ant-design/icons";
+import { createClient } from "@connectrpc/connect";
+import { create } from "@bufbuild/protobuf";
+import { AuthService, ChangePasswordRequestSchema } from "@buf/wolotec_certship.bufbuild_es/certship/v1/auth_pb";
+import { transport } from "@/api/transport";
 import { useAuth } from "@/auth/AuthContext";
-import { changePassword } from "@/api/auth";
 
 const { Header, Sider, Content } = Layout;
 
@@ -43,10 +38,11 @@ export default function BasicLayout() {
     try {
       const values = await form.validateFields();
       setPwdLoading(true);
-      await changePassword({
+      const client = createClient(AuthService, transport);
+      await client.changePassword(create(ChangePasswordRequestSchema, {
         oldPassword: values.oldPassword as string,
         newPassword: values.newPassword as string,
-      });
+      }));
       message.success("密码修改成功");
       setPwdOpen(false);
       form.resetFields();
@@ -79,26 +75,17 @@ export default function BasicLayout() {
               <span style={{ cursor: "pointer" }}><UserOutlined /> admin</span>
             </Dropdown>
           </Header>
-          <Content style={{ margin: 24 }}>
-            <Outlet />
-          </Content>
+          <Content style={{ margin: 24 }}><Outlet /></Content>
         </Layout>
       </Layout>
-
       <Modal title="修改密码" open={pwdOpen} onOk={handleChangePwd} onCancel={() => { setPwdOpen(false); form.resetFields(); }} confirmLoading={pwdLoading}>
         <Form form={form} layout="vertical">
-          <Form.Item name="oldPassword" label="当前密码" rules={[{ required: true, message: "请输入当前密码" }]}>
-            <Input.Password />
-          </Form.Item>
-          <Form.Item name="newPassword" label="新密码" rules={[{ required: true, message: "请输入新密码" }, { min: 6, message: "密码至少6位" }]}>
-            <Input.Password />
-          </Form.Item>
+          <Form.Item name="oldPassword" label="当前密码" rules={[{ required: true, message: "请输入当前密码" }]}><Input.Password /></Form.Item>
+          <Form.Item name="newPassword" label="新密码" rules={[{ required: true, message: "请输入新密码" }, { min: 6, message: "密码至少6位" }]}><Input.Password /></Form.Item>
           <Form.Item name="confirmPassword" label="确认密码" dependencies={["newPassword"]} rules={[
             { required: true, message: "请确认新密码" },
             ({ getFieldValue }) => ({ validator(_, value) { if (!value || getFieldValue("newPassword") === value) return Promise.resolve(); return Promise.reject(new Error("两次输入的密码不一致")); } }),
-          ]}>
-            <Input.Password />
-          </Form.Item>
+          ]}><Input.Password /></Form.Item>
         </Form>
       </Modal>
     </>

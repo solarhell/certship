@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { Card, Form, Input, InputNumber, Button, Spin, App } from "antd";
-import { getAppSettings, updateAppSettings, type AppSettings } from "@/api/settings";
+import { createClient } from "@connectrpc/connect";
+import { create } from "@bufbuild/protobuf";
+import { AppSettingsService, GetAppSettingsRequestSchema, UpdateAppSettingsRequestSchema } from "@buf/wolotec_certship.bufbuild_es/certship/v1/app_settings_pb";
+import { transport } from "@/api/transport";
 
 export default function Settings() {
   const { message } = App.useApp();
@@ -8,12 +11,20 @@ export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { getAppSettings().then((data) => form.setFieldsValue(data)).finally(() => setLoading(false)); }, [form]);
+  const client = createClient(AppSettingsService, transport);
 
-  const onFinish = async (values: AppSettings) => {
+  useEffect(() => {
+    client.getAppSettings(create(GetAppSettingsRequestSchema, {}))
+      .then((data) => form.setFieldsValue({ scanInterval: data.scanInterval, renewBeforeDays: data.renewBeforeDays }))
+      .finally(() => setLoading(false));
+  }, [form]);
+
+  const onFinish = async (values: { scanInterval: string; renewBeforeDays: number }) => {
     setSaving(true);
-    try { await updateAppSettings(values); message.success("保存成功"); }
-    catch (err) { message.error(err instanceof Error ? err.message : "保存失败"); }
+    try {
+      await client.updateAppSettings(create(UpdateAppSettingsRequestSchema, values));
+      message.success("保存成功");
+    } catch (err) { message.error(err instanceof Error ? err.message : "保存失败"); }
     finally { setSaving(false); }
   };
 

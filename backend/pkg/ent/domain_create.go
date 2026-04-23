@@ -114,6 +114,20 @@ func (_c *DomainCreate) SetNillableStatus(v *domain.Status) *DomainCreate {
 	return _c
 }
 
+// SetDeployTarget sets the "deploy_target" field.
+func (_c *DomainCreate) SetDeployTarget(v domain.DeployTarget) *DomainCreate {
+	_c.mutation.SetDeployTarget(v)
+	return _c
+}
+
+// SetNillableDeployTarget sets the "deploy_target" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableDeployTarget(v *domain.DeployTarget) *DomainCreate {
+	if v != nil {
+		_c.SetDeployTarget(*v)
+	}
+	return _c
+}
+
 // SetErrorMessage sets the "error_message" field.
 func (_c *DomainCreate) SetErrorMessage(v string) *DomainCreate {
 	_c.mutation.SetErrorMessage(v)
@@ -209,6 +223,10 @@ func (_c *DomainCreate) defaults() {
 		v := domain.DefaultStatus
 		_c.mutation.SetStatus(v)
 	}
+	if _, ok := _c.mutation.DeployTarget(); !ok {
+		v := domain.DefaultDeployTarget
+		_c.mutation.SetDeployTarget(v)
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := domain.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
@@ -263,6 +281,14 @@ func (_c *DomainCreate) check() error {
 	if v, ok := _c.mutation.Status(); ok {
 		if err := domain.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Domain.status": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.DeployTarget(); !ok {
+		return &ValidationError{Name: "deploy_target", err: errors.New(`ent: missing required field "Domain.deploy_target"`)}
+	}
+	if v, ok := _c.mutation.DeployTarget(); ok {
+		if err := domain.DeployTargetValidator(v); err != nil {
+			return &ValidationError{Name: "deploy_target", err: fmt.Errorf(`ent: validator failed for field "Domain.deploy_target": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
@@ -346,6 +372,10 @@ func (_c *DomainCreate) createSpec() (*Domain, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(domain.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
+	}
+	if value, ok := _c.mutation.DeployTarget(); ok {
+		_spec.SetField(domain.FieldDeployTarget, field.TypeEnum, value)
+		_node.DeployTarget = value
 	}
 	if value, ok := _c.mutation.ErrorMessage(); ok {
 		_spec.SetField(domain.FieldErrorMessage, field.TypeString, value)

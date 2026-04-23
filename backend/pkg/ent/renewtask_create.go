@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/solarhell/certship/pkg/ent/renewtask"
+	"github.com/solarhell/certship/pkg/model"
 )
 
 // RenewTaskCreate is the builder for creating a RenewTask entity.
@@ -51,6 +52,12 @@ func (_c *RenewTaskCreate) SetNillableTrigger(v *renewtask.Trigger) *RenewTaskCr
 	if v != nil {
 		_c.SetTrigger(*v)
 	}
+	return _c
+}
+
+// SetLog sets the "log" field.
+func (_c *RenewTaskCreate) SetLog(v []model.TaskLogEntry) *RenewTaskCreate {
+	_c.mutation.SetLog(v)
 	return _c
 }
 
@@ -252,6 +259,10 @@ func (_c *RenewTaskCreate) createSpec() (*RenewTask, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Trigger(); ok {
 		_spec.SetField(renewtask.FieldTrigger, field.TypeEnum, value)
 		_node.Trigger = value
+	}
+	if value, ok := _c.mutation.Log(); ok {
+		_spec.SetField(renewtask.FieldLog, field.TypeJSON, value)
+		_node.Log = value
 	}
 	if value, ok := _c.mutation.ErrorMessage(); ok {
 		_spec.SetField(renewtask.FieldErrorMessage, field.TypeString, value)

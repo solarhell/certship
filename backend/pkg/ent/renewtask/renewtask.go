@@ -20,6 +20,8 @@ const (
 	FieldStatus = "status"
 	// FieldTrigger holds the string denoting the trigger field in the database.
 	FieldTrigger = "trigger"
+	// FieldLog holds the string denoting the log field in the database.
+	FieldLog = "log"
 	// FieldErrorMessage holds the string denoting the error_message field in the database.
 	FieldErrorMessage = "error_message"
 	// FieldStartedAt holds the string denoting the started_at field in the database.
@@ -38,6 +40,7 @@ var Columns = []string{
 	FieldDomains,
 	FieldStatus,
 	FieldTrigger,
+	FieldLog,
 	FieldErrorMessage,
 	FieldStartedAt,
 	FieldFinishedAt,

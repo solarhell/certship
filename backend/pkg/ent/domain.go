@@ -36,6 +36,8 @@ type Domain struct {
 	KeyPem string `json:"key_pem,omitempty"`
 	// 证书状态：pending=待颁发，active=有效，error=错误
 	Status domain.Status `json:"status,omitempty"`
+	// 部署目标：oss=直连 OSS，cdn=CDN 加速
+	DeployTarget domain.DeployTarget `json:"deploy_target,omitempty"`
 	// 最近一次错误信息
 	ErrorMessage string `json:"error_message,omitempty"`
 	// 创建时间
@@ -50,7 +52,7 @@ func (*Domain) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case domain.FieldID, domain.FieldDomain, domain.FieldBucket, domain.FieldRegion, domain.FieldAccountName, domain.FieldCertPem, domain.FieldKeyPem, domain.FieldStatus, domain.FieldErrorMessage:
+		case domain.FieldID, domain.FieldDomain, domain.FieldBucket, domain.FieldRegion, domain.FieldAccountName, domain.FieldCertPem, domain.FieldKeyPem, domain.FieldStatus, domain.FieldDeployTarget, domain.FieldErrorMessage:
 			values[i] = new(sql.NullString)
 		case domain.FieldIssuedAt, domain.FieldExpiresAt, domain.FieldCreatedAt, domain.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -130,6 +132,12 @@ func (_m *Domain) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
 				_m.Status = domain.Status(value.String)
+			}
+		case domain.FieldDeployTarget:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field deploy_target", values[i])
+			} else if value.Valid {
+				_m.DeployTarget = domain.DeployTarget(value.String)
 			}
 		case domain.FieldErrorMessage:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -215,6 +223,9 @@ func (_m *Domain) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Status))
+	builder.WriteString(", ")
+	builder.WriteString("deploy_target=")
+	builder.WriteString(fmt.Sprintf("%v", _m.DeployTarget))
 	builder.WriteString(", ")
 	builder.WriteString("error_message=")
 	builder.WriteString(_m.ErrorMessage)

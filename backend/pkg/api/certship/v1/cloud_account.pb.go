@@ -481,6 +481,110 @@ func (*DeleteCloudAccountResponse) Descriptor() ([]byte, []int) {
 	return file_certship_v1_cloud_account_proto_rawDescGZIP(), []int{8}
 }
 
+type RescanCloudAccountRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RescanCloudAccountRequest) Reset() {
+	*x = RescanCloudAccountRequest{}
+	mi := &file_certship_v1_cloud_account_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RescanCloudAccountRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RescanCloudAccountRequest) ProtoMessage() {}
+
+func (x *RescanCloudAccountRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_certship_v1_cloud_account_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RescanCloudAccountRequest.ProtoReflect.Descriptor instead.
+func (*RescanCloudAccountRequest) Descriptor() ([]byte, []int) {
+	return file_certship_v1_cloud_account_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *RescanCloudAccountRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type RescanCloudAccountResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Added         uint32                 `protobuf:"varint,1,opt,name=added,proto3" json:"added,omitempty"`
+	Updated       uint32                 `protobuf:"varint,2,opt,name=updated,proto3" json:"updated,omitempty"`
+	Total         uint32                 `protobuf:"varint,3,opt,name=total,proto3" json:"total,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RescanCloudAccountResponse) Reset() {
+	*x = RescanCloudAccountResponse{}
+	mi := &file_certship_v1_cloud_account_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RescanCloudAccountResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RescanCloudAccountResponse) ProtoMessage() {}
+
+func (x *RescanCloudAccountResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_certship_v1_cloud_account_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RescanCloudAccountResponse.ProtoReflect.Descriptor instead.
+func (*RescanCloudAccountResponse) Descriptor() ([]byte, []int) {
+	return file_certship_v1_cloud_account_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *RescanCloudAccountResponse) GetAdded() uint32 {
+	if x != nil {
+		return x.Added
+	}
+	return 0
+}
+
+func (x *RescanCloudAccountResponse) GetUpdated() uint32 {
+	if x != nil {
+		return x.Updated
+	}
+	return 0
+}
+
+func (x *RescanCloudAccountResponse) GetTotal() uint32 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
 var File_certship_v1_cloud_account_proto protoreflect.FileDescriptor
 
 const file_certship_v1_cloud_account_proto_rawDesc = "" +
@@ -512,12 +616,19 @@ const file_certship_v1_cloud_account_proto_rawDesc = "" +
 	"\x1aUpdateCloudAccountResponse\"+\n" +
 	"\x19DeleteCloudAccountRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x1c\n" +
-	"\x1aDeleteCloudAccountResponse2\xae\x03\n" +
+	"\x1aDeleteCloudAccountResponse\"+\n" +
+	"\x19RescanCloudAccountRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"b\n" +
+	"\x1aRescanCloudAccountResponse\x12\x14\n" +
+	"\x05added\x18\x01 \x01(\rR\x05added\x12\x18\n" +
+	"\aupdated\x18\x02 \x01(\rR\aupdated\x12\x14\n" +
+	"\x05total\x18\x03 \x01(\rR\x05total2\x95\x04\n" +
 	"\x13CloudAccountService\x12b\n" +
 	"\x11ListCloudAccounts\x12%.certship.v1.ListCloudAccountsRequest\x1a&.certship.v1.ListCloudAccountsResponse\x12e\n" +
 	"\x12CreateCloudAccount\x12&.certship.v1.CreateCloudAccountRequest\x1a'.certship.v1.CreateCloudAccountResponse\x12e\n" +
 	"\x12UpdateCloudAccount\x12&.certship.v1.UpdateCloudAccountRequest\x1a'.certship.v1.UpdateCloudAccountResponse\x12e\n" +
-	"\x12DeleteCloudAccount\x12&.certship.v1.DeleteCloudAccountRequest\x1a'.certship.v1.DeleteCloudAccountResponseB>Z<github.com/solarhell/certship/pkg/api/certship/v1;certshipv1b\x06proto3"
+	"\x12DeleteCloudAccount\x12&.certship.v1.DeleteCloudAccountRequest\x1a'.certship.v1.DeleteCloudAccountResponse\x12e\n" +
+	"\x12RescanCloudAccount\x12&.certship.v1.RescanCloudAccountRequest\x1a'.certship.v1.RescanCloudAccountResponseB>Z<github.com/solarhell/certship/pkg/api/certship/v1;certshipv1b\x06proto3"
 
 var (
 	file_certship_v1_cloud_account_proto_rawDescOnce sync.Once
@@ -531,7 +642,7 @@ func file_certship_v1_cloud_account_proto_rawDescGZIP() []byte {
 	return file_certship_v1_cloud_account_proto_rawDescData
 }
 
-var file_certship_v1_cloud_account_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_certship_v1_cloud_account_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_certship_v1_cloud_account_proto_goTypes = []any{
 	(*ListCloudAccountsRequest)(nil),   // 0: certship.v1.ListCloudAccountsRequest
 	(*CloudAccountItem)(nil),           // 1: certship.v1.CloudAccountItem
@@ -542,22 +653,26 @@ var file_certship_v1_cloud_account_proto_goTypes = []any{
 	(*UpdateCloudAccountResponse)(nil), // 6: certship.v1.UpdateCloudAccountResponse
 	(*DeleteCloudAccountRequest)(nil),  // 7: certship.v1.DeleteCloudAccountRequest
 	(*DeleteCloudAccountResponse)(nil), // 8: certship.v1.DeleteCloudAccountResponse
+	(*RescanCloudAccountRequest)(nil),  // 9: certship.v1.RescanCloudAccountRequest
+	(*RescanCloudAccountResponse)(nil), // 10: certship.v1.RescanCloudAccountResponse
 }
 var file_certship_v1_cloud_account_proto_depIdxs = []int32{
-	1, // 0: certship.v1.ListCloudAccountsResponse.accounts:type_name -> certship.v1.CloudAccountItem
-	0, // 1: certship.v1.CloudAccountService.ListCloudAccounts:input_type -> certship.v1.ListCloudAccountsRequest
-	3, // 2: certship.v1.CloudAccountService.CreateCloudAccount:input_type -> certship.v1.CreateCloudAccountRequest
-	5, // 3: certship.v1.CloudAccountService.UpdateCloudAccount:input_type -> certship.v1.UpdateCloudAccountRequest
-	7, // 4: certship.v1.CloudAccountService.DeleteCloudAccount:input_type -> certship.v1.DeleteCloudAccountRequest
-	2, // 5: certship.v1.CloudAccountService.ListCloudAccounts:output_type -> certship.v1.ListCloudAccountsResponse
-	4, // 6: certship.v1.CloudAccountService.CreateCloudAccount:output_type -> certship.v1.CreateCloudAccountResponse
-	6, // 7: certship.v1.CloudAccountService.UpdateCloudAccount:output_type -> certship.v1.UpdateCloudAccountResponse
-	8, // 8: certship.v1.CloudAccountService.DeleteCloudAccount:output_type -> certship.v1.DeleteCloudAccountResponse
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	1,  // 0: certship.v1.ListCloudAccountsResponse.accounts:type_name -> certship.v1.CloudAccountItem
+	0,  // 1: certship.v1.CloudAccountService.ListCloudAccounts:input_type -> certship.v1.ListCloudAccountsRequest
+	3,  // 2: certship.v1.CloudAccountService.CreateCloudAccount:input_type -> certship.v1.CreateCloudAccountRequest
+	5,  // 3: certship.v1.CloudAccountService.UpdateCloudAccount:input_type -> certship.v1.UpdateCloudAccountRequest
+	7,  // 4: certship.v1.CloudAccountService.DeleteCloudAccount:input_type -> certship.v1.DeleteCloudAccountRequest
+	9,  // 5: certship.v1.CloudAccountService.RescanCloudAccount:input_type -> certship.v1.RescanCloudAccountRequest
+	2,  // 6: certship.v1.CloudAccountService.ListCloudAccounts:output_type -> certship.v1.ListCloudAccountsResponse
+	4,  // 7: certship.v1.CloudAccountService.CreateCloudAccount:output_type -> certship.v1.CreateCloudAccountResponse
+	6,  // 8: certship.v1.CloudAccountService.UpdateCloudAccount:output_type -> certship.v1.UpdateCloudAccountResponse
+	8,  // 9: certship.v1.CloudAccountService.DeleteCloudAccount:output_type -> certship.v1.DeleteCloudAccountResponse
+	10, // 10: certship.v1.CloudAccountService.RescanCloudAccount:output_type -> certship.v1.RescanCloudAccountResponse
+	6,  // [6:11] is the sub-list for method output_type
+	1,  // [1:6] is the sub-list for method input_type
+	1,  // [1:1] is the sub-list for extension type_name
+	1,  // [1:1] is the sub-list for extension extendee
+	0,  // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_certship_v1_cloud_account_proto_init() }
@@ -571,7 +686,7 @@ func file_certship_v1_cloud_account_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_certship_v1_cloud_account_proto_rawDesc), len(file_certship_v1_cloud_account_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -32,6 +32,8 @@ const (
 	FieldKeyPem = "key_pem"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldDeployTarget holds the string denoting the deploy_target field in the database.
+	FieldDeployTarget = "deploy_target"
 	// FieldErrorMessage holds the string denoting the error_message field in the database.
 	FieldErrorMessage = "error_message"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -54,6 +56,7 @@ var Columns = []string{
 	FieldCertPem,
 	FieldKeyPem,
 	FieldStatus,
+	FieldDeployTarget,
 	FieldErrorMessage,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -117,6 +120,32 @@ func StatusValidator(s Status) error {
 	}
 }
 
+// DeployTarget defines the type for the "deploy_target" enum field.
+type DeployTarget string
+
+// DeployTargetOss is the default value of the DeployTarget enum.
+const DefaultDeployTarget = DeployTargetOss
+
+// DeployTarget values.
+const (
+	DeployTargetOss DeployTarget = "oss"
+	DeployTargetCdn DeployTarget = "cdn"
+)
+
+func (dt DeployTarget) String() string {
+	return string(dt)
+}
+
+// DeployTargetValidator is a validator for the "deploy_target" field enum values. It is called by the builders before save.
+func DeployTargetValidator(dt DeployTarget) error {
+	switch dt {
+	case DeployTargetOss, DeployTargetCdn:
+		return nil
+	default:
+		return fmt.Errorf("domain: invalid enum value for deploy_target field: %q", dt)
+	}
+}
+
 // OrderOption defines the ordering options for the Domain queries.
 type OrderOption func(*sql.Selector)
 
@@ -168,6 +197,11 @@ func ByKeyPem(opts ...sql.OrderTermOption) OrderOption {
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
+}
+
+// ByDeployTarget orders the results by the deploy_target field.
+func ByDeployTarget(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeployTarget, opts...).ToFunc()
 }
 
 // ByErrorMessage orders the results by the error_message field.

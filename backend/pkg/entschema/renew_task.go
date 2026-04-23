@@ -9,6 +9,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/index"
 	"github.com/google/uuid"
+	"github.com/solarhell/certship/pkg/model"
 )
 
 // RenewTask 证书续期任务，一个任务可关联多个域名（SAN 多域名证书）
@@ -38,6 +39,10 @@ func (RenewTask) Fields() []ent.Field {
 			Values("auto", "manual").
 			Default("auto").
 			Comment("触发方式：auto=自动，manual=手动"),
+
+		field.JSON("log", []model.TaskLogEntry{}).
+			Optional().
+			Comment("执行日志"),
 
 		field.Text("error_message").
 			Optional().

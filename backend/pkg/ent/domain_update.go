@@ -178,6 +178,20 @@ func (_u *DomainUpdate) SetNillableStatus(v *domain.Status) *DomainUpdate {
 	return _u
 }
 
+// SetDeployTarget sets the "deploy_target" field.
+func (_u *DomainUpdate) SetDeployTarget(v domain.DeployTarget) *DomainUpdate {
+	_u.mutation.SetDeployTarget(v)
+	return _u
+}
+
+// SetNillableDeployTarget sets the "deploy_target" field if the given value is not nil.
+func (_u *DomainUpdate) SetNillableDeployTarget(v *domain.DeployTarget) *DomainUpdate {
+	if v != nil {
+		_u.SetDeployTarget(*v)
+	}
+	return _u
+}
+
 // SetErrorMessage sets the "error_message" field.
 func (_u *DomainUpdate) SetErrorMessage(v string) *DomainUpdate {
 	_u.mutation.SetErrorMessage(v)
@@ -272,6 +286,11 @@ func (_u *DomainUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Domain.status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.DeployTarget(); ok {
+		if err := domain.DeployTargetValidator(v); err != nil {
+			return &ValidationError{Name: "deploy_target", err: fmt.Errorf(`ent: validator failed for field "Domain.deploy_target": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -325,6 +344,9 @@ func (_u *DomainUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(domain.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.DeployTarget(); ok {
+		_spec.SetField(domain.FieldDeployTarget, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.ErrorMessage(); ok {
 		_spec.SetField(domain.FieldErrorMessage, field.TypeString, value)
@@ -505,6 +527,20 @@ func (_u *DomainUpdateOne) SetNillableStatus(v *domain.Status) *DomainUpdateOne 
 	return _u
 }
 
+// SetDeployTarget sets the "deploy_target" field.
+func (_u *DomainUpdateOne) SetDeployTarget(v domain.DeployTarget) *DomainUpdateOne {
+	_u.mutation.SetDeployTarget(v)
+	return _u
+}
+
+// SetNillableDeployTarget sets the "deploy_target" field if the given value is not nil.
+func (_u *DomainUpdateOne) SetNillableDeployTarget(v *domain.DeployTarget) *DomainUpdateOne {
+	if v != nil {
+		_u.SetDeployTarget(*v)
+	}
+	return _u
+}
+
 // SetErrorMessage sets the "error_message" field.
 func (_u *DomainUpdateOne) SetErrorMessage(v string) *DomainUpdateOne {
 	_u.mutation.SetErrorMessage(v)
@@ -612,6 +648,11 @@ func (_u *DomainUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Domain.status": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.DeployTarget(); ok {
+		if err := domain.DeployTargetValidator(v); err != nil {
+			return &ValidationError{Name: "deploy_target", err: fmt.Errorf(`ent: validator failed for field "Domain.deploy_target": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -682,6 +723,9 @@ func (_u *DomainUpdateOne) sqlSave(ctx context.Context) (_node *Domain, err erro
 	}
 	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(domain.FieldStatus, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.DeployTarget(); ok {
+		_spec.SetField(domain.FieldDeployTarget, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.ErrorMessage(); ok {
 		_spec.SetField(domain.FieldErrorMessage, field.TypeString, value)

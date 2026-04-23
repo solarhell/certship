@@ -10,12 +10,14 @@ import (
 
 	"github.com/solarhell/certship/internal/acme"
 	cdnpkg "github.com/solarhell/certship/internal/cdn"
+	"github.com/solarhell/certship/internal/domainsync"
 	"github.com/solarhell/certship/internal/oss"
 	"github.com/solarhell/certship/pkg/database"
 	"github.com/solarhell/certship/pkg/ent"
 	entcloudaccount "github.com/solarhell/certship/pkg/ent/cloudaccount"
 	entdomain "github.com/solarhell/certship/pkg/ent/domain"
 	"github.com/solarhell/certship/pkg/ent/renewtask"
+	"github.com/solarhell/certship/pkg/model"
 )
 
 type Daemon struct {
@@ -88,7 +90,7 @@ func (d *Daemon) cycle(ctx context.Context) {
 	d.logger.Info("发现自定义域名", zap.Int("count", len(domains)))
 
 	// Phase 1: 将 OSS 现状同步到 DB
-	d.syncDomains(ctx, domains)
+	domainsync.Sync(ctx, d.logger, domains)
 
 	// Phase 2: 检查已有证书是否需要重新部署（CDN↔OSS 切换场景）
 	d.checkAndRedeploy(ctx)
@@ -140,12 +142,22 @@ func (d *Daemon) checkAndRedeploy(ctx context.Context) {
 
 		isCDN := cdnMgr.IsCDNDomain(account.AccessKeyID, account.AccessKeySecret, dom.Domain)
 
+		// 更新 deploy_target
+		if isCDN {
+			_ = dom.Update().SetDeployTarget(entdomain.DeployTargetCdn).Exec(ctx)
+		} else {
+			_ = dom.Update().SetDeployTarget(entdomain.DeployTargetOss).Exec(ctx)
+		}
+
 		domainInfo := oss.DomainInfo{Domain: dom.Domain, Bucket: dom.Bucket, Region: dom.Region, Account: account}
 
 		if isCDN {
-			// CDN 域名：始终清理 OSS 侧证书
-			if err := ossBinder.DeleteCert(ctx, domainInfo); err != nil {
-				d.logger.Warn("删除 OSS 侧证书失败", zap.String("domain", dom.Domain), zap.Error(err))
+			// CDN 域名：如果 OSS 侧有证书则清理
+			ossScanner := oss.NewScanner(d.logger)
+			if ossCert := ossScanner.GetDomainCert(ctx, account, dom.Bucket, dom.Region, dom.Domain); ossCert != nil {
+				if err := ossBinder.DeleteCert(ctx, domainInfo); err != nil {
+					d.logger.Warn("删除 OSS 侧证书失败", zap.String("domain", dom.Domain), zap.Error(err))
+				}
 			}
 			// 检查 CDN 侧证书是否需要部署
 			if cdnMgr.NeedDeploy(account.AccessKeyID, account.AccessKeySecret, dom.Domain) {
@@ -168,79 +180,6 @@ func (d *Daemon) checkAndRedeploy(ctx context.Context) {
 					d.logger.Info("OSS 证书重新绑定成功", zap.String("domain", dom.Domain))
 				}
 			}
-		}
-	}
-}
-
-// syncDomains 将扫描到的域名及其 OSS 侧证书信息同步到 DB
-// 已有自颁发证书（cert_pem 非空）的记录，不覆盖证书日期，只更新 bucket/region/account
-func (d *Daemon) syncDomains(ctx context.Context, domains []oss.DomainInfo) {
-	db := database.GetClient()
-	for _, info := range domains {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-		}
-
-		existing, err := db.Domain.Query().
-			Where(entdomain.DomainEQ(info.Domain)).
-			Only(ctx)
-
-		if ent.IsNotFound(err) {
-			// 新发现的域名
-			creator := db.Domain.Create().
-				SetDomain(info.Domain).
-				SetBucket(info.Bucket).
-				SetRegion(info.Region).
-				SetAccountName(info.Account.Name)
-
-			if info.OSSCert != nil {
-				creator = creator.
-					SetIssuedAt(info.OSSCert.ValidStartDate).
-					SetExpiresAt(info.OSSCert.ValidEndDate).
-					SetStatus(entdomain.StatusActive)
-			} else {
-				creator = creator.SetStatus(entdomain.StatusPending)
-			}
-
-			if err := creator.Exec(ctx); err != nil {
-				d.logger.Warn("写入新域名记录失败",
-					zap.String("domain", info.Domain),
-					zap.Error(err),
-				)
-			} else {
-				d.logger.Info("发现新域名，已写入数据库",
-					zap.String("domain", info.Domain),
-					zap.Bool("has_cert", info.OSSCert != nil),
-				)
-			}
-			continue
-		}
-
-		if err != nil {
-			d.logger.Warn("查询域名记录失败", zap.String("domain", info.Domain), zap.Error(err))
-			continue
-		}
-
-		// 已存在：始终更新 bucket/region/account
-		updater := existing.Update().
-			SetBucket(info.Bucket).
-			SetRegion(info.Region).
-			SetAccountName(info.Account.Name)
-
-		// 若 DB 中无自颁发证书，则用 OSS 侧信息更新日期
-		if existing.CertPem == "" && info.OSSCert != nil {
-			updater = updater.
-				SetIssuedAt(info.OSSCert.ValidStartDate).
-				SetExpiresAt(info.OSSCert.ValidEndDate).
-				SetStatus(entdomain.StatusActive)
-		} else if existing.CertPem == "" && info.OSSCert == nil {
-			updater = updater.SetStatus(entdomain.StatusPending)
-		}
-
-		if err := updater.Exec(ctx); err != nil {
-			d.logger.Warn("更新域名记录失败", zap.String("domain", info.Domain), zap.Error(err))
 		}
 	}
 }
@@ -341,26 +280,43 @@ func (d *Daemon) executePendingTasks(ctx context.Context) {
 	}
 }
 
-// executeTask 执行单个续期任务：申请 SAN 证书并绑定到各域名对应的 OSS
+// taskLog 用于追加结构化日志到 DB
+type taskLog struct {
+	ctx     context.Context
+	task    *ent.RenewTask
+	entries []model.TaskLogEntry
+}
+
+func (l *taskLog) appendf(format string, args ...any) {
+	l.entries = append(l.entries, model.TaskLogEntry{
+		Time:    time.Now(),
+		Content: fmt.Sprintf(format, args...),
+	})
+	_ = l.task.Update().SetLog(l.entries).Exec(l.ctx)
+}
+
+// executeTask 执行单个续期任务：申请 SAN 证书并绑定到各域名对应的 OSS/CDN
 func (d *Daemon) executeTask(ctx context.Context, task *ent.RenewTask, acmeMgr *acme.Manager) {
 	db := database.GetClient()
 	log := d.logger.With(
 		zap.String("task_id", task.ID),
 		zap.Strings("domains", task.Domains),
 	)
+	tl := &taskLog{ctx: ctx, task: task}
 
 	// 标记为 running
 	now := time.Now()
 	_ = task.Update().SetStatus(renewtask.StatusRunning).SetStartedAt(now).Exec(ctx)
 
+	tl.appendf("开始执行续期任务，域名: %s", strings.Join(task.Domains, ", "))
 	log.Info("开始执行续期任务")
 
-	// 查找第一个域名对应的云账号（同一任务中的域名应属于同一账号）
+	// 查找第一个域名对应的云账号
 	firstDomain, err := db.Domain.Query().
 		Where(entdomain.DomainEQ(task.Domains[0])).
 		Only(ctx)
 	if err != nil {
-		d.failTask(ctx, task, log, fmt.Errorf("查询域名 %s 失败: %w", task.Domains[0], err))
+		d.failTask(ctx, task, log, tl, fmt.Errorf("查询域名 %s 失败: %w", task.Domains[0], err))
 		return
 	}
 
@@ -368,28 +324,32 @@ func (d *Daemon) executeTask(ctx context.Context, task *ent.RenewTask, acmeMgr *
 		Where(entcloudaccount.NameEQ(firstDomain.AccountName)).
 		Only(ctx)
 	if err != nil {
-		d.failTask(ctx, task, log, fmt.Errorf("找不到云账号 %s: %w", firstDomain.AccountName, err))
+		d.failTask(ctx, task, log, tl, fmt.Errorf("找不到云账号 %s: %w", firstDomain.AccountName, err))
 		return
 	}
+	tl.appendf("使用云账号: %s", account.Name)
 
 	accountKeyPEM, regJSON, err := database.GetACMEAccount(ctx)
 	if err != nil {
-		d.failTask(ctx, task, log, fmt.Errorf("读取 ACME 账号信息失败: %w", err))
+		d.failTask(ctx, task, log, tl, fmt.Errorf("读取 ACME 账号信息失败: %w", err))
 		return
 	}
 
 	// 申请 SAN 多域名证书
+	tl.appendf("正在申请 Let's Encrypt 证书 (DNS-01)...")
 	result, err := acmeMgr.ObtainCert(task.Domains, account.AccessKeyID, account.AccessKeySecret, accountKeyPEM, regJSON)
 	if err != nil {
-		d.failTask(ctx, task, log, fmt.Errorf("申请证书失败: %w", err))
+		d.failTask(ctx, task, log, tl, fmt.Errorf("申请证书失败: %w", err))
 		return
 	}
+	expiry, _ := acme.ParseCertExpiry(result.CertPEM)
+	tl.appendf("证书申请成功，到期时间: %s", expiry.Format("2006-01-02"))
 
 	if err := database.SaveACMEAccount(ctx, result.AccountKeyPEM, result.RegistrationJSON); err != nil {
 		log.Warn("保存 ACME 账号信息失败", zap.Error(err))
 	}
 
-	// 为每个域名部署证书：动态检测 CDN 或 OSS
+	// 为每个域名部署证书
 	ossBinder := oss.NewCertBinder(d.logger)
 	cdnMgr := cdnpkg.NewManager(d.logger)
 	for _, domainName := range task.Domains {
@@ -397,7 +357,7 @@ func (d *Daemon) executeTask(ctx context.Context, task *ent.RenewTask, acmeMgr *
 			Where(entdomain.DomainEQ(domainName)).
 			Only(ctx)
 		if err != nil {
-			log.Warn("查询域名记录失败，跳过绑定", zap.String("domain", domainName), zap.Error(err))
+			tl.appendf("⚠ 查询域名 %s 失败，跳过: %v", domainName, err)
 			continue
 		}
 
@@ -408,27 +368,33 @@ func (d *Daemon) executeTask(ctx context.Context, task *ent.RenewTask, acmeMgr *
 			Account: account,
 		}
 
-		// 动态检测：域名是否在 CDN 服务中
+		// 动态检测 CDN/OSS
 		if cdnMgr.IsCDNDomain(account.AccessKeyID, account.AccessKeySecret, dom.Domain) {
-			// CDN 域名：部署到 CDN
+			tl.appendf("检测到 %s 为 CDN 域名，部署到 CDN...", domainName)
 			if err := cdnMgr.DeployCert(account.AccessKeyID, account.AccessKeySecret, dom.Domain, result.CertPEM, result.KeyPEM); err != nil {
-				d.failTask(ctx, task, log, fmt.Errorf("部署证书到 CDN %s 失败: %w", domainName, err))
+				d.failTask(ctx, task, log, tl, fmt.Errorf("部署证书到 CDN %s 失败: %w", domainName, err))
 				return
 			}
-			// CDN 域名不需要 OSS 侧证书，删除之
-			if err := ossBinder.DeleteCert(ctx, domainInfo); err != nil {
-				log.Warn("删除 OSS 侧证书失败", zap.String("domain", domainName), zap.Error(err))
+			tl.appendf("✓ CDN 证书部署成功: %s", domainName)
+			// 清理 OSS 侧证书
+			ossScanner := oss.NewScanner(d.logger)
+			if ossCert := ossScanner.GetDomainCert(ctx, account, dom.Bucket, dom.Region, dom.Domain); ossCert != nil {
+				if err := ossBinder.DeleteCert(ctx, domainInfo); err != nil {
+					tl.appendf("⚠ 删除 OSS 侧证书失败: %v", err)
+				} else {
+					tl.appendf("✓ 已清理 OSS 侧证书: %s", domainName)
+				}
 			}
 		} else {
-			// OSS 直连：绑定到 OSS
+			tl.appendf("检测到 %s 为 OSS 直连域名，绑定到 OSS...", domainName)
 			if err := ossBinder.BindCert(ctx, domainInfo, result.CertPEM, result.KeyPEM); err != nil {
-				d.failTask(ctx, task, log, fmt.Errorf("绑定证书到 OSS %s 失败: %w", domainName, err))
+				d.failTask(ctx, task, log, tl, fmt.Errorf("绑定证书到 OSS %s 失败: %w", domainName, err))
 				return
 			}
+			tl.appendf("✓ OSS 证书绑定成功: %s (bucket: %s)", domainName, dom.Bucket)
 		}
 
 		// 更新域名记录
-		expiry, _ := acme.ParseCertExpiry(result.CertPEM)
 		_ = dom.Update().
 			SetIssuedAt(time.Now()).
 			SetExpiresAt(expiry).
@@ -440,15 +406,16 @@ func (d *Daemon) executeTask(ctx context.Context, task *ent.RenewTask, acmeMgr *
 	}
 
 	// 标记任务成功
+	tl.appendf("✅ 任务完成")
 	finished := time.Now()
 	_ = task.Update().
 		SetStatus(renewtask.StatusSuccess).
 		SetFinishedAt(finished).
 		SetErrorMessage("").
+		SetLog(tl.entries).
 		Exec(ctx)
 
 	domainList := strings.Join(task.Domains, ", ")
-	expiry, _ := acme.ParseCertExpiry(result.CertPEM)
 	database.SendToAllFeishuChannels(ctx,
 		fmt.Sprintf("✅ 证书申请成功\n域名: %s\n到期时间: %s", domainList, expiry.Format("2006-01-02")),
 		d.logger,
@@ -458,14 +425,16 @@ func (d *Daemon) executeTask(ctx context.Context, task *ent.RenewTask, acmeMgr *
 }
 
 // failTask 标记任务失败，更新关联域名状态，发送通知
-func (d *Daemon) failTask(ctx context.Context, task *ent.RenewTask, log *zap.Logger, err error) {
+func (d *Daemon) failTask(ctx context.Context, task *ent.RenewTask, log *zap.Logger, tl *taskLog, err error) {
 	log.Error("续期任务失败", zap.Error(err))
+	tl.appendf("❌ 任务失败: %v", err)
 
 	finished := time.Now()
 	_ = task.Update().
 		SetStatus(renewtask.StatusFailed).
 		SetFinishedAt(finished).
 		SetErrorMessage(err.Error()).
+		SetLog(tl.entries).
 		Exec(ctx)
 
 	// 更新关联域名状态为 error

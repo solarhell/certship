@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/solarhell/certship/pkg/ent/renewtask"
+	"github.com/solarhell/certship/pkg/model"
 )
 
 // RenewTask is the model entity for the RenewTask schema.
@@ -25,6 +26,8 @@ type RenewTask struct {
 	Status renewtask.Status `json:"status,omitempty"`
 	// 触发方式：auto=自动，manual=手动
 	Trigger renewtask.Trigger `json:"trigger,omitempty"`
+	// 执行日志
+	Log []model.TaskLogEntry `json:"log,omitempty"`
 	// 失败原因
 	ErrorMessage string `json:"error_message,omitempty"`
 	// 开始执行时间
@@ -41,7 +44,7 @@ func (*RenewTask) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case renewtask.FieldDomains:
+		case renewtask.FieldDomains, renewtask.FieldLog:
 			values[i] = new([]byte)
 		case renewtask.FieldID, renewtask.FieldStatus, renewtask.FieldTrigger, renewtask.FieldErrorMessage:
 			values[i] = new(sql.NullString)
@@ -87,6 +90,14 @@ func (_m *RenewTask) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field trigger", values[i])
 			} else if value.Valid {
 				_m.Trigger = renewtask.Trigger(value.String)
+			}
+		case renewtask.FieldLog:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field log", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &_m.Log); err != nil {
+					return fmt.Errorf("unmarshal field log: %w", err)
+				}
 			}
 		case renewtask.FieldErrorMessage:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -158,6 +169,9 @@ func (_m *RenewTask) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("trigger=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Trigger))
+	builder.WriteString(", ")
+	builder.WriteString("log=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Log))
 	builder.WriteString(", ")
 	builder.WriteString("error_message=")
 	builder.WriteString(_m.ErrorMessage)

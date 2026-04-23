@@ -1,10 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Table, Tag, Button, App, Popconfirm, Card, Input, Select, Space } from "antd";
 import { SyncOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
-import { listCertificates, type CertificateItem } from "@/api/certificate";
-import { createRenewTask } from "@/api/renew-task";
+import { createClient } from "@connectrpc/connect";
+import { create } from "@bufbuild/protobuf";
+import { CertificateService, ListCertificatesRequestSchema, type CertificateItem } from "@buf/wolotec_certship.bufbuild_es/certship/v1/certificate_pb";
+import { RenewTaskService, CreateRenewTaskRequestSchema } from "@buf/wolotec_certship.bufbuild_es/certship/v1/renew_task_pb";
+import { transport } from "@/api/transport";
+import { useAutoRefresh, REFRESH_OPTIONS } from "@/hooks/useAutoRefresh";
 
 const statusMap = {
   active: { color: "success" as const, text: "正常" },
@@ -20,16 +24,21 @@ export default function Certificates() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
-  const fetchData = () => {
+  const fetchData = useCallback(() => {
     setLoading(true);
-    listCertificates().then((res) => setData(res.certificates ?? [])).finally(() => setLoading(false));
-  };
+    const client = createClient(CertificateService, transport);
+    client.listCertificates(create(ListCertificatesRequestSchema, { limit: BigInt(100) }))
+      .then((res) => setData([...res.certificates]))
+      .finally(() => setLoading(false));
+  }, []);
 
-  useEffect(() => { fetchData(); }, []);
+  const { interval: refreshInterval, setInterval: setRefreshInterval } = useAutoRefresh(fetchData);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const handleRenew = async (domains: string[]) => {
     try {
-      await createRenewTask(domains);
+      const client = createClient(RenewTaskService, transport);
+      await client.createRenewTask(create(CreateRenewTaskRequestSchema, { domains }));
       message.success(`已创建续期任务：${domains.join(", ")}`);
       setSelectedRowKeys([]);
     } catch (err) {
@@ -44,15 +53,19 @@ export default function Certificates() {
   });
 
   const columns: ColumnsType<CertificateItem> = [
-    { title: "域名", dataIndex: "domain", ellipsis: true },
-    { title: "Bucket", dataIndex: "bucket", ellipsis: true },
-    { title: "Region", dataIndex: "region", ellipsis: true },
-    { title: "云账号", dataIndex: "accountName", ellipsis: true },
-    { title: "状态", dataIndex: "status", width: 90, render: (s: keyof typeof statusMap) => <Tag color={statusMap[s]?.color}>{statusMap[s]?.text ?? s}</Tag> },
-    { title: "签发时间", dataIndex: "issuedAt", width: 160, render: (v: string) => v ? dayjs(v).format("YYYY-MM-DD HH:mm") : "-" },
-    { title: "过期时间", dataIndex: "expiresAt", width: 160, sorter: (a, b) => dayjs(a.expiresAt).unix() - dayjs(b.expiresAt).unix(), render: (v: string) => v ? dayjs(v).format("YYYY-MM-DD HH:mm") : "-" },
-    { title: "操作", width: 90, fixed: "right", render: (_, record) => (
-      <Popconfirm title="确认为该域名创建续期任务？" onConfirm={() => handleRenew([record.domain])}><a><SyncOutlined /> 续期</a></Popconfirm>
+    { title: "域名", dataIndex: "domain", width: 280 },
+    { title: "Bucket", dataIndex: "bucket", width: 200, ellipsis: true },
+    { title: "部署", dataIndex: "deployTarget", width: 70, align: "center", render: (v: string) => <Tag color={v === "cdn" ? "orange" : "blue"}>{v === "cdn" ? "CDN" : "OSS"}</Tag> },
+    { title: "状态", dataIndex: "status", width: 70, align: "center", render: (s: string) => { const m = statusMap[s as keyof typeof statusMap]; return m ? <Tag color={m.color}>{m.text}</Tag> : s; } },
+    { title: "过期时间", dataIndex: "expiresAt", width: 155, render: (v: string) => v ? dayjs(v).format("YYYY-MM-DD HH:mm") : "-" },
+    { title: "剩余", width: 80, align: "center", render: (_: unknown, record: CertificateItem) => {
+      if (!record.expiresAt) return "-";
+      const days = dayjs(record.expiresAt).diff(dayjs(), "day");
+      const color = days <= 0 ? "red" : days <= 7 ? "red" : days <= 30 ? "orange" : "green";
+      return <Tag color={color}>{days <= 0 ? "已过期" : `${days}天`}</Tag>;
+    } },
+    { title: "操作", width: 70, align: "center", render: (_, record) => (
+      <Popconfirm title="确认续期？" onConfirm={() => handleRenew([record.domain])}><a><SyncOutlined /> 续期</a></Popconfirm>
     ) },
   ];
 
@@ -61,18 +74,21 @@ export default function Certificates() {
   return (
     <Card title="证书列表" extra={
       <Space>
-        <Input prefix={<SearchOutlined />} placeholder="搜索域名/Bucket/账号" allowClear value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 220 }} />
-        <Select placeholder="状态" allowClear value={statusFilter} onChange={setStatusFilter} style={{ width: 120 }} options={[
+        <Input prefix={<SearchOutlined />} placeholder="搜索" allowClear value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 160 }} />
+        <Select placeholder="状态" allowClear value={statusFilter} onChange={setStatusFilter} style={{ width: 100 }} options={[
           { value: "active", label: "正常" }, { value: "pending", label: "待处理" }, { value: "error", label: "异常" },
         ]} />
+        <Select value={refreshInterval} onChange={setRefreshInterval} style={{ width: 140 }} options={REFRESH_OPTIONS} />
         <Button icon={<ReloadOutlined />} onClick={fetchData}>刷新</Button>
         {selectedRowKeys.length > 0 && (
-          <Button type="primary" icon={<SyncOutlined />} onClick={() => handleRenew(selectedDomains)}>批量续期（SAN 证书）</Button>
+          <Button type="primary" icon={<SyncOutlined />} onClick={() => handleRenew(selectedDomains)}>批量续期</Button>
         )}
       </Space>
     }>
-      <Table<CertificateItem> rowKey="id" columns={columns} dataSource={filtered} loading={loading} pagination={{ pageSize: 20 }} size="middle"
-        rowSelection={{ selectedRowKeys, onChange: setSelectedRowKeys }} scroll={{ x: 1000 }} />
+      <Table<CertificateItem> rowKey="id" columns={columns} dataSource={filtered} loading={loading}
+        pagination={{ pageSize: 20, showTotal: (t) => `共 ${t} 条` }} size="middle"
+        rowSelection={{ selectedRowKeys, onChange: setSelectedRowKeys }}
+        scroll={{ x: 880 }} />
     </Card>
   );
 }

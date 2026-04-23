@@ -23,6 +23,8 @@ const (
 
 type ListCertificatesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Limit         uint64                 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	Cursor        *string                `protobuf:"bytes,2,opt,name=cursor,proto3,oneof" json:"cursor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -57,6 +59,20 @@ func (*ListCertificatesRequest) Descriptor() ([]byte, []int) {
 	return file_certship_v1_certificate_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *ListCertificatesRequest) GetLimit() uint64 {
+	if x != nil {
+		return x.Limit
+	}
+	return 0
+}
+
+func (x *ListCertificatesRequest) GetCursor() string {
+	if x != nil && x.Cursor != nil {
+		return *x.Cursor
+	}
+	return ""
+}
+
 type CertificateItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -68,6 +84,7 @@ type CertificateItem struct {
 	IssuedAt      string                 `protobuf:"bytes,7,opt,name=issued_at,json=issuedAt,proto3" json:"issued_at,omitempty"`
 	ExpiresAt     string                 `protobuf:"bytes,8,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	ErrorMessage  string                 `protobuf:"bytes,9,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
+	DeployTarget  string                 `protobuf:"bytes,10,opt,name=deploy_target,json=deployTarget,proto3" json:"deploy_target,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -165,9 +182,19 @@ func (x *CertificateItem) GetErrorMessage() string {
 	return ""
 }
 
+func (x *CertificateItem) GetDeployTarget() string {
+	if x != nil {
+		return x.DeployTarget
+	}
+	return ""
+}
+
 type ListCertificatesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Certificates  []*CertificateItem     `protobuf:"bytes,1,rep,name=certificates,proto3" json:"certificates,omitempty"`
+	NextCursor    *string                `protobuf:"bytes,2,opt,name=next_cursor,json=nextCursor,proto3,oneof" json:"next_cursor,omitempty"`
+	HasMore       bool                   `protobuf:"varint,3,opt,name=has_more,json=hasMore,proto3" json:"has_more,omitempty"`
+	TotalCount    uint64                 `protobuf:"varint,4,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -209,12 +236,36 @@ func (x *ListCertificatesResponse) GetCertificates() []*CertificateItem {
 	return nil
 }
 
+func (x *ListCertificatesResponse) GetNextCursor() string {
+	if x != nil && x.NextCursor != nil {
+		return *x.NextCursor
+	}
+	return ""
+}
+
+func (x *ListCertificatesResponse) GetHasMore() bool {
+	if x != nil {
+		return x.HasMore
+	}
+	return false
+}
+
+func (x *ListCertificatesResponse) GetTotalCount() uint64 {
+	if x != nil {
+		return x.TotalCount
+	}
+	return 0
+}
+
 var File_certship_v1_certificate_proto protoreflect.FileDescriptor
 
 const file_certship_v1_certificate_proto_rawDesc = "" +
 	"\n" +
-	"\x1dcertship/v1/certificate.proto\x12\vcertship.v1\"\x19\n" +
-	"\x17ListCertificatesRequest\"\x85\x02\n" +
+	"\x1dcertship/v1/certificate.proto\x12\vcertship.v1\"W\n" +
+	"\x17ListCertificatesRequest\x12\x14\n" +
+	"\x05limit\x18\x01 \x01(\x04R\x05limit\x12\x1b\n" +
+	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01B\t\n" +
+	"\a_cursor\"\xaa\x02\n" +
 	"\x0fCertificateItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06domain\x18\x02 \x01(\tR\x06domain\x12\x16\n" +
@@ -225,9 +276,17 @@ const file_certship_v1_certificate_proto_rawDesc = "" +
 	"\tissued_at\x18\a \x01(\tR\bissuedAt\x12\x1d\n" +
 	"\n" +
 	"expires_at\x18\b \x01(\tR\texpiresAt\x12#\n" +
-	"\rerror_message\x18\t \x01(\tR\ferrorMessage\"\\\n" +
+	"\rerror_message\x18\t \x01(\tR\ferrorMessage\x12#\n" +
+	"\rdeploy_target\x18\n" +
+	" \x01(\tR\fdeployTarget\"\xce\x01\n" +
 	"\x18ListCertificatesResponse\x12@\n" +
-	"\fcertificates\x18\x01 \x03(\v2\x1c.certship.v1.CertificateItemR\fcertificates2u\n" +
+	"\fcertificates\x18\x01 \x03(\v2\x1c.certship.v1.CertificateItemR\fcertificates\x12$\n" +
+	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
+	"nextCursor\x88\x01\x01\x12\x19\n" +
+	"\bhas_more\x18\x03 \x01(\bR\ahasMore\x12\x1f\n" +
+	"\vtotal_count\x18\x04 \x01(\x04R\n" +
+	"totalCountB\x0e\n" +
+	"\f_next_cursor2u\n" +
 	"\x12CertificateService\x12_\n" +
 	"\x10ListCertificates\x12$.certship.v1.ListCertificatesRequest\x1a%.certship.v1.ListCertificatesResponseB>Z<github.com/solarhell/certship/pkg/api/certship/v1;certshipv1b\x06proto3"
 
@@ -265,6 +324,8 @@ func file_certship_v1_certificate_proto_init() {
 	if File_certship_v1_certificate_proto != nil {
 		return
 	}
+	file_certship_v1_certificate_proto_msgTypes[0].OneofWrappers = []any{}
+	file_certship_v1_certificate_proto_msgTypes[2].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

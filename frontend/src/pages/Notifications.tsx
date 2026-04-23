@@ -3,7 +3,13 @@ import { Table, Button, Popconfirm, Switch, App, Card, Modal, Form, Input } from
 import { PlusOutlined, ReloadOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
-import { listNotificationChannels, createNotificationChannel, updateNotificationChannel, deleteNotificationChannel, type NotificationChannelItem } from "@/api/notification";
+import { createClient } from "@connectrpc/connect";
+import { create } from "@bufbuild/protobuf";
+import {
+  NotificationChannelService, ListNotificationChannelsRequestSchema, CreateNotificationChannelRequestSchema,
+  UpdateNotificationChannelRequestSchema, DeleteNotificationChannelRequestSchema, type NotificationChannelItem,
+} from "@buf/wolotec_certship.bufbuild_es/certship/v1/notification_channel_pb";
+import { transport } from "@/api/transport";
 
 export default function Notifications() {
   const { message } = App.useApp();
@@ -14,7 +20,14 @@ export default function Notifications() {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [form] = Form.useForm();
 
-  const fetchData = () => { setLoading(true); listNotificationChannels().then((res) => setData(res.channels ?? [])).finally(() => setLoading(false)); };
+  const client = createClient(NotificationChannelService, transport);
+
+  const fetchData = () => {
+    setLoading(true);
+    client.listNotificationChannels(create(ListNotificationChannelsRequestSchema, {}))
+      .then((res) => setData([...res.channels]))
+      .finally(() => setLoading(false));
+  };
   useEffect(() => { fetchData(); }, []);
 
   const openModal = (record?: NotificationChannelItem) => {
@@ -27,13 +40,21 @@ export default function Notifications() {
     try {
       const values = await form.validateFields();
       setConfirmLoading(true);
-      if (editing) { await updateNotificationChannel({ id: editing.id, ...values }); message.success("更新成功"); }
-      else { await createNotificationChannel({ ...values, type: "feishu" }); message.success("创建成功"); }
+      if (editing) {
+        await client.updateNotificationChannel(create(UpdateNotificationChannelRequestSchema, { id: editing.id, ...values }));
+        message.success("更新成功");
+      } else {
+        await client.createNotificationChannel(create(CreateNotificationChannelRequestSchema, { ...values, type: "feishu" }));
+        message.success("创建成功");
+      }
       setModalOpen(false); setEditing(null); form.resetFields(); fetchData();
     } catch { /* validation */ } finally { setConfirmLoading(false); }
   };
 
-  const handleDelete = async (id: string) => { await deleteNotificationChannel(id); message.success("删除成功"); fetchData(); };
+  const handleDelete = async (id: string) => {
+    await client.deleteNotificationChannel(create(DeleteNotificationChannelRequestSchema, { id }));
+    message.success("删除成功"); fetchData();
+  };
 
   const columns: ColumnsType<NotificationChannelItem> = [
     { title: "名称", dataIndex: "name", ellipsis: true },

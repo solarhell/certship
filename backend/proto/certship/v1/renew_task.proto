@@ -9,7 +9,10 @@ service RenewTaskService {
   rpc CreateRenewTask(CreateRenewTaskRequest) returns (CreateRenewTaskResponse);
 }
 
-message ListRenewTasksRequest {}
+message ListRenewTasksRequest {
+  uint64 limit = 1;
+  optional string cursor = 2;
+}
 
 message RenewTaskItem {
   string id = 1;
@@ -20,10 +23,19 @@ message RenewTaskItem {
   string started_at = 6;
   string finished_at = 7;
   string created_at = 8;
+  repeated TaskLogEntry log = 9;
+}
+
+message TaskLogEntry {
+  string time = 1;
+  string content = 2;
 }
 
 message ListRenewTasksResponse {
   repeated RenewTaskItem tasks = 1;
+  optional string next_cursor = 2;
+  bool has_more = 3;
+  uint64 total_count = 4;
 }
 
 message CreateRenewTaskRequest {

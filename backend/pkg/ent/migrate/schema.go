@@ -97,6 +97,7 @@ var (
 		{Name: "cert_pem", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "证书 PEM 内容"},
 		{Name: "key_pem", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "证书私钥 PEM 内容"},
 		{Name: "status", Type: field.TypeEnum, Comment: "证书状态：pending=待颁发，active=有效，error=错误", Enums: []string{"pending", "active", "error"}, Default: "pending"},
+		{Name: "deploy_target", Type: field.TypeEnum, Comment: "部署目标：oss=直连 OSS，cdn=CDN 加速", Enums: []string{"oss", "cdn"}, Default: "oss"},
 		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "最近一次错误信息"},
 		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间", Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时间", Default: "CURRENT_TIMESTAMP"},
@@ -153,6 +154,7 @@ var (
 		{Name: "domains", Type: field.TypeJSON, Comment: "关联的域名列表（SAN 多域名证书）"},
 		{Name: "status", Type: field.TypeEnum, Comment: "任务状态：pending=待执行，running=执行中，success=成功，failed=失败", Enums: []string{"pending", "running", "success", "failed"}, Default: "pending"},
 		{Name: "trigger", Type: field.TypeEnum, Comment: "触发方式：auto=自动，manual=手动", Enums: []string{"auto", "manual"}, Default: "auto"},
+		{Name: "log", Type: field.TypeJSON, Nullable: true, Comment: "执行日志"},
 		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "失败原因"},
 		{Name: "started_at", Type: field.TypeTime, Nullable: true, Comment: "开始执行时间"},
 		{Name: "finished_at", Type: field.TypeTime, Nullable: true, Comment: "完成时间"},
@@ -172,7 +174,7 @@ var (
 			{
 				Name:    "renewtask_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{TRenewTaskColumns[7]},
+				Columns: []*schema.Column{TRenewTaskColumns[8]},
 			},
 		},
 	}

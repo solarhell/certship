@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/solarhell/certship/pkg/ent/predicate"
 	"github.com/solarhell/certship/pkg/ent/renewtask"
+	"github.com/solarhell/certship/pkg/model"
 )
 
 // RenewTaskUpdate is the builder for updating RenewTask entities.
@@ -66,6 +67,24 @@ func (_u *RenewTaskUpdate) SetNillableTrigger(v *renewtask.Trigger) *RenewTaskUp
 	if v != nil {
 		_u.SetTrigger(*v)
 	}
+	return _u
+}
+
+// SetLog sets the "log" field.
+func (_u *RenewTaskUpdate) SetLog(v []model.TaskLogEntry) *RenewTaskUpdate {
+	_u.mutation.SetLog(v)
+	return _u
+}
+
+// AppendLog appends value to the "log" field.
+func (_u *RenewTaskUpdate) AppendLog(v []model.TaskLogEntry) *RenewTaskUpdate {
+	_u.mutation.AppendLog(v)
+	return _u
+}
+
+// ClearLog clears the value of the "log" field.
+func (_u *RenewTaskUpdate) ClearLog() *RenewTaskUpdate {
+	_u.mutation.ClearLog()
 	return _u
 }
 
@@ -202,6 +221,17 @@ func (_u *RenewTaskUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Trigger(); ok {
 		_spec.SetField(renewtask.FieldTrigger, field.TypeEnum, value)
 	}
+	if value, ok := _u.mutation.Log(); ok {
+		_spec.SetField(renewtask.FieldLog, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedLog(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, renewtask.FieldLog, value)
+		})
+	}
+	if _u.mutation.LogCleared() {
+		_spec.ClearField(renewtask.FieldLog, field.TypeJSON)
+	}
 	if value, ok := _u.mutation.ErrorMessage(); ok {
 		_spec.SetField(renewtask.FieldErrorMessage, field.TypeString, value)
 	}
@@ -277,6 +307,24 @@ func (_u *RenewTaskUpdateOne) SetNillableTrigger(v *renewtask.Trigger) *RenewTas
 	if v != nil {
 		_u.SetTrigger(*v)
 	}
+	return _u
+}
+
+// SetLog sets the "log" field.
+func (_u *RenewTaskUpdateOne) SetLog(v []model.TaskLogEntry) *RenewTaskUpdateOne {
+	_u.mutation.SetLog(v)
+	return _u
+}
+
+// AppendLog appends value to the "log" field.
+func (_u *RenewTaskUpdateOne) AppendLog(v []model.TaskLogEntry) *RenewTaskUpdateOne {
+	_u.mutation.AppendLog(v)
+	return _u
+}
+
+// ClearLog clears the value of the "log" field.
+func (_u *RenewTaskUpdateOne) ClearLog() *RenewTaskUpdateOne {
+	_u.mutation.ClearLog()
 	return _u
 }
 
@@ -442,6 +490,17 @@ func (_u *RenewTaskUpdateOne) sqlSave(ctx context.Context) (_node *RenewTask, er
 	}
 	if value, ok := _u.mutation.Trigger(); ok {
 		_spec.SetField(renewtask.FieldTrigger, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Log(); ok {
+		_spec.SetField(renewtask.FieldLog, field.TypeJSON, value)
+	}
+	if value, ok := _u.mutation.AppendedLog(); ok {
+		_spec.AddModifier(func(u *sql.UpdateBuilder) {
+			sqljson.Append(u, renewtask.FieldLog, value)
+		})
+	}
+	if _u.mutation.LogCleared() {
+		_spec.ClearField(renewtask.FieldLog, field.TypeJSON)
 	}
 	if value, ok := _u.mutation.ErrorMessage(); ok {
 		_spec.SetField(renewtask.FieldErrorMessage, field.TypeString, value)

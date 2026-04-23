@@ -7,10 +7,13 @@ import (
 	"connectrpc.com/connect"
 	"go.uber.org/zap"
 
+	"github.com/solarhell/certship/internal/domainsync"
+	"github.com/solarhell/certship/internal/oss"
 	certshipv1 "github.com/solarhell/certship/pkg/api/certship/v1"
 	"github.com/solarhell/certship/pkg/api/certship/v1/certshipv1connect"
 	"github.com/solarhell/certship/pkg/database"
 	"github.com/solarhell/certship/pkg/ent"
+	entdomain "github.com/solarhell/certship/pkg/ent/domain"
 )
 
 func NewServer() certshipv1connect.CloudAccountServiceHandler {
@@ -87,6 +90,45 @@ func (s *Server) UpdateCloudAccount(ctx context.Context, req *connect.Request[ce
 	}
 
 	return connect.NewResponse(&certshipv1.UpdateCloudAccountResponse{}), nil
+}
+
+func (s *Server) RescanCloudAccount(ctx context.Context, req *connect.Request[certshipv1.RescanCloudAccountRequest]) (*connect.Response[certshipv1.RescanCloudAccountResponse], error) {
+	if req.Msg.Id == "" {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("id 不能为空"))
+	}
+
+	db := database.GetClient()
+	account, err := db.CloudAccount.Get(ctx, req.Msg.Id)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("云账号不存在"))
+		}
+		s.logger.Error("查询云账号失败", zap.Error(err))
+		return nil, connect.NewError(connect.CodeInternal, err)
+	}
+	if !account.Enabled {
+		return nil, connect.NewError(connect.CodeFailedPrecondition, fmt.Errorf("云账号已禁用"))
+	}
+
+	scanner := oss.NewScanner(s.logger)
+	domains, err := scanner.ScanAccount(ctx, account)
+	if err != nil {
+		s.logger.Error("扫描云账号失败", zap.String("account", account.Name), zap.Error(err))
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("扫描失败: %w", err))
+	}
+
+	stats := domainsync.Sync(ctx, s.logger, domains)
+
+	total, err := db.Domain.Query().Where(entdomain.AccountNameEQ(account.Name)).Count(ctx)
+	if err != nil {
+		s.logger.Warn("查询账号域名总数失败", zap.Error(err))
+	}
+
+	return connect.NewResponse(&certshipv1.RescanCloudAccountResponse{
+		Added:   uint32(stats.Added),
+		Updated: uint32(stats.Updated),
+		Total:   uint32(total),
+	}), nil
 }
 
 func (s *Server) DeleteCloudAccount(ctx context.Context, req *connect.Request[certshipv1.DeleteCloudAccountRequest]) (*connect.Response[certshipv1.DeleteCloudAccountResponse], error) {

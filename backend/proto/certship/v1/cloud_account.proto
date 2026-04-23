@@ -9,6 +9,7 @@ service CloudAccountService {
   rpc CreateCloudAccount(CreateCloudAccountRequest) returns (CreateCloudAccountResponse);
   rpc UpdateCloudAccount(UpdateCloudAccountRequest) returns (UpdateCloudAccountResponse);
   rpc DeleteCloudAccount(DeleteCloudAccountRequest) returns (DeleteCloudAccountResponse);
+  rpc RescanCloudAccount(RescanCloudAccountRequest) returns (RescanCloudAccountResponse);
 }
 
 message ListCloudAccountsRequest {}
@@ -51,3 +52,13 @@ message DeleteCloudAccountRequest {
 }
 
 message DeleteCloudAccountResponse {}
+
+message RescanCloudAccountRequest {
+  string id = 1;
+}
+
+message RescanCloudAccountResponse {
+  uint32 added = 1;
+  uint32 updated = 2;
+  uint32 total = 3;
+}

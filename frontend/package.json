@@ -13,6 +13,10 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.1",
+    "@buf/wolotec_certship.bufbuild_es": "2.11.0-20260423145011-042dc5c179fe.1",
+    "@bufbuild/protobuf": "^2.11.0",
+    "@connectrpc/connect": "^2.1.1",
+    "@connectrpc/connect-web": "^2.1.1",
     "antd": "^6.3.5",
     "dayjs": "^1.11.20",
     "react": "^19.2.4",

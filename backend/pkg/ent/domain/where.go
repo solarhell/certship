@@ -649,6 +649,26 @@ func StatusNotIn(vs ...Status) predicate.Domain {
 	return predicate.Domain(sql.FieldNotIn(FieldStatus, vs...))
 }
 
+// DeployTargetEQ applies the EQ predicate on the "deploy_target" field.
+func DeployTargetEQ(v DeployTarget) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldDeployTarget, v))
+}
+
+// DeployTargetNEQ applies the NEQ predicate on the "deploy_target" field.
+func DeployTargetNEQ(v DeployTarget) predicate.Domain {
+	return predicate.Domain(sql.FieldNEQ(FieldDeployTarget, v))
+}
+
+// DeployTargetIn applies the In predicate on the "deploy_target" field.
+func DeployTargetIn(vs ...DeployTarget) predicate.Domain {
+	return predicate.Domain(sql.FieldIn(FieldDeployTarget, vs...))
+}
+
+// DeployTargetNotIn applies the NotIn predicate on the "deploy_target" field.
+func DeployTargetNotIn(vs ...DeployTarget) predicate.Domain {
+	return predicate.Domain(sql.FieldNotIn(FieldDeployTarget, vs...))
+}
+
 // ErrorMessageEQ applies the EQ predicate on the "error_message" field.
 func ErrorMessageEQ(v string) predicate.Domain {
 	return predicate.Domain(sql.FieldEQ(FieldErrorMessage, v))

@@ -19,6 +19,7 @@ import (
 	"github.com/solarhell/certship/pkg/ent/predicate"
 	"github.com/solarhell/certship/pkg/ent/renewtask"
 	"github.com/solarhell/certship/pkg/ent/user"
+	"github.com/solarhell/certship/pkg/model"
 )
 
 const (
@@ -2172,6 +2173,7 @@ type DomainMutation struct {
 	cert_pem      *string
 	key_pem       *string
 	status        *domain.Status
+	deploy_target *domain.DeployTarget
 	error_message *string
 	created_at    *time.Time
 	updated_at    *time.Time
@@ -2661,6 +2663,42 @@ func (m *DomainMutation) ResetStatus() {
 	m.status = nil
 }
 
+// SetDeployTarget sets the "deploy_target" field.
+func (m *DomainMutation) SetDeployTarget(dt domain.DeployTarget) {
+	m.deploy_target = &dt
+}
+
+// DeployTarget returns the value of the "deploy_target" field in the mutation.
+func (m *DomainMutation) DeployTarget() (r domain.DeployTarget, exists bool) {
+	v := m.deploy_target
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeployTarget returns the old "deploy_target" field's value of the Domain entity.
+// If the Domain object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DomainMutation) OldDeployTarget(ctx context.Context) (v domain.DeployTarget, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeployTarget is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeployTarget requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeployTarget: %w", err)
+	}
+	return oldValue.DeployTarget, nil
+}
+
+// ResetDeployTarget resets all changes to the "deploy_target" field.
+func (m *DomainMutation) ResetDeployTarget() {
+	m.deploy_target = nil
+}
+
 // SetErrorMessage sets the "error_message" field.
 func (m *DomainMutation) SetErrorMessage(s string) {
 	m.error_message = &s
@@ -2816,7 +2854,7 @@ func (m *DomainMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DomainMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 13)
 	if m.domain != nil {
 		fields = append(fields, domain.FieldDomain)
 	}
@@ -2843,6 +2881,9 @@ func (m *DomainMutation) Fields() []string {
 	}
 	if m.status != nil {
 		fields = append(fields, domain.FieldStatus)
+	}
+	if m.deploy_target != nil {
+		fields = append(fields, domain.FieldDeployTarget)
 	}
 	if m.error_message != nil {
 		fields = append(fields, domain.FieldErrorMessage)
@@ -2879,6 +2920,8 @@ func (m *DomainMutation) Field(name string) (ent.Value, bool) {
 		return m.KeyPem()
 	case domain.FieldStatus:
 		return m.Status()
+	case domain.FieldDeployTarget:
+		return m.DeployTarget()
 	case domain.FieldErrorMessage:
 		return m.ErrorMessage()
 	case domain.FieldCreatedAt:
@@ -2912,6 +2955,8 @@ func (m *DomainMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldKeyPem(ctx)
 	case domain.FieldStatus:
 		return m.OldStatus(ctx)
+	case domain.FieldDeployTarget:
+		return m.OldDeployTarget(ctx)
 	case domain.FieldErrorMessage:
 		return m.OldErrorMessage(ctx)
 	case domain.FieldCreatedAt:
@@ -2989,6 +3034,13 @@ func (m *DomainMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetStatus(v)
+		return nil
+	case domain.FieldDeployTarget:
+		v, ok := value.(domain.DeployTarget)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeployTarget(v)
 		return nil
 	case domain.FieldErrorMessage:
 		v, ok := value.(string)
@@ -3119,6 +3171,9 @@ func (m *DomainMutation) ResetField(name string) error {
 		return nil
 	case domain.FieldStatus:
 		m.ResetStatus()
+		return nil
+	case domain.FieldDeployTarget:
+		m.ResetDeployTarget()
 		return nil
 	case domain.FieldErrorMessage:
 		m.ResetErrorMessage()
@@ -3793,6 +3848,8 @@ type RenewTaskMutation struct {
 	appenddomains []string
 	status        *renewtask.Status
 	trigger       *renewtask.Trigger
+	log           *[]model.TaskLogEntry
+	appendlog     []model.TaskLogEntry
 	error_message *string
 	started_at    *time.Time
 	finished_at   *time.Time
@@ -4030,6 +4087,71 @@ func (m *RenewTaskMutation) ResetTrigger() {
 	m.trigger = nil
 }
 
+// SetLog sets the "log" field.
+func (m *RenewTaskMutation) SetLog(mle []model.TaskLogEntry) {
+	m.log = &mle
+	m.appendlog = nil
+}
+
+// Log returns the value of the "log" field in the mutation.
+func (m *RenewTaskMutation) Log() (r []model.TaskLogEntry, exists bool) {
+	v := m.log
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLog returns the old "log" field's value of the RenewTask entity.
+// If the RenewTask object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RenewTaskMutation) OldLog(ctx context.Context) (v []model.TaskLogEntry, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLog is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLog requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLog: %w", err)
+	}
+	return oldValue.Log, nil
+}
+
+// AppendLog adds mle to the "log" field.
+func (m *RenewTaskMutation) AppendLog(mle []model.TaskLogEntry) {
+	m.appendlog = append(m.appendlog, mle...)
+}
+
+// AppendedLog returns the list of values that were appended to the "log" field in this mutation.
+func (m *RenewTaskMutation) AppendedLog() ([]model.TaskLogEntry, bool) {
+	if len(m.appendlog) == 0 {
+		return nil, false
+	}
+	return m.appendlog, true
+}
+
+// ClearLog clears the value of the "log" field.
+func (m *RenewTaskMutation) ClearLog() {
+	m.log = nil
+	m.appendlog = nil
+	m.clearedFields[renewtask.FieldLog] = struct{}{}
+}
+
+// LogCleared returns if the "log" field was cleared in this mutation.
+func (m *RenewTaskMutation) LogCleared() bool {
+	_, ok := m.clearedFields[renewtask.FieldLog]
+	return ok
+}
+
+// ResetLog resets all changes to the "log" field.
+func (m *RenewTaskMutation) ResetLog() {
+	m.log = nil
+	m.appendlog = nil
+	delete(m.clearedFields, renewtask.FieldLog)
+}
+
 // SetErrorMessage sets the "error_message" field.
 func (m *RenewTaskMutation) SetErrorMessage(s string) {
 	m.error_message = &s
@@ -4247,7 +4369,7 @@ func (m *RenewTaskMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *RenewTaskMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.domains != nil {
 		fields = append(fields, renewtask.FieldDomains)
 	}
@@ -4256,6 +4378,9 @@ func (m *RenewTaskMutation) Fields() []string {
 	}
 	if m.trigger != nil {
 		fields = append(fields, renewtask.FieldTrigger)
+	}
+	if m.log != nil {
+		fields = append(fields, renewtask.FieldLog)
 	}
 	if m.error_message != nil {
 		fields = append(fields, renewtask.FieldErrorMessage)
@@ -4283,6 +4408,8 @@ func (m *RenewTaskMutation) Field(name string) (ent.Value, bool) {
 		return m.Status()
 	case renewtask.FieldTrigger:
 		return m.Trigger()
+	case renewtask.FieldLog:
+		return m.Log()
 	case renewtask.FieldErrorMessage:
 		return m.ErrorMessage()
 	case renewtask.FieldStartedAt:
@@ -4306,6 +4433,8 @@ func (m *RenewTaskMutation) OldField(ctx context.Context, name string) (ent.Valu
 		return m.OldStatus(ctx)
 	case renewtask.FieldTrigger:
 		return m.OldTrigger(ctx)
+	case renewtask.FieldLog:
+		return m.OldLog(ctx)
 	case renewtask.FieldErrorMessage:
 		return m.OldErrorMessage(ctx)
 	case renewtask.FieldStartedAt:
@@ -4343,6 +4472,13 @@ func (m *RenewTaskMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTrigger(v)
+		return nil
+	case renewtask.FieldLog:
+		v, ok := value.([]model.TaskLogEntry)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLog(v)
 		return nil
 	case renewtask.FieldErrorMessage:
 		v, ok := value.(string)
@@ -4402,6 +4538,9 @@ func (m *RenewTaskMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *RenewTaskMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(renewtask.FieldLog) {
+		fields = append(fields, renewtask.FieldLog)
+	}
 	if m.FieldCleared(renewtask.FieldErrorMessage) {
 		fields = append(fields, renewtask.FieldErrorMessage)
 	}
@@ -4425,6 +4564,9 @@ func (m *RenewTaskMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *RenewTaskMutation) ClearField(name string) error {
 	switch name {
+	case renewtask.FieldLog:
+		m.ClearLog()
+		return nil
 	case renewtask.FieldErrorMessage:
 		m.ClearErrorMessage()
 		return nil
@@ -4450,6 +4592,9 @@ func (m *RenewTaskMutation) ResetField(name string) error {
 		return nil
 	case renewtask.FieldTrigger:
 		m.ResetTrigger()
+		return nil
+	case renewtask.FieldLog:
+		m.ResetLog()
 		return nil
 	case renewtask.FieldErrorMessage:
 		m.ResetErrorMessage()

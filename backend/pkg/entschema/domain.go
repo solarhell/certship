@@ -42,6 +42,11 @@ func (Domain) Fields() []ent.Field {
 			Default("pending").
 			Comment("证书状态：pending=待颁发，active=有效，error=错误"),
 
+		field.Enum("deploy_target").
+			Values("oss", "cdn").
+			Default("oss").
+			Comment("部署目标：oss=直连 OSS，cdn=CDN 加速"),
+
 		field.Text("error_message").
 			Optional().
 			Comment("最近一次错误信息"),

@@ -124,6 +124,16 @@ func TriggerNotIn(vs ...Trigger) predicate.RenewTask {
 	return predicate.RenewTask(sql.FieldNotIn(FieldTrigger, vs...))
 }
 
+// LogIsNil applies the IsNil predicate on the "log" field.
+func LogIsNil() predicate.RenewTask {
+	return predicate.RenewTask(sql.FieldIsNull(FieldLog))
+}
+
+// LogNotNil applies the NotNil predicate on the "log" field.
+func LogNotNil() predicate.RenewTask {
+	return predicate.RenewTask(sql.FieldNotNull(FieldLog))
+}
+
 // ErrorMessageEQ applies the EQ predicate on the "error_message" field.
 func ErrorMessageEQ(v string) predicate.RenewTask {
 	return predicate.RenewTask(sql.FieldEQ(FieldErrorMessage, v))
