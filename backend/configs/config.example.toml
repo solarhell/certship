@@ -1,0 +1,9 @@
+# certship 配置文件
+# 仅需填写数据库连接信息，其余配置（ACME、调度、账号）均在数据库中管理
+
+[database]
+host = "127.0.0.1"
+port = 5432
+username = "certship"
+password = ""
+db = "certship"

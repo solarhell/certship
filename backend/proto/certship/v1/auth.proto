@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package certship.v1;
+
+option go_package = "github.com/solarhell/certship/pkg/api/certship/v1;certshipv1";
+
+service AuthService {
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse);
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+}
+
+message ChangePasswordRequest {
+  string old_password = 1;
+  string new_password = 2;
+}
+
+message ChangePasswordResponse {}

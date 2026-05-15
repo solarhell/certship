@@ -1,0 +1,11 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# MCP 配置
+.mcp.json
