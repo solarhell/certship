@@ -62,14 +62,14 @@ WARN  已创建默认管理员账号，请立即登录并修改密码。此密�
 cd frontend
 
 # 安装依赖
-pnpm install
+vp i
 
 # 开发模式（默认请求同源 /api，通过 vite 代理转发到后端）
-pnpm dev
+vp dev
 
 # 生产构建
 # 若前后端非同源，先创建 .env.production.local 写 VITE_API_BASE
-pnpm build
+vp build
 ```
 
 ### 配置
