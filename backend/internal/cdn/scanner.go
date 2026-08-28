@@ -6,8 +6,9 @@ import (
 	"time"
 
 	cdn "github.com/alibabacloud-go/cdn-20180510/v9/client"
-	carbon "github.com/dromara/carbon/v2"
 	"go.uber.org/zap"
+
+	"github.com/solarhell/certship/internal/certtime"
 )
 
 // DomainInfo 描述一个阿里云 CDN 加速域名
@@ -100,15 +101,15 @@ func (m *Manager) DescribeCert(accessKeyID, accessKeySecret, domain string) *Cer
 	if info.ServerCertificateStatus != nil && *info.ServerCertificateStatus != "on" {
 		return nil
 	}
-	end := carbon.Parse(deref(info.CertExpireTime))
-	if end.IsInvalid() || end.IsZero() {
+	end, ok := certtime.Parse(deref(info.CertExpireTime))
+	if !ok {
 		return nil
 	}
-	start := carbon.Parse(deref(info.CertStartTime))
-	return &CertInfo{
-		ValidStartDate: start.StdTime(),
-		ValidEndDate:   end.StdTime(),
+	cert := &CertInfo{ValidEndDate: end}
+	if start, ok := certtime.Parse(deref(info.CertStartTime)); ok {
+		cert.ValidStartDate = start
 	}
+	return cert
 }
 
 // parseOSSSource 从源站列表里找出 OSS 类型的源站,解析出 bucket 与 region。

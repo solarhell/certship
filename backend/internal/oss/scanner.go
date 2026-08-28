@@ -8,9 +8,9 @@ import (
 
 	alioss "github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss"
 	"github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss/credentials"
-	carbon "github.com/dromara/carbon/v2"
 	"go.uber.org/zap"
 
+	"github.com/solarhell/certship/internal/certtime"
 	"github.com/solarhell/certship/pkg/ent"
 )
 
@@ -111,19 +111,9 @@ func (s *Scanner) listBucketCnames(ctx context.Context, account *ent.CloudAccoun
 			Bucket:  bucket,
 			Region:  region,
 			Account: account,
-		}
 
-		// 读取 OSS 侧已绑定的证书信息
-		if cname.Certificate != nil {
-			end := carbon.Parse(alioss.ToString(cname.Certificate.ValidEndDate))
-			if !end.IsInvalid() && !end.IsZero() {
-				start := carbon.Parse(alioss.ToString(cname.Certificate.ValidStartDate))
-				info.OSSCert = &OSSCertInfo{
-					ValidStartDate: start.StdTime(),
-					ValidEndDate:   end.StdTime(),
-				}
-			}
-		}
+			// 读取 OSS 侧已绑定的证书信息
+			OSSCert: parseCert(cname.Certificate)}
 
 		domains = append(domains, info)
 	}
@@ -164,16 +154,7 @@ func (s *Scanner) FindCname(ctx context.Context, account *ent.CloudAccount, buck
 			Domain: domain,
 			Status: alioss.ToString(cname.Status),
 		}
-		if cname.Certificate != nil {
-			end := carbon.Parse(alioss.ToString(cname.Certificate.ValidEndDate))
-			if !end.IsInvalid() && !end.IsZero() {
-				start := carbon.Parse(alioss.ToString(cname.Certificate.ValidStartDate))
-				info.Cert = &OSSCertInfo{
-					ValidStartDate: start.StdTime(),
-					ValidEndDate:   end.StdTime(),
-				}
-			}
-		}
+		info.Cert = parseCert(cname.Certificate)
 		return info, nil
 	}
 	return nil, nil
@@ -186,6 +167,22 @@ func (s *Scanner) GetDomainCert(ctx context.Context, account *ent.CloudAccount, 
 		return nil
 	}
 	return info.Cert
+}
+
+// parseCert 把 ListCname 返回的证书信息转成 OSSCertInfo，读不出有效期时返回 nil
+func parseCert(cert *alioss.CnameCertificate) *OSSCertInfo {
+	if cert == nil {
+		return nil
+	}
+	end, ok := certtime.Parse(alioss.ToString(cert.ValidEndDate))
+	if !ok {
+		return nil
+	}
+	info := &OSSCertInfo{ValidEndDate: end}
+	if start, ok := certtime.Parse(alioss.ToString(cert.ValidStartDate)); ok {
+		info.ValidStartDate = start
+	}
+	return info
 }
 
 func newClient(accessKeyID, accessKeySecret, region string) *alioss.Client {

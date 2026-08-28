@@ -9,8 +9,9 @@ import (
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/utils"
 	dara "github.com/alibabacloud-go/tea/dara"
 	tea "github.com/alibabacloud-go/tea/tea"
-	carbon "github.com/dromara/carbon/v2"
 	"go.uber.org/zap"
+
+	"github.com/solarhell/certship/internal/certtime"
 )
 
 // Manager 负责阿里云 CDN 域名检测和证书部署
@@ -100,13 +101,11 @@ func (m *Manager) NeedDeploy(accessKeyID, accessKeySecret, domain string) bool {
 		return true
 	}
 
-	// 检查证书是否过期
-	if certInfo.CertExpireTime != nil {
-		expiry := carbon.Parse(*certInfo.CertExpireTime)
-		if !expiry.IsInvalid() && expiry.StdTime().Before(time.Now()) {
-			m.logger.Info("CDN 域名证书已过期", zap.String("domain", domain), zap.String("expire_time", *certInfo.CertExpireTime))
-			return true
-		}
+	// 检查证书是否过期。读不出有效期时不动它——
+	// 把「解析不了」当成「已过期」会让每轮都白重新部署一次
+	if expiry, ok := certtime.Parse(deref(certInfo.CertExpireTime)); ok && expiry.Before(time.Now()) {
+		m.logger.Info("CDN 域名证书已过期", zap.String("domain", domain), zap.String("expire_time", deref(certInfo.CertExpireTime)))
+		return true
 	}
 
 	return false
