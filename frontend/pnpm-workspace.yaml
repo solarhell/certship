@@ -1,0 +1,21 @@
+# pnpm 11 起，pnpm 的设置（catalog / overrides / peerDependencyRules）统一放在这里；
+# package.json 里的 "pnpm" 字段已不再被读取，写在那里等于没写。
+#
+# vite-plus 用 @voidzero-dev/vite-plus-core 顶替 vite（core 0.3.0 内部 bundle 了 vite 8.2.2）。
+# 两者必须同步升级，否则 core 会去找版本对不上的原生二进制而启动失败，
+# 所以版本锁在 catalog 这一处，package.json 只写 "catalog:"。
+catalog:
+  vite: npm:@voidzero-dev/vite-plus-core@0.3.0
+  vite-plus: 0.3.0
+
+overrides:
+  # 依赖树里任何版本的 vite 都指向 catalog 里的同一份 core
+  vite@*: "catalog:"
+
+peerDependencyRules:
+  # 插件声明的 peer 是 vite ^8，而 core 的版本号走 0.x 这条独立的线，永远对不上。
+  # 这是 vite-plus 的设计而非依赖冲突。
+  allowAny:
+    - vite
+  allowedVersions:
+    vite: "*"
