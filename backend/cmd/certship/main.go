@@ -33,6 +33,10 @@ var rootCmd = &cobra.Command{
 		}
 		defer func() { _ = logger.Sync() }()
 
+		// database 与整个 logic 层都用 zap.L() 取 logger,不替换全局的话
+		// 那些日志会全部写进 no-op logger——包括 migration 阶段的输出
+		zap.ReplaceGlobals(logger)
+
 		cfg, err := config.Load(configPath)
 		if err != nil {
 			return err

@@ -12,6 +12,7 @@ import (
 	"github.com/solarhell/certship/pkg/api/certship/v1/certshipv1connect"
 	"github.com/solarhell/certship/pkg/database"
 	"github.com/solarhell/certship/pkg/ent"
+	entdomain "github.com/solarhell/certship/pkg/ent/domain"
 	"github.com/solarhell/certship/pkg/ent/renewtask"
 	"github.com/solarhell/certship/pkg/model"
 )
@@ -136,6 +137,17 @@ func (s *Server) CreateRenewTask(ctx context.Context, req *connect.Request[certs
 	}
 	if busy {
 		return nil, connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("域名 %s 已有进行中的续期任务", domain))
+	}
+
+	// 手动触发是明确的人工意图:解除阻塞与退避,让这一次真的跑起来
+	if err := db.Domain.Update().
+		Where(entdomain.DomainEQ(domain)).
+		SetBlockedReason("").
+		SetErrorKind(entdomain.ErrorKindNone).
+		SetRetryCount(0).
+		ClearNextRetryAt().
+		Exec(ctx); err != nil {
+		s.logger.Warn("重置域名重试状态失败", zap.String("domain", domain), zap.Error(err))
 	}
 
 	task, err := db.RenewTask.Create().

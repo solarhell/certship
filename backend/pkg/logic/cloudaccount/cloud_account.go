@@ -8,8 +8,8 @@ import (
 	"connectrpc.com/connect"
 	"go.uber.org/zap"
 
+	"github.com/solarhell/certship/internal/discovery"
 	"github.com/solarhell/certship/internal/domainsync"
-	"github.com/solarhell/certship/internal/oss"
 	certshipv1 "github.com/solarhell/certship/pkg/api/certship/v1"
 	"github.com/solarhell/certship/pkg/api/certship/v1/certshipv1connect"
 	"github.com/solarhell/certship/pkg/database"
@@ -116,14 +116,14 @@ func (s *Server) RescanCloudAccount(ctx context.Context, req *connect.Request[ce
 	scanCtx, cancel := context.WithTimeout(ctx, rescanTimeout)
 	defer cancel()
 
-	scanner := oss.NewScanner(s.logger)
-	domains, err := scanner.ScanAccount(scanCtx, account)
-	if err != nil {
-		s.logger.Error("扫描云账号失败", zap.String("account", account.Name), zap.Error(err))
-		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("扫描失败: %w", err))
+	// 单账号扫描:Coverage 只覆盖这个账号,对账因此也只会影响它自己的域名
+	result := discovery.Run(scanCtx, s.logger, []*ent.CloudAccount{account})
+	if result.Coverage.IsEmpty() {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("扫描失败:该账号的 OSS 与 CDN 均未扫通,详见服务端日志"))
 	}
 
-	stats := domainsync.Sync(scanCtx, s.logger, domains)
+	missingGrace, archiveAfter := database.PresenceWindows(ctx)
+	stats := domainsync.Reconcile(scanCtx, s.logger, result, missingGrace, archiveAfter)
 
 	total, err := db.Domain.Query().Where(entdomain.AccountNameEQ(account.Name)).Count(ctx)
 	if err != nil {
@@ -131,9 +131,12 @@ func (s *Server) RescanCloudAccount(ctx context.Context, req *connect.Request[ce
 	}
 
 	return connect.NewResponse(&certshipv1.RescanCloudAccountResponse{
-		Added:   uint32(stats.Added),
-		Updated: uint32(stats.Updated),
-		Total:   uint32(total),
+		Added:    uint32(stats.Added),
+		Updated:  uint32(stats.Updated),
+		Total:    uint32(total),
+		Missing:  uint32(len(stats.Missing)),
+		Archived: uint32(len(stats.Archived)),
+		Revived:  uint32(len(stats.Revived)),
 	}), nil
 }
 

@@ -61,5 +61,9 @@ func Setup(cfg config.DatabaseConfig) {
 			panic(fmt.Errorf("数据库 migration 失败: %w", err))
 		}
 		zap.L().Info("数据库 migration 完成")
+
+		if err := ensureAppSettings(context.Background()); err != nil {
+			panic(fmt.Errorf("初始化全局配置失败: %w", err))
+		}
 	})
 }

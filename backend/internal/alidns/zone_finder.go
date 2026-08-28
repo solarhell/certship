@@ -4,8 +4,8 @@ package alidns
 import (
 	"context"
 	"fmt"
-	"net"
 	"strings"
+	"time"
 
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/dara"
@@ -21,6 +21,9 @@ import (
 // 免费版:dns*.hichina.com;付费/企业版:ns*.alidns.com。
 var aliyunNSSuffixes = []string{".hichina.com.", ".alidns.com."}
 
+// dnsQueryTimeout 单次 DNS 查询的超时
+const dnsQueryTimeout = 10 * time.Second
+
 // FindAccountForDomain 在 accounts 里找到一个 AliDNS 真正托管 domain 所在 zone 的账号。
 //
 // 判定:
@@ -28,19 +31,26 @@ var aliyunNSSuffixes = []string{".hichina.com.", ".alidns.com."}
 //     排除"域名注册在阿里云但 NS 改到 Cloudflare/DNSPod"。
 //  2. 该 zone 在某个 enabled 账号的 AliDNS 下(DescribeDomainInfo 能查到)。
 //
-// 返回匹配的账号和 zone(不含末尾点);没有匹配返回 error。
+// resolvers 是显式指定的递归 DNS(host:port)。不走系统解析器是有意的:
+// 服务器上的 /etc/resolv.conf 可能指向内网 DNS 或被劫持,拿到的 SOA/NS 与公网不一致,
+// 会让 zone 判定张冠李戴——而这个判定的结果直接决定用哪个账号做 DNS-01 挑战。
 //
-// 用途:bucket 账号 ≠ DNS zone 账号时,用 DNS 账号的 AK 做 DNS-01 挑战,OSS/CDN 部署仍走 bucket 账号。
-func FindAccountForDomain(ctx context.Context, logger *zap.Logger, domain string, accounts []*ent.CloudAccount) (*ent.CloudAccount, string, error) {
-	authZone, err := dns01.FindZoneByFqdn(dns.Fqdn(domain))
+// 返回匹配的账号和 zone(不含末尾点);没有匹配返回 error。
+func FindAccountForDomain(
+	ctx context.Context,
+	logger *zap.Logger,
+	domain string,
+	accounts []*ent.CloudAccount,
+	resolvers []string,
+) (*ent.CloudAccount, string, error) {
+	zone, aliyunNS, err := InspectZone(domain, resolvers)
 	if err != nil {
-		return nil, "", fmt.Errorf("查询 %s 的 zone 失败: %w", domain, err)
-	}
-	zone := dns01.UnFqdn(authZone)
-
-	if ok, err := isAliyunNS(zone); err != nil {
+		if zone == "" {
+			return nil, "", fmt.Errorf("查询 %s 的 zone 失败: %w", domain, err)
+		}
 		return nil, zone, fmt.Errorf("查询 zone %s 的 NS 失败: %w", zone, err)
-	} else if !ok {
+	}
+	if !aliyunNS {
 		return nil, zone, fmt.Errorf("zone %s 的 NS 未指向阿里云 DNS", zone)
 	}
 
@@ -67,14 +77,42 @@ func FindAccountForDomain(ctx context.Context, logger *zap.Logger, domain string
 	return nil, zone, fmt.Errorf("zone %s 的 NS 指向阿里云,但不在已添加的任何云账号下(请添加持有此 zone 的阿里云账号)", zone)
 }
 
+// InspectZone 找出 domain 所属的权威 zone,并判断该 zone 的 NS 是否指向阿里云。
+//
+// 单独导出是因为"这个域名被判到了哪个 zone"是排查签发失败时最先要问的问题,
+// 而它只依赖 DNS,不需要任何云账号。
+func InspectZone(domain string, resolvers []string) (zone string, aliyunNS bool, err error) {
+	fqdn := dns.Fqdn(domain)
+
+	var authZone string
+	if len(resolvers) == 0 {
+		authZone, err = dns01.FindZoneByFqdn(fqdn)
+	} else {
+		authZone, err = dns01.FindZoneByFqdnCustom(fqdn, resolvers)
+	}
+	if err != nil {
+		return "", false, err
+	}
+
+	zone = dns01.UnFqdn(authZone)
+	aliyunNS, err = isAliyunNS(zone, resolvers)
+	return zone, aliyunNS, err
+}
+
 // isAliyunNS 查 zone 的 NS 记录,判断是否指向阿里云 DNS。
-func isAliyunNS(zone string) (bool, error) {
-	nss, err := net.LookupNS(zone)
+//
+// 用指定的 resolver 直接发查询,而不是 net.LookupNS——后者走系统解析器,
+// 会和 zone 探测用的解析器不一致,两处结论对不上时排查起来非常费劲。
+func isAliyunNS(zone string, resolvers []string) (bool, error) {
+	nss, err := lookupNS(zone, resolvers)
 	if err != nil {
 		return false, err
 	}
-	for _, ns := range nss {
-		host := strings.ToLower(ns.Host)
+	if len(nss) == 0 {
+		return false, fmt.Errorf("zone %s 没有查到 NS 记录", zone)
+	}
+	for _, host := range nss {
+		host = strings.ToLower(host)
 		if !strings.HasSuffix(host, ".") {
 			host += "."
 		}
@@ -85,6 +123,37 @@ func isAliyunNS(zone string) (bool, error) {
 		}
 	}
 	return false, nil
+}
+
+// lookupNS 依次向 resolvers 查询 zone 的 NS 记录,返回第一个成功的结果
+func lookupNS(zone string, resolvers []string) ([]string, error) {
+	if len(resolvers) == 0 {
+		return systemLookupNS(zone)
+	}
+
+	msg := new(dns.Msg).SetQuestion(dns.Fqdn(zone), dns.TypeNS)
+	client := &dns.Client{Timeout: dnsQueryTimeout}
+
+	var lastErr error
+	for _, server := range resolvers {
+		resp, _, err := client.Exchange(msg, server)
+		if err != nil {
+			lastErr = fmt.Errorf("向 %s 查询 %s 的 NS 失败: %w", server, zone, err)
+			continue
+		}
+		if resp.Rcode != dns.RcodeSuccess {
+			lastErr = fmt.Errorf("向 %s 查询 %s 的 NS 返回 %s", server, zone, dns.RcodeToString[resp.Rcode])
+			continue
+		}
+		var hosts []string
+		for _, rr := range resp.Answer {
+			if ns, ok := rr.(*dns.NS); ok {
+				hosts = append(hosts, ns.Ns)
+			}
+		}
+		return hosts, nil
+	}
+	return nil, lastErr
 }
 
 func newClient(accessKeyID, accessKeySecret string) (*alidnssdk.Client, error) {

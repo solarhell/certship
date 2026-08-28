@@ -46,13 +46,15 @@ type AppSettingsMutation struct {
 	op                   Op
 	typ                  string
 	id                   *string
-	acme_email           *string
-	acme_directory_url   *string
 	acme_account_key     *string
 	acme_registration    *string
 	scan_interval        *string
+	missing_grace        *string
+	archive_after        *string
 	renew_before_days    *int
 	addrenew_before_days *int
+	archived_retention   *string
+	dns_resolvers        *string
 	jwt_secret           *string
 	updated_at           *time.Time
 	clearedFields        map[string]struct{}
@@ -163,78 +165,6 @@ func (m *AppSettingsMutation) IDs(ctx context.Context) ([]string, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetAcmeEmail sets the "acme_email" field.
-func (m *AppSettingsMutation) SetAcmeEmail(s string) {
-	m.acme_email = &s
-}
-
-// AcmeEmail returns the value of the "acme_email" field in the mutation.
-func (m *AppSettingsMutation) AcmeEmail() (r string, exists bool) {
-	v := m.acme_email
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldAcmeEmail returns the old "acme_email" field's value of the AppSettings entity.
-// If the AppSettings object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AppSettingsMutation) OldAcmeEmail(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldAcmeEmail is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldAcmeEmail requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAcmeEmail: %w", err)
-	}
-	return oldValue.AcmeEmail, nil
-}
-
-// ResetAcmeEmail resets all changes to the "acme_email" field.
-func (m *AppSettingsMutation) ResetAcmeEmail() {
-	m.acme_email = nil
-}
-
-// SetAcmeDirectoryURL sets the "acme_directory_url" field.
-func (m *AppSettingsMutation) SetAcmeDirectoryURL(s string) {
-	m.acme_directory_url = &s
-}
-
-// AcmeDirectoryURL returns the value of the "acme_directory_url" field in the mutation.
-func (m *AppSettingsMutation) AcmeDirectoryURL() (r string, exists bool) {
-	v := m.acme_directory_url
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldAcmeDirectoryURL returns the old "acme_directory_url" field's value of the AppSettings entity.
-// If the AppSettings object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *AppSettingsMutation) OldAcmeDirectoryURL(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldAcmeDirectoryURL is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldAcmeDirectoryURL requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAcmeDirectoryURL: %w", err)
-	}
-	return oldValue.AcmeDirectoryURL, nil
-}
-
-// ResetAcmeDirectoryURL resets all changes to the "acme_directory_url" field.
-func (m *AppSettingsMutation) ResetAcmeDirectoryURL() {
-	m.acme_directory_url = nil
 }
 
 // SetAcmeAccountKey sets the "acme_account_key" field.
@@ -371,6 +301,78 @@ func (m *AppSettingsMutation) ResetScanInterval() {
 	m.scan_interval = nil
 }
 
+// SetMissingGrace sets the "missing_grace" field.
+func (m *AppSettingsMutation) SetMissingGrace(s string) {
+	m.missing_grace = &s
+}
+
+// MissingGrace returns the value of the "missing_grace" field in the mutation.
+func (m *AppSettingsMutation) MissingGrace() (r string, exists bool) {
+	v := m.missing_grace
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMissingGrace returns the old "missing_grace" field's value of the AppSettings entity.
+// If the AppSettings object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppSettingsMutation) OldMissingGrace(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMissingGrace is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMissingGrace requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMissingGrace: %w", err)
+	}
+	return oldValue.MissingGrace, nil
+}
+
+// ResetMissingGrace resets all changes to the "missing_grace" field.
+func (m *AppSettingsMutation) ResetMissingGrace() {
+	m.missing_grace = nil
+}
+
+// SetArchiveAfter sets the "archive_after" field.
+func (m *AppSettingsMutation) SetArchiveAfter(s string) {
+	m.archive_after = &s
+}
+
+// ArchiveAfter returns the value of the "archive_after" field in the mutation.
+func (m *AppSettingsMutation) ArchiveAfter() (r string, exists bool) {
+	v := m.archive_after
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldArchiveAfter returns the old "archive_after" field's value of the AppSettings entity.
+// If the AppSettings object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppSettingsMutation) OldArchiveAfter(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldArchiveAfter is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldArchiveAfter requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldArchiveAfter: %w", err)
+	}
+	return oldValue.ArchiveAfter, nil
+}
+
+// ResetArchiveAfter resets all changes to the "archive_after" field.
+func (m *AppSettingsMutation) ResetArchiveAfter() {
+	m.archive_after = nil
+}
+
 // SetRenewBeforeDays sets the "renew_before_days" field.
 func (m *AppSettingsMutation) SetRenewBeforeDays(i int) {
 	m.renew_before_days = &i
@@ -425,6 +427,78 @@ func (m *AppSettingsMutation) AddedRenewBeforeDays() (r int, exists bool) {
 func (m *AppSettingsMutation) ResetRenewBeforeDays() {
 	m.renew_before_days = nil
 	m.addrenew_before_days = nil
+}
+
+// SetArchivedRetention sets the "archived_retention" field.
+func (m *AppSettingsMutation) SetArchivedRetention(s string) {
+	m.archived_retention = &s
+}
+
+// ArchivedRetention returns the value of the "archived_retention" field in the mutation.
+func (m *AppSettingsMutation) ArchivedRetention() (r string, exists bool) {
+	v := m.archived_retention
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldArchivedRetention returns the old "archived_retention" field's value of the AppSettings entity.
+// If the AppSettings object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppSettingsMutation) OldArchivedRetention(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldArchivedRetention is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldArchivedRetention requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldArchivedRetention: %w", err)
+	}
+	return oldValue.ArchivedRetention, nil
+}
+
+// ResetArchivedRetention resets all changes to the "archived_retention" field.
+func (m *AppSettingsMutation) ResetArchivedRetention() {
+	m.archived_retention = nil
+}
+
+// SetDNSResolvers sets the "dns_resolvers" field.
+func (m *AppSettingsMutation) SetDNSResolvers(s string) {
+	m.dns_resolvers = &s
+}
+
+// DNSResolvers returns the value of the "dns_resolvers" field in the mutation.
+func (m *AppSettingsMutation) DNSResolvers() (r string, exists bool) {
+	v := m.dns_resolvers
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDNSResolvers returns the old "dns_resolvers" field's value of the AppSettings entity.
+// If the AppSettings object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AppSettingsMutation) OldDNSResolvers(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDNSResolvers is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDNSResolvers requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDNSResolvers: %w", err)
+	}
+	return oldValue.DNSResolvers, nil
+}
+
+// ResetDNSResolvers resets all changes to the "dns_resolvers" field.
+func (m *AppSettingsMutation) ResetDNSResolvers() {
+	m.dns_resolvers = nil
 }
 
 // SetJwtSecret sets the "jwt_secret" field.
@@ -546,13 +620,7 @@ func (m *AppSettingsMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AppSettingsMutation) Fields() []string {
-	fields := make([]string, 0, 8)
-	if m.acme_email != nil {
-		fields = append(fields, appsettings.FieldAcmeEmail)
-	}
-	if m.acme_directory_url != nil {
-		fields = append(fields, appsettings.FieldAcmeDirectoryURL)
-	}
+	fields := make([]string, 0, 10)
 	if m.acme_account_key != nil {
 		fields = append(fields, appsettings.FieldAcmeAccountKey)
 	}
@@ -562,8 +630,20 @@ func (m *AppSettingsMutation) Fields() []string {
 	if m.scan_interval != nil {
 		fields = append(fields, appsettings.FieldScanInterval)
 	}
+	if m.missing_grace != nil {
+		fields = append(fields, appsettings.FieldMissingGrace)
+	}
+	if m.archive_after != nil {
+		fields = append(fields, appsettings.FieldArchiveAfter)
+	}
 	if m.renew_before_days != nil {
 		fields = append(fields, appsettings.FieldRenewBeforeDays)
+	}
+	if m.archived_retention != nil {
+		fields = append(fields, appsettings.FieldArchivedRetention)
+	}
+	if m.dns_resolvers != nil {
+		fields = append(fields, appsettings.FieldDNSResolvers)
 	}
 	if m.jwt_secret != nil {
 		fields = append(fields, appsettings.FieldJwtSecret)
@@ -579,18 +659,22 @@ func (m *AppSettingsMutation) Fields() []string {
 // schema.
 func (m *AppSettingsMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case appsettings.FieldAcmeEmail:
-		return m.AcmeEmail()
-	case appsettings.FieldAcmeDirectoryURL:
-		return m.AcmeDirectoryURL()
 	case appsettings.FieldAcmeAccountKey:
 		return m.AcmeAccountKey()
 	case appsettings.FieldAcmeRegistration:
 		return m.AcmeRegistration()
 	case appsettings.FieldScanInterval:
 		return m.ScanInterval()
+	case appsettings.FieldMissingGrace:
+		return m.MissingGrace()
+	case appsettings.FieldArchiveAfter:
+		return m.ArchiveAfter()
 	case appsettings.FieldRenewBeforeDays:
 		return m.RenewBeforeDays()
+	case appsettings.FieldArchivedRetention:
+		return m.ArchivedRetention()
+	case appsettings.FieldDNSResolvers:
+		return m.DNSResolvers()
 	case appsettings.FieldJwtSecret:
 		return m.JwtSecret()
 	case appsettings.FieldUpdatedAt:
@@ -604,18 +688,22 @@ func (m *AppSettingsMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *AppSettingsMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case appsettings.FieldAcmeEmail:
-		return m.OldAcmeEmail(ctx)
-	case appsettings.FieldAcmeDirectoryURL:
-		return m.OldAcmeDirectoryURL(ctx)
 	case appsettings.FieldAcmeAccountKey:
 		return m.OldAcmeAccountKey(ctx)
 	case appsettings.FieldAcmeRegistration:
 		return m.OldAcmeRegistration(ctx)
 	case appsettings.FieldScanInterval:
 		return m.OldScanInterval(ctx)
+	case appsettings.FieldMissingGrace:
+		return m.OldMissingGrace(ctx)
+	case appsettings.FieldArchiveAfter:
+		return m.OldArchiveAfter(ctx)
 	case appsettings.FieldRenewBeforeDays:
 		return m.OldRenewBeforeDays(ctx)
+	case appsettings.FieldArchivedRetention:
+		return m.OldArchivedRetention(ctx)
+	case appsettings.FieldDNSResolvers:
+		return m.OldDNSResolvers(ctx)
 	case appsettings.FieldJwtSecret:
 		return m.OldJwtSecret(ctx)
 	case appsettings.FieldUpdatedAt:
@@ -629,20 +717,6 @@ func (m *AppSettingsMutation) OldField(ctx context.Context, name string) (ent.Va
 // type.
 func (m *AppSettingsMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case appsettings.FieldAcmeEmail:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAcmeEmail(v)
-		return nil
-	case appsettings.FieldAcmeDirectoryURL:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAcmeDirectoryURL(v)
-		return nil
 	case appsettings.FieldAcmeAccountKey:
 		v, ok := value.(string)
 		if !ok {
@@ -664,12 +738,40 @@ func (m *AppSettingsMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetScanInterval(v)
 		return nil
+	case appsettings.FieldMissingGrace:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMissingGrace(v)
+		return nil
+	case appsettings.FieldArchiveAfter:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetArchiveAfter(v)
+		return nil
 	case appsettings.FieldRenewBeforeDays:
 		v, ok := value.(int)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetRenewBeforeDays(v)
+		return nil
+	case appsettings.FieldArchivedRetention:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetArchivedRetention(v)
+		return nil
+	case appsettings.FieldDNSResolvers:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDNSResolvers(v)
 		return nil
 	case appsettings.FieldJwtSecret:
 		v, ok := value.(string)
@@ -770,12 +872,6 @@ func (m *AppSettingsMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *AppSettingsMutation) ResetField(name string) error {
 	switch name {
-	case appsettings.FieldAcmeEmail:
-		m.ResetAcmeEmail()
-		return nil
-	case appsettings.FieldAcmeDirectoryURL:
-		m.ResetAcmeDirectoryURL()
-		return nil
 	case appsettings.FieldAcmeAccountKey:
 		m.ResetAcmeAccountKey()
 		return nil
@@ -785,8 +881,20 @@ func (m *AppSettingsMutation) ResetField(name string) error {
 	case appsettings.FieldScanInterval:
 		m.ResetScanInterval()
 		return nil
+	case appsettings.FieldMissingGrace:
+		m.ResetMissingGrace()
+		return nil
+	case appsettings.FieldArchiveAfter:
+		m.ResetArchiveAfter()
+		return nil
 	case appsettings.FieldRenewBeforeDays:
 		m.ResetRenewBeforeDays()
+		return nil
+	case appsettings.FieldArchivedRetention:
+		m.ResetArchivedRetention()
+		return nil
+	case appsettings.FieldDNSResolvers:
+		m.ResetDNSResolvers()
 		return nil
 	case appsettings.FieldJwtSecret:
 		m.ResetJwtSecret()
@@ -2161,27 +2269,37 @@ func (m *CloudAccountMutation) ResetEdge(name string) error {
 // DomainMutation represents an operation that mutates the Domain nodes in the graph.
 type DomainMutation struct {
 	config
-	op             Op
-	typ            string
-	id             *string
-	domain         *string
-	bucket         *string
-	region         *string
-	account_name   *string
-	issued_at      *time.Time
-	expires_at     *time.Time
-	cert_pem       *string
-	key_pem        *string
-	status         *domain.Status
-	deploy_target  *domain.DeployTarget
-	error_message  *string
-	blocked_reason *string
-	created_at     *time.Time
-	updated_at     *time.Time
-	clearedFields  map[string]struct{}
-	done           bool
-	oldValue       func(context.Context) (*Domain, error)
-	predicates     []predicate.Domain
+	op               Op
+	typ              string
+	id               *string
+	domain           *string
+	bucket           *string
+	region           *string
+	account_name     *string
+	issued_at        *time.Time
+	expires_at       *time.Time
+	cert_pem         *string
+	key_pem          *string
+	status           *domain.Status
+	deploy_target    *domain.DeployTarget
+	presence         *domain.Presence
+	origin           *domain.Origin
+	last_seen_at     *time.Time
+	managed          *bool
+	retry_count      *int
+	addretry_count   *int
+	next_retry_at    *time.Time
+	error_kind       *domain.ErrorKind
+	notified_state   *string
+	last_notified_at *time.Time
+	error_message    *string
+	blocked_reason   *string
+	created_at       *time.Time
+	updated_at       *time.Time
+	clearedFields    map[string]struct{}
+	done             bool
+	oldValue         func(context.Context) (*Domain, error)
+	predicates       []predicate.Domain
 }
 
 var _ ent.Mutation = (*DomainMutation)(nil)
@@ -2355,9 +2473,22 @@ func (m *DomainMutation) OldBucket(ctx context.Context) (v string, err error) {
 	return oldValue.Bucket, nil
 }
 
+// ClearBucket clears the value of the "bucket" field.
+func (m *DomainMutation) ClearBucket() {
+	m.bucket = nil
+	m.clearedFields[domain.FieldBucket] = struct{}{}
+}
+
+// BucketCleared returns if the "bucket" field was cleared in this mutation.
+func (m *DomainMutation) BucketCleared() bool {
+	_, ok := m.clearedFields[domain.FieldBucket]
+	return ok
+}
+
 // ResetBucket resets all changes to the "bucket" field.
 func (m *DomainMutation) ResetBucket() {
 	m.bucket = nil
+	delete(m.clearedFields, domain.FieldBucket)
 }
 
 // SetRegion sets the "region" field.
@@ -2391,9 +2522,22 @@ func (m *DomainMutation) OldRegion(ctx context.Context) (v string, err error) {
 	return oldValue.Region, nil
 }
 
+// ClearRegion clears the value of the "region" field.
+func (m *DomainMutation) ClearRegion() {
+	m.region = nil
+	m.clearedFields[domain.FieldRegion] = struct{}{}
+}
+
+// RegionCleared returns if the "region" field was cleared in this mutation.
+func (m *DomainMutation) RegionCleared() bool {
+	_, ok := m.clearedFields[domain.FieldRegion]
+	return ok
+}
+
 // ResetRegion resets all changes to the "region" field.
 func (m *DomainMutation) ResetRegion() {
 	m.region = nil
+	delete(m.clearedFields, domain.FieldRegion)
 }
 
 // SetAccountName sets the "account_name" field.
@@ -2700,6 +2844,402 @@ func (m *DomainMutation) ResetDeployTarget() {
 	m.deploy_target = nil
 }
 
+// SetPresence sets the "presence" field.
+func (m *DomainMutation) SetPresence(d domain.Presence) {
+	m.presence = &d
+}
+
+// Presence returns the value of the "presence" field in the mutation.
+func (m *DomainMutation) Presence() (r domain.Presence, exists bool) {
+	v := m.presence
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPresence returns the old "presence" field's value of the Domain entity.
+// If the Domain object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DomainMutation) OldPresence(ctx context.Context) (v domain.Presence, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPresence is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPresence requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPresence: %w", err)
+	}
+	return oldValue.Presence, nil
+}
+
+// ResetPresence resets all changes to the "presence" field.
+func (m *DomainMutation) ResetPresence() {
+	m.presence = nil
+}
+
+// SetOrigin sets the "origin" field.
+func (m *DomainMutation) SetOrigin(d domain.Origin) {
+	m.origin = &d
+}
+
+// Origin returns the value of the "origin" field in the mutation.
+func (m *DomainMutation) Origin() (r domain.Origin, exists bool) {
+	v := m.origin
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOrigin returns the old "origin" field's value of the Domain entity.
+// If the Domain object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DomainMutation) OldOrigin(ctx context.Context) (v domain.Origin, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOrigin is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOrigin requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOrigin: %w", err)
+	}
+	return oldValue.Origin, nil
+}
+
+// ResetOrigin resets all changes to the "origin" field.
+func (m *DomainMutation) ResetOrigin() {
+	m.origin = nil
+}
+
+// SetLastSeenAt sets the "last_seen_at" field.
+func (m *DomainMutation) SetLastSeenAt(t time.Time) {
+	m.last_seen_at = &t
+}
+
+// LastSeenAt returns the value of the "last_seen_at" field in the mutation.
+func (m *DomainMutation) LastSeenAt() (r time.Time, exists bool) {
+	v := m.last_seen_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLastSeenAt returns the old "last_seen_at" field's value of the Domain entity.
+// If the Domain object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DomainMutation) OldLastSeenAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLastSeenAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLastSeenAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLastSeenAt: %w", err)
+	}
+	return oldValue.LastSeenAt, nil
+}
+
+// ClearLastSeenAt clears the value of the "last_seen_at" field.
+func (m *DomainMutation) ClearLastSeenAt() {
+	m.last_seen_at = nil
+	m.clearedFields[domain.FieldLastSeenAt] = struct{}{}
+}
+
+// LastSeenAtCleared returns if the "last_seen_at" field was cleared in this mutation.
+func (m *DomainMutation) LastSeenAtCleared() bool {
+	_, ok := m.clearedFields[domain.FieldLastSeenAt]
+	return ok
+}
+
+// ResetLastSeenAt resets all changes to the "last_seen_at" field.
+func (m *DomainMutation) ResetLastSeenAt() {
+	m.last_seen_at = nil
+	delete(m.clearedFields, domain.FieldLastSeenAt)
+}
+
+// SetManaged sets the "managed" field.
+func (m *DomainMutation) SetManaged(b bool) {
+	m.managed = &b
+}
+
+// Managed returns the value of the "managed" field in the mutation.
+func (m *DomainMutation) Managed() (r bool, exists bool) {
+	v := m.managed
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldManaged returns the old "managed" field's value of the Domain entity.
+// If the Domain object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DomainMutation) OldManaged(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldManaged is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldManaged requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldManaged: %w", err)
+	}
+	return oldValue.Managed, nil
+}
+
+// ResetManaged resets all changes to the "managed" field.
+func (m *DomainMutation) ResetManaged() {
+	m.managed = nil
+}
+
+// SetRetryCount sets the "retry_count" field.
+func (m *DomainMutation) SetRetryCount(i int) {
+	m.retry_count = &i
+	m.addretry_count = nil
+}
+
+// RetryCount returns the value of the "retry_count" field in the mutation.
+func (m *DomainMutation) RetryCount() (r int, exists bool) {
+	v := m.retry_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRetryCount returns the old "retry_count" field's value of the Domain entity.
+// If the Domain object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DomainMutation) OldRetryCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRetryCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRetryCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRetryCount: %w", err)
+	}
+	return oldValue.RetryCount, nil
+}
+
+// AddRetryCount adds i to the "retry_count" field.
+func (m *DomainMutation) AddRetryCount(i int) {
+	if m.addretry_count != nil {
+		*m.addretry_count += i
+	} else {
+		m.addretry_count = &i
+	}
+}
+
+// AddedRetryCount returns the value that was added to the "retry_count" field in this mutation.
+func (m *DomainMutation) AddedRetryCount() (r int, exists bool) {
+	v := m.addretry_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetRetryCount resets all changes to the "retry_count" field.
+func (m *DomainMutation) ResetRetryCount() {
+	m.retry_count = nil
+	m.addretry_count = nil
+}
+
+// SetNextRetryAt sets the "next_retry_at" field.
+func (m *DomainMutation) SetNextRetryAt(t time.Time) {
+	m.next_retry_at = &t
+}
+
+// NextRetryAt returns the value of the "next_retry_at" field in the mutation.
+func (m *DomainMutation) NextRetryAt() (r time.Time, exists bool) {
+	v := m.next_retry_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNextRetryAt returns the old "next_retry_at" field's value of the Domain entity.
+// If the Domain object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DomainMutation) OldNextRetryAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNextRetryAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNextRetryAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNextRetryAt: %w", err)
+	}
+	return oldValue.NextRetryAt, nil
+}
+
+// ClearNextRetryAt clears the value of the "next_retry_at" field.
+func (m *DomainMutation) ClearNextRetryAt() {
+	m.next_retry_at = nil
+	m.clearedFields[domain.FieldNextRetryAt] = struct{}{}
+}
+
+// NextRetryAtCleared returns if the "next_retry_at" field was cleared in this mutation.
+func (m *DomainMutation) NextRetryAtCleared() bool {
+	_, ok := m.clearedFields[domain.FieldNextRetryAt]
+	return ok
+}
+
+// ResetNextRetryAt resets all changes to the "next_retry_at" field.
+func (m *DomainMutation) ResetNextRetryAt() {
+	m.next_retry_at = nil
+	delete(m.clearedFields, domain.FieldNextRetryAt)
+}
+
+// SetErrorKind sets the "error_kind" field.
+func (m *DomainMutation) SetErrorKind(dk domain.ErrorKind) {
+	m.error_kind = &dk
+}
+
+// ErrorKind returns the value of the "error_kind" field in the mutation.
+func (m *DomainMutation) ErrorKind() (r domain.ErrorKind, exists bool) {
+	v := m.error_kind
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldErrorKind returns the old "error_kind" field's value of the Domain entity.
+// If the Domain object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DomainMutation) OldErrorKind(ctx context.Context) (v domain.ErrorKind, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldErrorKind is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldErrorKind requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldErrorKind: %w", err)
+	}
+	return oldValue.ErrorKind, nil
+}
+
+// ResetErrorKind resets all changes to the "error_kind" field.
+func (m *DomainMutation) ResetErrorKind() {
+	m.error_kind = nil
+}
+
+// SetNotifiedState sets the "notified_state" field.
+func (m *DomainMutation) SetNotifiedState(s string) {
+	m.notified_state = &s
+}
+
+// NotifiedState returns the value of the "notified_state" field in the mutation.
+func (m *DomainMutation) NotifiedState() (r string, exists bool) {
+	v := m.notified_state
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNotifiedState returns the old "notified_state" field's value of the Domain entity.
+// If the Domain object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DomainMutation) OldNotifiedState(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNotifiedState is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNotifiedState requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNotifiedState: %w", err)
+	}
+	return oldValue.NotifiedState, nil
+}
+
+// ClearNotifiedState clears the value of the "notified_state" field.
+func (m *DomainMutation) ClearNotifiedState() {
+	m.notified_state = nil
+	m.clearedFields[domain.FieldNotifiedState] = struct{}{}
+}
+
+// NotifiedStateCleared returns if the "notified_state" field was cleared in this mutation.
+func (m *DomainMutation) NotifiedStateCleared() bool {
+	_, ok := m.clearedFields[domain.FieldNotifiedState]
+	return ok
+}
+
+// ResetNotifiedState resets all changes to the "notified_state" field.
+func (m *DomainMutation) ResetNotifiedState() {
+	m.notified_state = nil
+	delete(m.clearedFields, domain.FieldNotifiedState)
+}
+
+// SetLastNotifiedAt sets the "last_notified_at" field.
+func (m *DomainMutation) SetLastNotifiedAt(t time.Time) {
+	m.last_notified_at = &t
+}
+
+// LastNotifiedAt returns the value of the "last_notified_at" field in the mutation.
+func (m *DomainMutation) LastNotifiedAt() (r time.Time, exists bool) {
+	v := m.last_notified_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLastNotifiedAt returns the old "last_notified_at" field's value of the Domain entity.
+// If the Domain object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DomainMutation) OldLastNotifiedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldLastNotifiedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldLastNotifiedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLastNotifiedAt: %w", err)
+	}
+	return oldValue.LastNotifiedAt, nil
+}
+
+// ClearLastNotifiedAt clears the value of the "last_notified_at" field.
+func (m *DomainMutation) ClearLastNotifiedAt() {
+	m.last_notified_at = nil
+	m.clearedFields[domain.FieldLastNotifiedAt] = struct{}{}
+}
+
+// LastNotifiedAtCleared returns if the "last_notified_at" field was cleared in this mutation.
+func (m *DomainMutation) LastNotifiedAtCleared() bool {
+	_, ok := m.clearedFields[domain.FieldLastNotifiedAt]
+	return ok
+}
+
+// ResetLastNotifiedAt resets all changes to the "last_notified_at" field.
+func (m *DomainMutation) ResetLastNotifiedAt() {
+	m.last_notified_at = nil
+	delete(m.clearedFields, domain.FieldLastNotifiedAt)
+}
+
 // SetErrorMessage sets the "error_message" field.
 func (m *DomainMutation) SetErrorMessage(s string) {
 	m.error_message = &s
@@ -2904,7 +3444,7 @@ func (m *DomainMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DomainMutation) Fields() []string {
-	fields := make([]string, 0, 14)
+	fields := make([]string, 0, 23)
 	if m.domain != nil {
 		fields = append(fields, domain.FieldDomain)
 	}
@@ -2934,6 +3474,33 @@ func (m *DomainMutation) Fields() []string {
 	}
 	if m.deploy_target != nil {
 		fields = append(fields, domain.FieldDeployTarget)
+	}
+	if m.presence != nil {
+		fields = append(fields, domain.FieldPresence)
+	}
+	if m.origin != nil {
+		fields = append(fields, domain.FieldOrigin)
+	}
+	if m.last_seen_at != nil {
+		fields = append(fields, domain.FieldLastSeenAt)
+	}
+	if m.managed != nil {
+		fields = append(fields, domain.FieldManaged)
+	}
+	if m.retry_count != nil {
+		fields = append(fields, domain.FieldRetryCount)
+	}
+	if m.next_retry_at != nil {
+		fields = append(fields, domain.FieldNextRetryAt)
+	}
+	if m.error_kind != nil {
+		fields = append(fields, domain.FieldErrorKind)
+	}
+	if m.notified_state != nil {
+		fields = append(fields, domain.FieldNotifiedState)
+	}
+	if m.last_notified_at != nil {
+		fields = append(fields, domain.FieldLastNotifiedAt)
 	}
 	if m.error_message != nil {
 		fields = append(fields, domain.FieldErrorMessage)
@@ -2975,6 +3542,24 @@ func (m *DomainMutation) Field(name string) (ent.Value, bool) {
 		return m.Status()
 	case domain.FieldDeployTarget:
 		return m.DeployTarget()
+	case domain.FieldPresence:
+		return m.Presence()
+	case domain.FieldOrigin:
+		return m.Origin()
+	case domain.FieldLastSeenAt:
+		return m.LastSeenAt()
+	case domain.FieldManaged:
+		return m.Managed()
+	case domain.FieldRetryCount:
+		return m.RetryCount()
+	case domain.FieldNextRetryAt:
+		return m.NextRetryAt()
+	case domain.FieldErrorKind:
+		return m.ErrorKind()
+	case domain.FieldNotifiedState:
+		return m.NotifiedState()
+	case domain.FieldLastNotifiedAt:
+		return m.LastNotifiedAt()
 	case domain.FieldErrorMessage:
 		return m.ErrorMessage()
 	case domain.FieldBlockedReason:
@@ -3012,6 +3597,24 @@ func (m *DomainMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldStatus(ctx)
 	case domain.FieldDeployTarget:
 		return m.OldDeployTarget(ctx)
+	case domain.FieldPresence:
+		return m.OldPresence(ctx)
+	case domain.FieldOrigin:
+		return m.OldOrigin(ctx)
+	case domain.FieldLastSeenAt:
+		return m.OldLastSeenAt(ctx)
+	case domain.FieldManaged:
+		return m.OldManaged(ctx)
+	case domain.FieldRetryCount:
+		return m.OldRetryCount(ctx)
+	case domain.FieldNextRetryAt:
+		return m.OldNextRetryAt(ctx)
+	case domain.FieldErrorKind:
+		return m.OldErrorKind(ctx)
+	case domain.FieldNotifiedState:
+		return m.OldNotifiedState(ctx)
+	case domain.FieldLastNotifiedAt:
+		return m.OldLastNotifiedAt(ctx)
 	case domain.FieldErrorMessage:
 		return m.OldErrorMessage(ctx)
 	case domain.FieldBlockedReason:
@@ -3099,6 +3702,69 @@ func (m *DomainMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetDeployTarget(v)
 		return nil
+	case domain.FieldPresence:
+		v, ok := value.(domain.Presence)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPresence(v)
+		return nil
+	case domain.FieldOrigin:
+		v, ok := value.(domain.Origin)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOrigin(v)
+		return nil
+	case domain.FieldLastSeenAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLastSeenAt(v)
+		return nil
+	case domain.FieldManaged:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetManaged(v)
+		return nil
+	case domain.FieldRetryCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRetryCount(v)
+		return nil
+	case domain.FieldNextRetryAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNextRetryAt(v)
+		return nil
+	case domain.FieldErrorKind:
+		v, ok := value.(domain.ErrorKind)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetErrorKind(v)
+		return nil
+	case domain.FieldNotifiedState:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNotifiedState(v)
+		return nil
+	case domain.FieldLastNotifiedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLastNotifiedAt(v)
+		return nil
 	case domain.FieldErrorMessage:
 		v, ok := value.(string)
 		if !ok {
@@ -3134,13 +3800,21 @@ func (m *DomainMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *DomainMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addretry_count != nil {
+		fields = append(fields, domain.FieldRetryCount)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *DomainMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case domain.FieldRetryCount:
+		return m.AddedRetryCount()
+	}
 	return nil, false
 }
 
@@ -3149,6 +3823,13 @@ func (m *DomainMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *DomainMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case domain.FieldRetryCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRetryCount(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Domain numeric field %s", name)
 }
@@ -3157,6 +3838,12 @@ func (m *DomainMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *DomainMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(domain.FieldBucket) {
+		fields = append(fields, domain.FieldBucket)
+	}
+	if m.FieldCleared(domain.FieldRegion) {
+		fields = append(fields, domain.FieldRegion)
+	}
 	if m.FieldCleared(domain.FieldIssuedAt) {
 		fields = append(fields, domain.FieldIssuedAt)
 	}
@@ -3168,6 +3855,18 @@ func (m *DomainMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(domain.FieldKeyPem) {
 		fields = append(fields, domain.FieldKeyPem)
+	}
+	if m.FieldCleared(domain.FieldLastSeenAt) {
+		fields = append(fields, domain.FieldLastSeenAt)
+	}
+	if m.FieldCleared(domain.FieldNextRetryAt) {
+		fields = append(fields, domain.FieldNextRetryAt)
+	}
+	if m.FieldCleared(domain.FieldNotifiedState) {
+		fields = append(fields, domain.FieldNotifiedState)
+	}
+	if m.FieldCleared(domain.FieldLastNotifiedAt) {
+		fields = append(fields, domain.FieldLastNotifiedAt)
 	}
 	if m.FieldCleared(domain.FieldErrorMessage) {
 		fields = append(fields, domain.FieldErrorMessage)
@@ -3189,6 +3888,12 @@ func (m *DomainMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *DomainMutation) ClearField(name string) error {
 	switch name {
+	case domain.FieldBucket:
+		m.ClearBucket()
+		return nil
+	case domain.FieldRegion:
+		m.ClearRegion()
+		return nil
 	case domain.FieldIssuedAt:
 		m.ClearIssuedAt()
 		return nil
@@ -3200,6 +3905,18 @@ func (m *DomainMutation) ClearField(name string) error {
 		return nil
 	case domain.FieldKeyPem:
 		m.ClearKeyPem()
+		return nil
+	case domain.FieldLastSeenAt:
+		m.ClearLastSeenAt()
+		return nil
+	case domain.FieldNextRetryAt:
+		m.ClearNextRetryAt()
+		return nil
+	case domain.FieldNotifiedState:
+		m.ClearNotifiedState()
+		return nil
+	case domain.FieldLastNotifiedAt:
+		m.ClearLastNotifiedAt()
 		return nil
 	case domain.FieldErrorMessage:
 		m.ClearErrorMessage()
@@ -3244,6 +3961,33 @@ func (m *DomainMutation) ResetField(name string) error {
 		return nil
 	case domain.FieldDeployTarget:
 		m.ResetDeployTarget()
+		return nil
+	case domain.FieldPresence:
+		m.ResetPresence()
+		return nil
+	case domain.FieldOrigin:
+		m.ResetOrigin()
+		return nil
+	case domain.FieldLastSeenAt:
+		m.ResetLastSeenAt()
+		return nil
+	case domain.FieldManaged:
+		m.ResetManaged()
+		return nil
+	case domain.FieldRetryCount:
+		m.ResetRetryCount()
+		return nil
+	case domain.FieldNextRetryAt:
+		m.ResetNextRetryAt()
+		return nil
+	case domain.FieldErrorKind:
+		m.ResetErrorKind()
+		return nil
+	case domain.FieldNotifiedState:
+		m.ResetNotifiedState()
+		return nil
+	case domain.FieldLastNotifiedAt:
+		m.ResetLastNotifiedAt()
 		return nil
 	case domain.FieldErrorMessage:
 		m.ResetErrorMessage()

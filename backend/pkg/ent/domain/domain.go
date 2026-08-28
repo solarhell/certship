@@ -34,6 +34,24 @@ const (
 	FieldStatus = "status"
 	// FieldDeployTarget holds the string denoting the deploy_target field in the database.
 	FieldDeployTarget = "deploy_target"
+	// FieldPresence holds the string denoting the presence field in the database.
+	FieldPresence = "presence"
+	// FieldOrigin holds the string denoting the origin field in the database.
+	FieldOrigin = "origin"
+	// FieldLastSeenAt holds the string denoting the last_seen_at field in the database.
+	FieldLastSeenAt = "last_seen_at"
+	// FieldManaged holds the string denoting the managed field in the database.
+	FieldManaged = "managed"
+	// FieldRetryCount holds the string denoting the retry_count field in the database.
+	FieldRetryCount = "retry_count"
+	// FieldNextRetryAt holds the string denoting the next_retry_at field in the database.
+	FieldNextRetryAt = "next_retry_at"
+	// FieldErrorKind holds the string denoting the error_kind field in the database.
+	FieldErrorKind = "error_kind"
+	// FieldNotifiedState holds the string denoting the notified_state field in the database.
+	FieldNotifiedState = "notified_state"
+	// FieldLastNotifiedAt holds the string denoting the last_notified_at field in the database.
+	FieldLastNotifiedAt = "last_notified_at"
 	// FieldErrorMessage holds the string denoting the error_message field in the database.
 	FieldErrorMessage = "error_message"
 	// FieldBlockedReason holds the string denoting the blocked_reason field in the database.
@@ -59,6 +77,15 @@ var Columns = []string{
 	FieldKeyPem,
 	FieldStatus,
 	FieldDeployTarget,
+	FieldPresence,
+	FieldOrigin,
+	FieldLastSeenAt,
+	FieldManaged,
+	FieldRetryCount,
+	FieldNextRetryAt,
+	FieldErrorKind,
+	FieldNotifiedState,
+	FieldLastNotifiedAt,
 	FieldErrorMessage,
 	FieldBlockedReason,
 	FieldCreatedAt,
@@ -78,12 +105,14 @@ func ValidColumn(column string) bool {
 var (
 	// DomainValidator is a validator for the "domain" field. It is called by the builders before save.
 	DomainValidator func(string) error
-	// BucketValidator is a validator for the "bucket" field. It is called by the builders before save.
-	BucketValidator func(string) error
-	// RegionValidator is a validator for the "region" field. It is called by the builders before save.
-	RegionValidator func(string) error
 	// AccountNameValidator is a validator for the "account_name" field. It is called by the builders before save.
 	AccountNameValidator func(string) error
+	// DefaultManaged holds the default value on creation for the "managed" field.
+	DefaultManaged bool
+	// DefaultRetryCount holds the default value on creation for the "retry_count" field.
+	DefaultRetryCount int
+	// RetryCountValidator is a validator for the "retry_count" field. It is called by the builders before save.
+	RetryCountValidator func(int) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
@@ -149,6 +178,88 @@ func DeployTargetValidator(dt DeployTarget) error {
 	}
 }
 
+// Presence defines the type for the "presence" enum field.
+type Presence string
+
+// PresencePresent is the default value of the Presence enum.
+const DefaultPresence = PresencePresent
+
+// Presence values.
+const (
+	PresencePresent  Presence = "present"
+	PresenceMissing  Presence = "missing"
+	PresenceArchived Presence = "archived"
+)
+
+func (pr Presence) String() string {
+	return string(pr)
+}
+
+// PresenceValidator is a validator for the "presence" field enum values. It is called by the builders before save.
+func PresenceValidator(pr Presence) error {
+	switch pr {
+	case PresencePresent, PresenceMissing, PresenceArchived:
+		return nil
+	default:
+		return fmt.Errorf("domain: invalid enum value for presence field: %q", pr)
+	}
+}
+
+// Origin defines the type for the "origin" enum field.
+type Origin string
+
+// OriginOss is the default value of the Origin enum.
+const DefaultOrigin = OriginOss
+
+// Origin values.
+const (
+	OriginOss  Origin = "oss"
+	OriginCdn  Origin = "cdn"
+	OriginBoth Origin = "both"
+)
+
+func (o Origin) String() string {
+	return string(o)
+}
+
+// OriginValidator is a validator for the "origin" field enum values. It is called by the builders before save.
+func OriginValidator(o Origin) error {
+	switch o {
+	case OriginOss, OriginCdn, OriginBoth:
+		return nil
+	default:
+		return fmt.Errorf("domain: invalid enum value for origin field: %q", o)
+	}
+}
+
+// ErrorKind defines the type for the "error_kind" enum field.
+type ErrorKind string
+
+// ErrorKindNone is the default value of the ErrorKind enum.
+const DefaultErrorKind = ErrorKindNone
+
+// ErrorKind values.
+const (
+	ErrorKindNone        ErrorKind = "none"
+	ErrorKindTransient   ErrorKind = "transient"
+	ErrorKindPermanent   ErrorKind = "permanent"
+	ErrorKindRateLimited ErrorKind = "rate_limited"
+)
+
+func (ek ErrorKind) String() string {
+	return string(ek)
+}
+
+// ErrorKindValidator is a validator for the "error_kind" field enum values. It is called by the builders before save.
+func ErrorKindValidator(ek ErrorKind) error {
+	switch ek {
+	case ErrorKindNone, ErrorKindTransient, ErrorKindPermanent, ErrorKindRateLimited:
+		return nil
+	default:
+		return fmt.Errorf("domain: invalid enum value for error_kind field: %q", ek)
+	}
+}
+
 // OrderOption defines the ordering options for the Domain queries.
 type OrderOption func(*sql.Selector)
 
@@ -205,6 +316,51 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 // ByDeployTarget orders the results by the deploy_target field.
 func ByDeployTarget(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDeployTarget, opts...).ToFunc()
+}
+
+// ByPresence orders the results by the presence field.
+func ByPresence(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPresence, opts...).ToFunc()
+}
+
+// ByOrigin orders the results by the origin field.
+func ByOrigin(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOrigin, opts...).ToFunc()
+}
+
+// ByLastSeenAt orders the results by the last_seen_at field.
+func ByLastSeenAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastSeenAt, opts...).ToFunc()
+}
+
+// ByManaged orders the results by the managed field.
+func ByManaged(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldManaged, opts...).ToFunc()
+}
+
+// ByRetryCount orders the results by the retry_count field.
+func ByRetryCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRetryCount, opts...).ToFunc()
+}
+
+// ByNextRetryAt orders the results by the next_retry_at field.
+func ByNextRetryAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldNextRetryAt, opts...).ToFunc()
+}
+
+// ByErrorKind orders the results by the error_kind field.
+func ByErrorKind(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldErrorKind, opts...).ToFunc()
+}
+
+// ByNotifiedState orders the results by the notified_state field.
+func ByNotifiedState(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldNotifiedState, opts...).ToFunc()
+}
+
+// ByLastNotifiedAt orders the results by the last_notified_at field.
+func ByLastNotifiedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastNotifiedAt, opts...).ToFunc()
 }
 
 // ByErrorMessage orders the results by the error_message field.

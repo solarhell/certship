@@ -32,9 +32,25 @@ func (_c *DomainCreate) SetBucket(v string) *DomainCreate {
 	return _c
 }
 
+// SetNillableBucket sets the "bucket" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableBucket(v *string) *DomainCreate {
+	if v != nil {
+		_c.SetBucket(*v)
+	}
+	return _c
+}
+
 // SetRegion sets the "region" field.
 func (_c *DomainCreate) SetRegion(v string) *DomainCreate {
 	_c.mutation.SetRegion(v)
+	return _c
+}
+
+// SetNillableRegion sets the "region" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableRegion(v *string) *DomainCreate {
+	if v != nil {
+		_c.SetRegion(*v)
+	}
 	return _c
 }
 
@@ -124,6 +140,132 @@ func (_c *DomainCreate) SetDeployTarget(v domain.DeployTarget) *DomainCreate {
 func (_c *DomainCreate) SetNillableDeployTarget(v *domain.DeployTarget) *DomainCreate {
 	if v != nil {
 		_c.SetDeployTarget(*v)
+	}
+	return _c
+}
+
+// SetPresence sets the "presence" field.
+func (_c *DomainCreate) SetPresence(v domain.Presence) *DomainCreate {
+	_c.mutation.SetPresence(v)
+	return _c
+}
+
+// SetNillablePresence sets the "presence" field if the given value is not nil.
+func (_c *DomainCreate) SetNillablePresence(v *domain.Presence) *DomainCreate {
+	if v != nil {
+		_c.SetPresence(*v)
+	}
+	return _c
+}
+
+// SetOrigin sets the "origin" field.
+func (_c *DomainCreate) SetOrigin(v domain.Origin) *DomainCreate {
+	_c.mutation.SetOrigin(v)
+	return _c
+}
+
+// SetNillableOrigin sets the "origin" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableOrigin(v *domain.Origin) *DomainCreate {
+	if v != nil {
+		_c.SetOrigin(*v)
+	}
+	return _c
+}
+
+// SetLastSeenAt sets the "last_seen_at" field.
+func (_c *DomainCreate) SetLastSeenAt(v time.Time) *DomainCreate {
+	_c.mutation.SetLastSeenAt(v)
+	return _c
+}
+
+// SetNillableLastSeenAt sets the "last_seen_at" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableLastSeenAt(v *time.Time) *DomainCreate {
+	if v != nil {
+		_c.SetLastSeenAt(*v)
+	}
+	return _c
+}
+
+// SetManaged sets the "managed" field.
+func (_c *DomainCreate) SetManaged(v bool) *DomainCreate {
+	_c.mutation.SetManaged(v)
+	return _c
+}
+
+// SetNillableManaged sets the "managed" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableManaged(v *bool) *DomainCreate {
+	if v != nil {
+		_c.SetManaged(*v)
+	}
+	return _c
+}
+
+// SetRetryCount sets the "retry_count" field.
+func (_c *DomainCreate) SetRetryCount(v int) *DomainCreate {
+	_c.mutation.SetRetryCount(v)
+	return _c
+}
+
+// SetNillableRetryCount sets the "retry_count" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableRetryCount(v *int) *DomainCreate {
+	if v != nil {
+		_c.SetRetryCount(*v)
+	}
+	return _c
+}
+
+// SetNextRetryAt sets the "next_retry_at" field.
+func (_c *DomainCreate) SetNextRetryAt(v time.Time) *DomainCreate {
+	_c.mutation.SetNextRetryAt(v)
+	return _c
+}
+
+// SetNillableNextRetryAt sets the "next_retry_at" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableNextRetryAt(v *time.Time) *DomainCreate {
+	if v != nil {
+		_c.SetNextRetryAt(*v)
+	}
+	return _c
+}
+
+// SetErrorKind sets the "error_kind" field.
+func (_c *DomainCreate) SetErrorKind(v domain.ErrorKind) *DomainCreate {
+	_c.mutation.SetErrorKind(v)
+	return _c
+}
+
+// SetNillableErrorKind sets the "error_kind" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableErrorKind(v *domain.ErrorKind) *DomainCreate {
+	if v != nil {
+		_c.SetErrorKind(*v)
+	}
+	return _c
+}
+
+// SetNotifiedState sets the "notified_state" field.
+func (_c *DomainCreate) SetNotifiedState(v string) *DomainCreate {
+	_c.mutation.SetNotifiedState(v)
+	return _c
+}
+
+// SetNillableNotifiedState sets the "notified_state" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableNotifiedState(v *string) *DomainCreate {
+	if v != nil {
+		_c.SetNotifiedState(*v)
+	}
+	return _c
+}
+
+// SetLastNotifiedAt sets the "last_notified_at" field.
+func (_c *DomainCreate) SetLastNotifiedAt(v time.Time) *DomainCreate {
+	_c.mutation.SetLastNotifiedAt(v)
+	return _c
+}
+
+// SetNillableLastNotifiedAt sets the "last_notified_at" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableLastNotifiedAt(v *time.Time) *DomainCreate {
+	if v != nil {
+		_c.SetLastNotifiedAt(*v)
 	}
 	return _c
 }
@@ -241,6 +383,26 @@ func (_c *DomainCreate) defaults() {
 		v := domain.DefaultDeployTarget
 		_c.mutation.SetDeployTarget(v)
 	}
+	if _, ok := _c.mutation.Presence(); !ok {
+		v := domain.DefaultPresence
+		_c.mutation.SetPresence(v)
+	}
+	if _, ok := _c.mutation.Origin(); !ok {
+		v := domain.DefaultOrigin
+		_c.mutation.SetOrigin(v)
+	}
+	if _, ok := _c.mutation.Managed(); !ok {
+		v := domain.DefaultManaged
+		_c.mutation.SetManaged(v)
+	}
+	if _, ok := _c.mutation.RetryCount(); !ok {
+		v := domain.DefaultRetryCount
+		_c.mutation.SetRetryCount(v)
+	}
+	if _, ok := _c.mutation.ErrorKind(); !ok {
+		v := domain.DefaultErrorKind
+		_c.mutation.SetErrorKind(v)
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := domain.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)
@@ -265,22 +427,6 @@ func (_c *DomainCreate) check() error {
 			return &ValidationError{Name: "domain", err: fmt.Errorf(`ent: validator failed for field "Domain.domain": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.Bucket(); !ok {
-		return &ValidationError{Name: "bucket", err: errors.New(`ent: missing required field "Domain.bucket"`)}
-	}
-	if v, ok := _c.mutation.Bucket(); ok {
-		if err := domain.BucketValidator(v); err != nil {
-			return &ValidationError{Name: "bucket", err: fmt.Errorf(`ent: validator failed for field "Domain.bucket": %w`, err)}
-		}
-	}
-	if _, ok := _c.mutation.Region(); !ok {
-		return &ValidationError{Name: "region", err: errors.New(`ent: missing required field "Domain.region"`)}
-	}
-	if v, ok := _c.mutation.Region(); ok {
-		if err := domain.RegionValidator(v); err != nil {
-			return &ValidationError{Name: "region", err: fmt.Errorf(`ent: validator failed for field "Domain.region": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.AccountName(); !ok {
 		return &ValidationError{Name: "account_name", err: errors.New(`ent: missing required field "Domain.account_name"`)}
 	}
@@ -303,6 +449,41 @@ func (_c *DomainCreate) check() error {
 	if v, ok := _c.mutation.DeployTarget(); ok {
 		if err := domain.DeployTargetValidator(v); err != nil {
 			return &ValidationError{Name: "deploy_target", err: fmt.Errorf(`ent: validator failed for field "Domain.deploy_target": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Presence(); !ok {
+		return &ValidationError{Name: "presence", err: errors.New(`ent: missing required field "Domain.presence"`)}
+	}
+	if v, ok := _c.mutation.Presence(); ok {
+		if err := domain.PresenceValidator(v); err != nil {
+			return &ValidationError{Name: "presence", err: fmt.Errorf(`ent: validator failed for field "Domain.presence": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Origin(); !ok {
+		return &ValidationError{Name: "origin", err: errors.New(`ent: missing required field "Domain.origin"`)}
+	}
+	if v, ok := _c.mutation.Origin(); ok {
+		if err := domain.OriginValidator(v); err != nil {
+			return &ValidationError{Name: "origin", err: fmt.Errorf(`ent: validator failed for field "Domain.origin": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.Managed(); !ok {
+		return &ValidationError{Name: "managed", err: errors.New(`ent: missing required field "Domain.managed"`)}
+	}
+	if _, ok := _c.mutation.RetryCount(); !ok {
+		return &ValidationError{Name: "retry_count", err: errors.New(`ent: missing required field "Domain.retry_count"`)}
+	}
+	if v, ok := _c.mutation.RetryCount(); ok {
+		if err := domain.RetryCountValidator(v); err != nil {
+			return &ValidationError{Name: "retry_count", err: fmt.Errorf(`ent: validator failed for field "Domain.retry_count": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.ErrorKind(); !ok {
+		return &ValidationError{Name: "error_kind", err: errors.New(`ent: missing required field "Domain.error_kind"`)}
+	}
+	if v, ok := _c.mutation.ErrorKind(); ok {
+		if err := domain.ErrorKindValidator(v); err != nil {
+			return &ValidationError{Name: "error_kind", err: fmt.Errorf(`ent: validator failed for field "Domain.error_kind": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
@@ -390,6 +571,42 @@ func (_c *DomainCreate) createSpec() (*Domain, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.DeployTarget(); ok {
 		_spec.SetField(domain.FieldDeployTarget, field.TypeEnum, value)
 		_node.DeployTarget = value
+	}
+	if value, ok := _c.mutation.Presence(); ok {
+		_spec.SetField(domain.FieldPresence, field.TypeEnum, value)
+		_node.Presence = value
+	}
+	if value, ok := _c.mutation.Origin(); ok {
+		_spec.SetField(domain.FieldOrigin, field.TypeEnum, value)
+		_node.Origin = value
+	}
+	if value, ok := _c.mutation.LastSeenAt(); ok {
+		_spec.SetField(domain.FieldLastSeenAt, field.TypeTime, value)
+		_node.LastSeenAt = &value
+	}
+	if value, ok := _c.mutation.Managed(); ok {
+		_spec.SetField(domain.FieldManaged, field.TypeBool, value)
+		_node.Managed = value
+	}
+	if value, ok := _c.mutation.RetryCount(); ok {
+		_spec.SetField(domain.FieldRetryCount, field.TypeInt, value)
+		_node.RetryCount = value
+	}
+	if value, ok := _c.mutation.NextRetryAt(); ok {
+		_spec.SetField(domain.FieldNextRetryAt, field.TypeTime, value)
+		_node.NextRetryAt = &value
+	}
+	if value, ok := _c.mutation.ErrorKind(); ok {
+		_spec.SetField(domain.FieldErrorKind, field.TypeEnum, value)
+		_node.ErrorKind = value
+	}
+	if value, ok := _c.mutation.NotifiedState(); ok {
+		_spec.SetField(domain.FieldNotifiedState, field.TypeString, value)
+		_node.NotifiedState = value
+	}
+	if value, ok := _c.mutation.LastNotifiedAt(); ok {
+		_spec.SetField(domain.FieldLastNotifiedAt, field.TypeTime, value)
+		_node.LastNotifiedAt = &value
 	}
 	if value, ok := _c.mutation.ErrorMessage(); ok {
 		_spec.SetField(domain.FieldErrorMessage, field.TypeString, value)

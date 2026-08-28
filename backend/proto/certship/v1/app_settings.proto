@@ -12,13 +12,31 @@ service AppSettingsService {
 message GetAppSettingsRequest {}
 
 message GetAppSettingsResponse {
+  // 7、8 曾是 acme_email / acme_directory_url：
+  // 两者都固定在代码里，不对外暴露，避免误改把线上证书签成不受信任的
+  reserved 7, 8;
+
   string scan_interval = 3;
   int32 renew_before_days = 4;
+  // 域名连续多久没在云上扫到才判定为已消失
+  string missing_grace = 5;
+  // 判定消失后再过多久归档并停止托管
+  string archive_after = 6;
+  // 归档且证书已过期的记录保留多久后物理删除，0s 表示永久保留
+  string archived_retention = 9;
+  // 做 zone 探测与 DNS-01 校验的递归 DNS，逗号分隔的 host:port
+  string dns_resolvers = 10;
 }
 
 message UpdateAppSettingsRequest {
+  reserved 7, 8;
+
   string scan_interval = 3;
   int32 renew_before_days = 4;
+  string missing_grace = 5;
+  string archive_after = 6;
+  string archived_retention = 9;
+  string dns_resolvers = 10;
 }
 
 message UpdateAppSettingsResponse {}

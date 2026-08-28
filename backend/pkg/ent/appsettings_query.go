@@ -262,12 +262,12 @@ func (_q *AppSettingsQuery) Clone() *AppSettingsQuery {
 // Example:
 //
 //	var v []struct {
-//		AcmeEmail string `json:"acme_email,omitempty"`
+//		AcmeAccountKey string `json:"acme_account_key,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.AppSettings.Query().
-//		GroupBy(appsettings.FieldAcmeEmail).
+//		GroupBy(appsettings.FieldAcmeAccountKey).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (_q *AppSettingsQuery) GroupBy(field string, fields ...string) *AppSettingsGroupBy {
@@ -285,11 +285,11 @@ func (_q *AppSettingsQuery) GroupBy(field string, fields ...string) *AppSettings
 // Example:
 //
 //	var v []struct {
-//		AcmeEmail string `json:"acme_email,omitempty"`
+//		AcmeAccountKey string `json:"acme_account_key,omitempty"`
 //	}
 //
 //	client.AppSettings.Query().
-//		Select(appsettings.FieldAcmeEmail).
+//		Select(appsettings.FieldAcmeAccountKey).
 //		Scan(ctx, &v)
 func (_q *AppSettingsQuery) Select(fields ...string) *AppSettingsSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
