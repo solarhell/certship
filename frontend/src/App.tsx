@@ -41,7 +41,13 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={token ? <Navigate to="/" replace /> : <Login />} />
-      <Route element={<RequireAuth><BasicLayout /></RequireAuth>}>
+      <Route
+        element={
+          <RequireAuth>
+            <BasicLayout />
+          </RequireAuth>
+        }
+      >
         <Route path="/" element={<Dashboard />} />
         <Route path="/certificates" element={<Certificates />} />
         <Route path="/renew-tasks" element={<RenewTasks />} />
