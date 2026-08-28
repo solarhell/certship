@@ -2,10 +2,13 @@ package appsettings
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"connectrpc.com/connect"
 	"go.uber.org/zap"
 
+	"github.com/solarhell/certship/internal/alidns"
 	certshipv1 "github.com/solarhell/certship/pkg/api/certship/v1"
 	"github.com/solarhell/certship/pkg/api/certship/v1/certshipv1connect"
 	"github.com/solarhell/certship/pkg/database"
@@ -27,8 +30,12 @@ func (s *Server) GetAppSettings(ctx context.Context, _ *connect.Request[certship
 	}
 
 	return connect.NewResponse(&certshipv1.GetAppSettingsResponse{
-		ScanInterval:    settings.ScanInterval,
-		RenewBeforeDays: int32(settings.RenewBeforeDays),
+		ScanInterval:      settings.ScanInterval,
+		RenewBeforeDays:   int32(settings.RenewBeforeDays),
+		MissingGrace:      settings.MissingGrace,
+		ArchiveAfter:      settings.ArchiveAfter,
+		ArchivedRetention: settings.ArchivedRetention,
+		DnsResolvers:      settings.DNSResolvers,
 	}), nil
 }
 
@@ -47,6 +54,30 @@ func (s *Server) UpdateAppSettings(ctx context.Context, req *connect.Request[cer
 	}
 	if req.Msg.RenewBeforeDays > 0 {
 		updater = updater.SetRenewBeforeDays(int(req.Msg.RenewBeforeDays))
+	}
+	if req.Msg.MissingGrace != "" {
+		if _, err := time.ParseDuration(req.Msg.MissingGrace); err != nil {
+			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("missing_grace 不是合法的 duration: %w", err))
+		}
+		updater = updater.SetMissingGrace(req.Msg.MissingGrace)
+	}
+	if req.Msg.ArchiveAfter != "" {
+		if _, err := time.ParseDuration(req.Msg.ArchiveAfter); err != nil {
+			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("archive_after 不是合法的 duration: %w", err))
+		}
+		updater = updater.SetArchiveAfter(req.Msg.ArchiveAfter)
+	}
+	if req.Msg.DnsResolvers != "" {
+		if len(alidns.ParseResolvers(req.Msg.DnsResolvers)) == 0 {
+			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("dns_resolvers 至少要有一个合法的 host 或 host:port"))
+		}
+		updater = updater.SetDNSResolvers(req.Msg.DnsResolvers)
+	}
+	if req.Msg.ArchivedRetention != "" {
+		if _, err := time.ParseDuration(req.Msg.ArchivedRetention); err != nil {
+			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("archived_retention 不是合法的 duration: %w", err))
+		}
+		updater = updater.SetArchivedRetention(req.Msg.ArchivedRetention)
 	}
 
 	if err := updater.Exec(ctx); err != nil {

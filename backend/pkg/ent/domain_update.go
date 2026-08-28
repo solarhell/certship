@@ -56,6 +56,12 @@ func (_u *DomainUpdate) SetNillableBucket(v *string) *DomainUpdate {
 	return _u
 }
 
+// ClearBucket clears the value of the "bucket" field.
+func (_u *DomainUpdate) ClearBucket() *DomainUpdate {
+	_u.mutation.ClearBucket()
+	return _u
+}
+
 // SetRegion sets the "region" field.
 func (_u *DomainUpdate) SetRegion(v string) *DomainUpdate {
 	_u.mutation.SetRegion(v)
@@ -67,6 +73,12 @@ func (_u *DomainUpdate) SetNillableRegion(v *string) *DomainUpdate {
 	if v != nil {
 		_u.SetRegion(*v)
 	}
+	return _u
+}
+
+// ClearRegion clears the value of the "region" field.
+func (_u *DomainUpdate) ClearRegion() *DomainUpdate {
+	_u.mutation.ClearRegion()
 	return _u
 }
 
@@ -192,6 +204,163 @@ func (_u *DomainUpdate) SetNillableDeployTarget(v *domain.DeployTarget) *DomainU
 	return _u
 }
 
+// SetPresence sets the "presence" field.
+func (_u *DomainUpdate) SetPresence(v domain.Presence) *DomainUpdate {
+	_u.mutation.SetPresence(v)
+	return _u
+}
+
+// SetNillablePresence sets the "presence" field if the given value is not nil.
+func (_u *DomainUpdate) SetNillablePresence(v *domain.Presence) *DomainUpdate {
+	if v != nil {
+		_u.SetPresence(*v)
+	}
+	return _u
+}
+
+// SetOrigin sets the "origin" field.
+func (_u *DomainUpdate) SetOrigin(v domain.Origin) *DomainUpdate {
+	_u.mutation.SetOrigin(v)
+	return _u
+}
+
+// SetNillableOrigin sets the "origin" field if the given value is not nil.
+func (_u *DomainUpdate) SetNillableOrigin(v *domain.Origin) *DomainUpdate {
+	if v != nil {
+		_u.SetOrigin(*v)
+	}
+	return _u
+}
+
+// SetLastSeenAt sets the "last_seen_at" field.
+func (_u *DomainUpdate) SetLastSeenAt(v time.Time) *DomainUpdate {
+	_u.mutation.SetLastSeenAt(v)
+	return _u
+}
+
+// SetNillableLastSeenAt sets the "last_seen_at" field if the given value is not nil.
+func (_u *DomainUpdate) SetNillableLastSeenAt(v *time.Time) *DomainUpdate {
+	if v != nil {
+		_u.SetLastSeenAt(*v)
+	}
+	return _u
+}
+
+// ClearLastSeenAt clears the value of the "last_seen_at" field.
+func (_u *DomainUpdate) ClearLastSeenAt() *DomainUpdate {
+	_u.mutation.ClearLastSeenAt()
+	return _u
+}
+
+// SetManaged sets the "managed" field.
+func (_u *DomainUpdate) SetManaged(v bool) *DomainUpdate {
+	_u.mutation.SetManaged(v)
+	return _u
+}
+
+// SetNillableManaged sets the "managed" field if the given value is not nil.
+func (_u *DomainUpdate) SetNillableManaged(v *bool) *DomainUpdate {
+	if v != nil {
+		_u.SetManaged(*v)
+	}
+	return _u
+}
+
+// SetRetryCount sets the "retry_count" field.
+func (_u *DomainUpdate) SetRetryCount(v int) *DomainUpdate {
+	_u.mutation.ResetRetryCount()
+	_u.mutation.SetRetryCount(v)
+	return _u
+}
+
+// SetNillableRetryCount sets the "retry_count" field if the given value is not nil.
+func (_u *DomainUpdate) SetNillableRetryCount(v *int) *DomainUpdate {
+	if v != nil {
+		_u.SetRetryCount(*v)
+	}
+	return _u
+}
+
+// AddRetryCount adds value to the "retry_count" field.
+func (_u *DomainUpdate) AddRetryCount(v int) *DomainUpdate {
+	_u.mutation.AddRetryCount(v)
+	return _u
+}
+
+// SetNextRetryAt sets the "next_retry_at" field.
+func (_u *DomainUpdate) SetNextRetryAt(v time.Time) *DomainUpdate {
+	_u.mutation.SetNextRetryAt(v)
+	return _u
+}
+
+// SetNillableNextRetryAt sets the "next_retry_at" field if the given value is not nil.
+func (_u *DomainUpdate) SetNillableNextRetryAt(v *time.Time) *DomainUpdate {
+	if v != nil {
+		_u.SetNextRetryAt(*v)
+	}
+	return _u
+}
+
+// ClearNextRetryAt clears the value of the "next_retry_at" field.
+func (_u *DomainUpdate) ClearNextRetryAt() *DomainUpdate {
+	_u.mutation.ClearNextRetryAt()
+	return _u
+}
+
+// SetErrorKind sets the "error_kind" field.
+func (_u *DomainUpdate) SetErrorKind(v domain.ErrorKind) *DomainUpdate {
+	_u.mutation.SetErrorKind(v)
+	return _u
+}
+
+// SetNillableErrorKind sets the "error_kind" field if the given value is not nil.
+func (_u *DomainUpdate) SetNillableErrorKind(v *domain.ErrorKind) *DomainUpdate {
+	if v != nil {
+		_u.SetErrorKind(*v)
+	}
+	return _u
+}
+
+// SetNotifiedState sets the "notified_state" field.
+func (_u *DomainUpdate) SetNotifiedState(v string) *DomainUpdate {
+	_u.mutation.SetNotifiedState(v)
+	return _u
+}
+
+// SetNillableNotifiedState sets the "notified_state" field if the given value is not nil.
+func (_u *DomainUpdate) SetNillableNotifiedState(v *string) *DomainUpdate {
+	if v != nil {
+		_u.SetNotifiedState(*v)
+	}
+	return _u
+}
+
+// ClearNotifiedState clears the value of the "notified_state" field.
+func (_u *DomainUpdate) ClearNotifiedState() *DomainUpdate {
+	_u.mutation.ClearNotifiedState()
+	return _u
+}
+
+// SetLastNotifiedAt sets the "last_notified_at" field.
+func (_u *DomainUpdate) SetLastNotifiedAt(v time.Time) *DomainUpdate {
+	_u.mutation.SetLastNotifiedAt(v)
+	return _u
+}
+
+// SetNillableLastNotifiedAt sets the "last_notified_at" field if the given value is not nil.
+func (_u *DomainUpdate) SetNillableLastNotifiedAt(v *time.Time) *DomainUpdate {
+	if v != nil {
+		_u.SetLastNotifiedAt(*v)
+	}
+	return _u
+}
+
+// ClearLastNotifiedAt clears the value of the "last_notified_at" field.
+func (_u *DomainUpdate) ClearLastNotifiedAt() *DomainUpdate {
+	_u.mutation.ClearLastNotifiedAt()
+	return _u
+}
+
 // SetErrorMessage sets the "error_message" field.
 func (_u *DomainUpdate) SetErrorMessage(v string) *DomainUpdate {
 	_u.mutation.SetErrorMessage(v)
@@ -286,16 +455,6 @@ func (_u *DomainUpdate) check() error {
 			return &ValidationError{Name: "domain", err: fmt.Errorf(`ent: validator failed for field "Domain.domain": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Bucket(); ok {
-		if err := domain.BucketValidator(v); err != nil {
-			return &ValidationError{Name: "bucket", err: fmt.Errorf(`ent: validator failed for field "Domain.bucket": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.Region(); ok {
-		if err := domain.RegionValidator(v); err != nil {
-			return &ValidationError{Name: "region", err: fmt.Errorf(`ent: validator failed for field "Domain.region": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.AccountName(); ok {
 		if err := domain.AccountNameValidator(v); err != nil {
 			return &ValidationError{Name: "account_name", err: fmt.Errorf(`ent: validator failed for field "Domain.account_name": %w`, err)}
@@ -309,6 +468,26 @@ func (_u *DomainUpdate) check() error {
 	if v, ok := _u.mutation.DeployTarget(); ok {
 		if err := domain.DeployTargetValidator(v); err != nil {
 			return &ValidationError{Name: "deploy_target", err: fmt.Errorf(`ent: validator failed for field "Domain.deploy_target": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Presence(); ok {
+		if err := domain.PresenceValidator(v); err != nil {
+			return &ValidationError{Name: "presence", err: fmt.Errorf(`ent: validator failed for field "Domain.presence": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Origin(); ok {
+		if err := domain.OriginValidator(v); err != nil {
+			return &ValidationError{Name: "origin", err: fmt.Errorf(`ent: validator failed for field "Domain.origin": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.RetryCount(); ok {
+		if err := domain.RetryCountValidator(v); err != nil {
+			return &ValidationError{Name: "retry_count", err: fmt.Errorf(`ent: validator failed for field "Domain.retry_count": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ErrorKind(); ok {
+		if err := domain.ErrorKindValidator(v); err != nil {
+			return &ValidationError{Name: "error_kind", err: fmt.Errorf(`ent: validator failed for field "Domain.error_kind": %w`, err)}
 		}
 	}
 	return nil
@@ -332,8 +511,14 @@ func (_u *DomainUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Bucket(); ok {
 		_spec.SetField(domain.FieldBucket, field.TypeString, value)
 	}
+	if _u.mutation.BucketCleared() {
+		_spec.ClearField(domain.FieldBucket, field.TypeString)
+	}
 	if value, ok := _u.mutation.Region(); ok {
 		_spec.SetField(domain.FieldRegion, field.TypeString, value)
+	}
+	if _u.mutation.RegionCleared() {
+		_spec.ClearField(domain.FieldRegion, field.TypeString)
 	}
 	if value, ok := _u.mutation.AccountName(); ok {
 		_spec.SetField(domain.FieldAccountName, field.TypeString, value)
@@ -367,6 +552,48 @@ func (_u *DomainUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.DeployTarget(); ok {
 		_spec.SetField(domain.FieldDeployTarget, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Presence(); ok {
+		_spec.SetField(domain.FieldPresence, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Origin(); ok {
+		_spec.SetField(domain.FieldOrigin, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.LastSeenAt(); ok {
+		_spec.SetField(domain.FieldLastSeenAt, field.TypeTime, value)
+	}
+	if _u.mutation.LastSeenAtCleared() {
+		_spec.ClearField(domain.FieldLastSeenAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Managed(); ok {
+		_spec.SetField(domain.FieldManaged, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.RetryCount(); ok {
+		_spec.SetField(domain.FieldRetryCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedRetryCount(); ok {
+		_spec.AddField(domain.FieldRetryCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.NextRetryAt(); ok {
+		_spec.SetField(domain.FieldNextRetryAt, field.TypeTime, value)
+	}
+	if _u.mutation.NextRetryAtCleared() {
+		_spec.ClearField(domain.FieldNextRetryAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.ErrorKind(); ok {
+		_spec.SetField(domain.FieldErrorKind, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.NotifiedState(); ok {
+		_spec.SetField(domain.FieldNotifiedState, field.TypeString, value)
+	}
+	if _u.mutation.NotifiedStateCleared() {
+		_spec.ClearField(domain.FieldNotifiedState, field.TypeString)
+	}
+	if value, ok := _u.mutation.LastNotifiedAt(); ok {
+		_spec.SetField(domain.FieldLastNotifiedAt, field.TypeTime, value)
+	}
+	if _u.mutation.LastNotifiedAtCleared() {
+		_spec.ClearField(domain.FieldLastNotifiedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ErrorMessage(); ok {
 		_spec.SetField(domain.FieldErrorMessage, field.TypeString, value)
@@ -431,6 +658,12 @@ func (_u *DomainUpdateOne) SetNillableBucket(v *string) *DomainUpdateOne {
 	return _u
 }
 
+// ClearBucket clears the value of the "bucket" field.
+func (_u *DomainUpdateOne) ClearBucket() *DomainUpdateOne {
+	_u.mutation.ClearBucket()
+	return _u
+}
+
 // SetRegion sets the "region" field.
 func (_u *DomainUpdateOne) SetRegion(v string) *DomainUpdateOne {
 	_u.mutation.SetRegion(v)
@@ -442,6 +675,12 @@ func (_u *DomainUpdateOne) SetNillableRegion(v *string) *DomainUpdateOne {
 	if v != nil {
 		_u.SetRegion(*v)
 	}
+	return _u
+}
+
+// ClearRegion clears the value of the "region" field.
+func (_u *DomainUpdateOne) ClearRegion() *DomainUpdateOne {
+	_u.mutation.ClearRegion()
 	return _u
 }
 
@@ -567,6 +806,163 @@ func (_u *DomainUpdateOne) SetNillableDeployTarget(v *domain.DeployTarget) *Doma
 	return _u
 }
 
+// SetPresence sets the "presence" field.
+func (_u *DomainUpdateOne) SetPresence(v domain.Presence) *DomainUpdateOne {
+	_u.mutation.SetPresence(v)
+	return _u
+}
+
+// SetNillablePresence sets the "presence" field if the given value is not nil.
+func (_u *DomainUpdateOne) SetNillablePresence(v *domain.Presence) *DomainUpdateOne {
+	if v != nil {
+		_u.SetPresence(*v)
+	}
+	return _u
+}
+
+// SetOrigin sets the "origin" field.
+func (_u *DomainUpdateOne) SetOrigin(v domain.Origin) *DomainUpdateOne {
+	_u.mutation.SetOrigin(v)
+	return _u
+}
+
+// SetNillableOrigin sets the "origin" field if the given value is not nil.
+func (_u *DomainUpdateOne) SetNillableOrigin(v *domain.Origin) *DomainUpdateOne {
+	if v != nil {
+		_u.SetOrigin(*v)
+	}
+	return _u
+}
+
+// SetLastSeenAt sets the "last_seen_at" field.
+func (_u *DomainUpdateOne) SetLastSeenAt(v time.Time) *DomainUpdateOne {
+	_u.mutation.SetLastSeenAt(v)
+	return _u
+}
+
+// SetNillableLastSeenAt sets the "last_seen_at" field if the given value is not nil.
+func (_u *DomainUpdateOne) SetNillableLastSeenAt(v *time.Time) *DomainUpdateOne {
+	if v != nil {
+		_u.SetLastSeenAt(*v)
+	}
+	return _u
+}
+
+// ClearLastSeenAt clears the value of the "last_seen_at" field.
+func (_u *DomainUpdateOne) ClearLastSeenAt() *DomainUpdateOne {
+	_u.mutation.ClearLastSeenAt()
+	return _u
+}
+
+// SetManaged sets the "managed" field.
+func (_u *DomainUpdateOne) SetManaged(v bool) *DomainUpdateOne {
+	_u.mutation.SetManaged(v)
+	return _u
+}
+
+// SetNillableManaged sets the "managed" field if the given value is not nil.
+func (_u *DomainUpdateOne) SetNillableManaged(v *bool) *DomainUpdateOne {
+	if v != nil {
+		_u.SetManaged(*v)
+	}
+	return _u
+}
+
+// SetRetryCount sets the "retry_count" field.
+func (_u *DomainUpdateOne) SetRetryCount(v int) *DomainUpdateOne {
+	_u.mutation.ResetRetryCount()
+	_u.mutation.SetRetryCount(v)
+	return _u
+}
+
+// SetNillableRetryCount sets the "retry_count" field if the given value is not nil.
+func (_u *DomainUpdateOne) SetNillableRetryCount(v *int) *DomainUpdateOne {
+	if v != nil {
+		_u.SetRetryCount(*v)
+	}
+	return _u
+}
+
+// AddRetryCount adds value to the "retry_count" field.
+func (_u *DomainUpdateOne) AddRetryCount(v int) *DomainUpdateOne {
+	_u.mutation.AddRetryCount(v)
+	return _u
+}
+
+// SetNextRetryAt sets the "next_retry_at" field.
+func (_u *DomainUpdateOne) SetNextRetryAt(v time.Time) *DomainUpdateOne {
+	_u.mutation.SetNextRetryAt(v)
+	return _u
+}
+
+// SetNillableNextRetryAt sets the "next_retry_at" field if the given value is not nil.
+func (_u *DomainUpdateOne) SetNillableNextRetryAt(v *time.Time) *DomainUpdateOne {
+	if v != nil {
+		_u.SetNextRetryAt(*v)
+	}
+	return _u
+}
+
+// ClearNextRetryAt clears the value of the "next_retry_at" field.
+func (_u *DomainUpdateOne) ClearNextRetryAt() *DomainUpdateOne {
+	_u.mutation.ClearNextRetryAt()
+	return _u
+}
+
+// SetErrorKind sets the "error_kind" field.
+func (_u *DomainUpdateOne) SetErrorKind(v domain.ErrorKind) *DomainUpdateOne {
+	_u.mutation.SetErrorKind(v)
+	return _u
+}
+
+// SetNillableErrorKind sets the "error_kind" field if the given value is not nil.
+func (_u *DomainUpdateOne) SetNillableErrorKind(v *domain.ErrorKind) *DomainUpdateOne {
+	if v != nil {
+		_u.SetErrorKind(*v)
+	}
+	return _u
+}
+
+// SetNotifiedState sets the "notified_state" field.
+func (_u *DomainUpdateOne) SetNotifiedState(v string) *DomainUpdateOne {
+	_u.mutation.SetNotifiedState(v)
+	return _u
+}
+
+// SetNillableNotifiedState sets the "notified_state" field if the given value is not nil.
+func (_u *DomainUpdateOne) SetNillableNotifiedState(v *string) *DomainUpdateOne {
+	if v != nil {
+		_u.SetNotifiedState(*v)
+	}
+	return _u
+}
+
+// ClearNotifiedState clears the value of the "notified_state" field.
+func (_u *DomainUpdateOne) ClearNotifiedState() *DomainUpdateOne {
+	_u.mutation.ClearNotifiedState()
+	return _u
+}
+
+// SetLastNotifiedAt sets the "last_notified_at" field.
+func (_u *DomainUpdateOne) SetLastNotifiedAt(v time.Time) *DomainUpdateOne {
+	_u.mutation.SetLastNotifiedAt(v)
+	return _u
+}
+
+// SetNillableLastNotifiedAt sets the "last_notified_at" field if the given value is not nil.
+func (_u *DomainUpdateOne) SetNillableLastNotifiedAt(v *time.Time) *DomainUpdateOne {
+	if v != nil {
+		_u.SetLastNotifiedAt(*v)
+	}
+	return _u
+}
+
+// ClearLastNotifiedAt clears the value of the "last_notified_at" field.
+func (_u *DomainUpdateOne) ClearLastNotifiedAt() *DomainUpdateOne {
+	_u.mutation.ClearLastNotifiedAt()
+	return _u
+}
+
 // SetErrorMessage sets the "error_message" field.
 func (_u *DomainUpdateOne) SetErrorMessage(v string) *DomainUpdateOne {
 	_u.mutation.SetErrorMessage(v)
@@ -674,16 +1070,6 @@ func (_u *DomainUpdateOne) check() error {
 			return &ValidationError{Name: "domain", err: fmt.Errorf(`ent: validator failed for field "Domain.domain": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.Bucket(); ok {
-		if err := domain.BucketValidator(v); err != nil {
-			return &ValidationError{Name: "bucket", err: fmt.Errorf(`ent: validator failed for field "Domain.bucket": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.Region(); ok {
-		if err := domain.RegionValidator(v); err != nil {
-			return &ValidationError{Name: "region", err: fmt.Errorf(`ent: validator failed for field "Domain.region": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.AccountName(); ok {
 		if err := domain.AccountNameValidator(v); err != nil {
 			return &ValidationError{Name: "account_name", err: fmt.Errorf(`ent: validator failed for field "Domain.account_name": %w`, err)}
@@ -697,6 +1083,26 @@ func (_u *DomainUpdateOne) check() error {
 	if v, ok := _u.mutation.DeployTarget(); ok {
 		if err := domain.DeployTargetValidator(v); err != nil {
 			return &ValidationError{Name: "deploy_target", err: fmt.Errorf(`ent: validator failed for field "Domain.deploy_target": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Presence(); ok {
+		if err := domain.PresenceValidator(v); err != nil {
+			return &ValidationError{Name: "presence", err: fmt.Errorf(`ent: validator failed for field "Domain.presence": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.Origin(); ok {
+		if err := domain.OriginValidator(v); err != nil {
+			return &ValidationError{Name: "origin", err: fmt.Errorf(`ent: validator failed for field "Domain.origin": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.RetryCount(); ok {
+		if err := domain.RetryCountValidator(v); err != nil {
+			return &ValidationError{Name: "retry_count", err: fmt.Errorf(`ent: validator failed for field "Domain.retry_count": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.ErrorKind(); ok {
+		if err := domain.ErrorKindValidator(v); err != nil {
+			return &ValidationError{Name: "error_kind", err: fmt.Errorf(`ent: validator failed for field "Domain.error_kind": %w`, err)}
 		}
 	}
 	return nil
@@ -737,8 +1143,14 @@ func (_u *DomainUpdateOne) sqlSave(ctx context.Context) (_node *Domain, err erro
 	if value, ok := _u.mutation.Bucket(); ok {
 		_spec.SetField(domain.FieldBucket, field.TypeString, value)
 	}
+	if _u.mutation.BucketCleared() {
+		_spec.ClearField(domain.FieldBucket, field.TypeString)
+	}
 	if value, ok := _u.mutation.Region(); ok {
 		_spec.SetField(domain.FieldRegion, field.TypeString, value)
+	}
+	if _u.mutation.RegionCleared() {
+		_spec.ClearField(domain.FieldRegion, field.TypeString)
 	}
 	if value, ok := _u.mutation.AccountName(); ok {
 		_spec.SetField(domain.FieldAccountName, field.TypeString, value)
@@ -772,6 +1184,48 @@ func (_u *DomainUpdateOne) sqlSave(ctx context.Context) (_node *Domain, err erro
 	}
 	if value, ok := _u.mutation.DeployTarget(); ok {
 		_spec.SetField(domain.FieldDeployTarget, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Presence(); ok {
+		_spec.SetField(domain.FieldPresence, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.Origin(); ok {
+		_spec.SetField(domain.FieldOrigin, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.LastSeenAt(); ok {
+		_spec.SetField(domain.FieldLastSeenAt, field.TypeTime, value)
+	}
+	if _u.mutation.LastSeenAtCleared() {
+		_spec.ClearField(domain.FieldLastSeenAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.Managed(); ok {
+		_spec.SetField(domain.FieldManaged, field.TypeBool, value)
+	}
+	if value, ok := _u.mutation.RetryCount(); ok {
+		_spec.SetField(domain.FieldRetryCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedRetryCount(); ok {
+		_spec.AddField(domain.FieldRetryCount, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.NextRetryAt(); ok {
+		_spec.SetField(domain.FieldNextRetryAt, field.TypeTime, value)
+	}
+	if _u.mutation.NextRetryAtCleared() {
+		_spec.ClearField(domain.FieldNextRetryAt, field.TypeTime)
+	}
+	if value, ok := _u.mutation.ErrorKind(); ok {
+		_spec.SetField(domain.FieldErrorKind, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.NotifiedState(); ok {
+		_spec.SetField(domain.FieldNotifiedState, field.TypeString, value)
+	}
+	if _u.mutation.NotifiedStateCleared() {
+		_spec.ClearField(domain.FieldNotifiedState, field.TypeString)
+	}
+	if value, ok := _u.mutation.LastNotifiedAt(); ok {
+		_spec.SetField(domain.FieldLastNotifiedAt, field.TypeTime, value)
+	}
+	if _u.mutation.LastNotifiedAtCleared() {
+		_spec.ClearField(domain.FieldLastNotifiedAt, field.TypeTime)
 	}
 	if value, ok := _u.mutation.ErrorMessage(); ok {
 		_spec.SetField(domain.FieldErrorMessage, field.TypeString, value)

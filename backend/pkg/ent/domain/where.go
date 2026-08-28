@@ -104,6 +104,36 @@ func KeyPem(v string) predicate.Domain {
 	return predicate.Domain(sql.FieldEQ(FieldKeyPem, v))
 }
 
+// LastSeenAt applies equality check predicate on the "last_seen_at" field. It's identical to LastSeenAtEQ.
+func LastSeenAt(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldLastSeenAt, v))
+}
+
+// Managed applies equality check predicate on the "managed" field. It's identical to ManagedEQ.
+func Managed(v bool) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldManaged, v))
+}
+
+// RetryCount applies equality check predicate on the "retry_count" field. It's identical to RetryCountEQ.
+func RetryCount(v int) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldRetryCount, v))
+}
+
+// NextRetryAt applies equality check predicate on the "next_retry_at" field. It's identical to NextRetryAtEQ.
+func NextRetryAt(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldNextRetryAt, v))
+}
+
+// NotifiedState applies equality check predicate on the "notified_state" field. It's identical to NotifiedStateEQ.
+func NotifiedState(v string) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldNotifiedState, v))
+}
+
+// LastNotifiedAt applies equality check predicate on the "last_notified_at" field. It's identical to LastNotifiedAtEQ.
+func LastNotifiedAt(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldLastNotifiedAt, v))
+}
+
 // ErrorMessage applies equality check predicate on the "error_message" field. It's identical to ErrorMessageEQ.
 func ErrorMessage(v string) predicate.Domain {
 	return predicate.Domain(sql.FieldEQ(FieldErrorMessage, v))
@@ -244,6 +274,16 @@ func BucketHasSuffix(v string) predicate.Domain {
 	return predicate.Domain(sql.FieldHasSuffix(FieldBucket, v))
 }
 
+// BucketIsNil applies the IsNil predicate on the "bucket" field.
+func BucketIsNil() predicate.Domain {
+	return predicate.Domain(sql.FieldIsNull(FieldBucket))
+}
+
+// BucketNotNil applies the NotNil predicate on the "bucket" field.
+func BucketNotNil() predicate.Domain {
+	return predicate.Domain(sql.FieldNotNull(FieldBucket))
+}
+
 // BucketEqualFold applies the EqualFold predicate on the "bucket" field.
 func BucketEqualFold(v string) predicate.Domain {
 	return predicate.Domain(sql.FieldEqualFold(FieldBucket, v))
@@ -307,6 +347,16 @@ func RegionHasPrefix(v string) predicate.Domain {
 // RegionHasSuffix applies the HasSuffix predicate on the "region" field.
 func RegionHasSuffix(v string) predicate.Domain {
 	return predicate.Domain(sql.FieldHasSuffix(FieldRegion, v))
+}
+
+// RegionIsNil applies the IsNil predicate on the "region" field.
+func RegionIsNil() predicate.Domain {
+	return predicate.Domain(sql.FieldIsNull(FieldRegion))
+}
+
+// RegionNotNil applies the NotNil predicate on the "region" field.
+func RegionNotNil() predicate.Domain {
+	return predicate.Domain(sql.FieldNotNull(FieldRegion))
 }
 
 // RegionEqualFold applies the EqualFold predicate on the "region" field.
@@ -672,6 +722,341 @@ func DeployTargetIn(vs ...DeployTarget) predicate.Domain {
 // DeployTargetNotIn applies the NotIn predicate on the "deploy_target" field.
 func DeployTargetNotIn(vs ...DeployTarget) predicate.Domain {
 	return predicate.Domain(sql.FieldNotIn(FieldDeployTarget, vs...))
+}
+
+// PresenceEQ applies the EQ predicate on the "presence" field.
+func PresenceEQ(v Presence) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldPresence, v))
+}
+
+// PresenceNEQ applies the NEQ predicate on the "presence" field.
+func PresenceNEQ(v Presence) predicate.Domain {
+	return predicate.Domain(sql.FieldNEQ(FieldPresence, v))
+}
+
+// PresenceIn applies the In predicate on the "presence" field.
+func PresenceIn(vs ...Presence) predicate.Domain {
+	return predicate.Domain(sql.FieldIn(FieldPresence, vs...))
+}
+
+// PresenceNotIn applies the NotIn predicate on the "presence" field.
+func PresenceNotIn(vs ...Presence) predicate.Domain {
+	return predicate.Domain(sql.FieldNotIn(FieldPresence, vs...))
+}
+
+// OriginEQ applies the EQ predicate on the "origin" field.
+func OriginEQ(v Origin) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldOrigin, v))
+}
+
+// OriginNEQ applies the NEQ predicate on the "origin" field.
+func OriginNEQ(v Origin) predicate.Domain {
+	return predicate.Domain(sql.FieldNEQ(FieldOrigin, v))
+}
+
+// OriginIn applies the In predicate on the "origin" field.
+func OriginIn(vs ...Origin) predicate.Domain {
+	return predicate.Domain(sql.FieldIn(FieldOrigin, vs...))
+}
+
+// OriginNotIn applies the NotIn predicate on the "origin" field.
+func OriginNotIn(vs ...Origin) predicate.Domain {
+	return predicate.Domain(sql.FieldNotIn(FieldOrigin, vs...))
+}
+
+// LastSeenAtEQ applies the EQ predicate on the "last_seen_at" field.
+func LastSeenAtEQ(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldLastSeenAt, v))
+}
+
+// LastSeenAtNEQ applies the NEQ predicate on the "last_seen_at" field.
+func LastSeenAtNEQ(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldNEQ(FieldLastSeenAt, v))
+}
+
+// LastSeenAtIn applies the In predicate on the "last_seen_at" field.
+func LastSeenAtIn(vs ...time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldIn(FieldLastSeenAt, vs...))
+}
+
+// LastSeenAtNotIn applies the NotIn predicate on the "last_seen_at" field.
+func LastSeenAtNotIn(vs ...time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldNotIn(FieldLastSeenAt, vs...))
+}
+
+// LastSeenAtGT applies the GT predicate on the "last_seen_at" field.
+func LastSeenAtGT(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldGT(FieldLastSeenAt, v))
+}
+
+// LastSeenAtGTE applies the GTE predicate on the "last_seen_at" field.
+func LastSeenAtGTE(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldGTE(FieldLastSeenAt, v))
+}
+
+// LastSeenAtLT applies the LT predicate on the "last_seen_at" field.
+func LastSeenAtLT(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldLT(FieldLastSeenAt, v))
+}
+
+// LastSeenAtLTE applies the LTE predicate on the "last_seen_at" field.
+func LastSeenAtLTE(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldLTE(FieldLastSeenAt, v))
+}
+
+// LastSeenAtIsNil applies the IsNil predicate on the "last_seen_at" field.
+func LastSeenAtIsNil() predicate.Domain {
+	return predicate.Domain(sql.FieldIsNull(FieldLastSeenAt))
+}
+
+// LastSeenAtNotNil applies the NotNil predicate on the "last_seen_at" field.
+func LastSeenAtNotNil() predicate.Domain {
+	return predicate.Domain(sql.FieldNotNull(FieldLastSeenAt))
+}
+
+// ManagedEQ applies the EQ predicate on the "managed" field.
+func ManagedEQ(v bool) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldManaged, v))
+}
+
+// ManagedNEQ applies the NEQ predicate on the "managed" field.
+func ManagedNEQ(v bool) predicate.Domain {
+	return predicate.Domain(sql.FieldNEQ(FieldManaged, v))
+}
+
+// RetryCountEQ applies the EQ predicate on the "retry_count" field.
+func RetryCountEQ(v int) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldRetryCount, v))
+}
+
+// RetryCountNEQ applies the NEQ predicate on the "retry_count" field.
+func RetryCountNEQ(v int) predicate.Domain {
+	return predicate.Domain(sql.FieldNEQ(FieldRetryCount, v))
+}
+
+// RetryCountIn applies the In predicate on the "retry_count" field.
+func RetryCountIn(vs ...int) predicate.Domain {
+	return predicate.Domain(sql.FieldIn(FieldRetryCount, vs...))
+}
+
+// RetryCountNotIn applies the NotIn predicate on the "retry_count" field.
+func RetryCountNotIn(vs ...int) predicate.Domain {
+	return predicate.Domain(sql.FieldNotIn(FieldRetryCount, vs...))
+}
+
+// RetryCountGT applies the GT predicate on the "retry_count" field.
+func RetryCountGT(v int) predicate.Domain {
+	return predicate.Domain(sql.FieldGT(FieldRetryCount, v))
+}
+
+// RetryCountGTE applies the GTE predicate on the "retry_count" field.
+func RetryCountGTE(v int) predicate.Domain {
+	return predicate.Domain(sql.FieldGTE(FieldRetryCount, v))
+}
+
+// RetryCountLT applies the LT predicate on the "retry_count" field.
+func RetryCountLT(v int) predicate.Domain {
+	return predicate.Domain(sql.FieldLT(FieldRetryCount, v))
+}
+
+// RetryCountLTE applies the LTE predicate on the "retry_count" field.
+func RetryCountLTE(v int) predicate.Domain {
+	return predicate.Domain(sql.FieldLTE(FieldRetryCount, v))
+}
+
+// NextRetryAtEQ applies the EQ predicate on the "next_retry_at" field.
+func NextRetryAtEQ(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldNextRetryAt, v))
+}
+
+// NextRetryAtNEQ applies the NEQ predicate on the "next_retry_at" field.
+func NextRetryAtNEQ(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldNEQ(FieldNextRetryAt, v))
+}
+
+// NextRetryAtIn applies the In predicate on the "next_retry_at" field.
+func NextRetryAtIn(vs ...time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldIn(FieldNextRetryAt, vs...))
+}
+
+// NextRetryAtNotIn applies the NotIn predicate on the "next_retry_at" field.
+func NextRetryAtNotIn(vs ...time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldNotIn(FieldNextRetryAt, vs...))
+}
+
+// NextRetryAtGT applies the GT predicate on the "next_retry_at" field.
+func NextRetryAtGT(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldGT(FieldNextRetryAt, v))
+}
+
+// NextRetryAtGTE applies the GTE predicate on the "next_retry_at" field.
+func NextRetryAtGTE(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldGTE(FieldNextRetryAt, v))
+}
+
+// NextRetryAtLT applies the LT predicate on the "next_retry_at" field.
+func NextRetryAtLT(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldLT(FieldNextRetryAt, v))
+}
+
+// NextRetryAtLTE applies the LTE predicate on the "next_retry_at" field.
+func NextRetryAtLTE(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldLTE(FieldNextRetryAt, v))
+}
+
+// NextRetryAtIsNil applies the IsNil predicate on the "next_retry_at" field.
+func NextRetryAtIsNil() predicate.Domain {
+	return predicate.Domain(sql.FieldIsNull(FieldNextRetryAt))
+}
+
+// NextRetryAtNotNil applies the NotNil predicate on the "next_retry_at" field.
+func NextRetryAtNotNil() predicate.Domain {
+	return predicate.Domain(sql.FieldNotNull(FieldNextRetryAt))
+}
+
+// ErrorKindEQ applies the EQ predicate on the "error_kind" field.
+func ErrorKindEQ(v ErrorKind) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldErrorKind, v))
+}
+
+// ErrorKindNEQ applies the NEQ predicate on the "error_kind" field.
+func ErrorKindNEQ(v ErrorKind) predicate.Domain {
+	return predicate.Domain(sql.FieldNEQ(FieldErrorKind, v))
+}
+
+// ErrorKindIn applies the In predicate on the "error_kind" field.
+func ErrorKindIn(vs ...ErrorKind) predicate.Domain {
+	return predicate.Domain(sql.FieldIn(FieldErrorKind, vs...))
+}
+
+// ErrorKindNotIn applies the NotIn predicate on the "error_kind" field.
+func ErrorKindNotIn(vs ...ErrorKind) predicate.Domain {
+	return predicate.Domain(sql.FieldNotIn(FieldErrorKind, vs...))
+}
+
+// NotifiedStateEQ applies the EQ predicate on the "notified_state" field.
+func NotifiedStateEQ(v string) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldNotifiedState, v))
+}
+
+// NotifiedStateNEQ applies the NEQ predicate on the "notified_state" field.
+func NotifiedStateNEQ(v string) predicate.Domain {
+	return predicate.Domain(sql.FieldNEQ(FieldNotifiedState, v))
+}
+
+// NotifiedStateIn applies the In predicate on the "notified_state" field.
+func NotifiedStateIn(vs ...string) predicate.Domain {
+	return predicate.Domain(sql.FieldIn(FieldNotifiedState, vs...))
+}
+
+// NotifiedStateNotIn applies the NotIn predicate on the "notified_state" field.
+func NotifiedStateNotIn(vs ...string) predicate.Domain {
+	return predicate.Domain(sql.FieldNotIn(FieldNotifiedState, vs...))
+}
+
+// NotifiedStateGT applies the GT predicate on the "notified_state" field.
+func NotifiedStateGT(v string) predicate.Domain {
+	return predicate.Domain(sql.FieldGT(FieldNotifiedState, v))
+}
+
+// NotifiedStateGTE applies the GTE predicate on the "notified_state" field.
+func NotifiedStateGTE(v string) predicate.Domain {
+	return predicate.Domain(sql.FieldGTE(FieldNotifiedState, v))
+}
+
+// NotifiedStateLT applies the LT predicate on the "notified_state" field.
+func NotifiedStateLT(v string) predicate.Domain {
+	return predicate.Domain(sql.FieldLT(FieldNotifiedState, v))
+}
+
+// NotifiedStateLTE applies the LTE predicate on the "notified_state" field.
+func NotifiedStateLTE(v string) predicate.Domain {
+	return predicate.Domain(sql.FieldLTE(FieldNotifiedState, v))
+}
+
+// NotifiedStateContains applies the Contains predicate on the "notified_state" field.
+func NotifiedStateContains(v string) predicate.Domain {
+	return predicate.Domain(sql.FieldContains(FieldNotifiedState, v))
+}
+
+// NotifiedStateHasPrefix applies the HasPrefix predicate on the "notified_state" field.
+func NotifiedStateHasPrefix(v string) predicate.Domain {
+	return predicate.Domain(sql.FieldHasPrefix(FieldNotifiedState, v))
+}
+
+// NotifiedStateHasSuffix applies the HasSuffix predicate on the "notified_state" field.
+func NotifiedStateHasSuffix(v string) predicate.Domain {
+	return predicate.Domain(sql.FieldHasSuffix(FieldNotifiedState, v))
+}
+
+// NotifiedStateIsNil applies the IsNil predicate on the "notified_state" field.
+func NotifiedStateIsNil() predicate.Domain {
+	return predicate.Domain(sql.FieldIsNull(FieldNotifiedState))
+}
+
+// NotifiedStateNotNil applies the NotNil predicate on the "notified_state" field.
+func NotifiedStateNotNil() predicate.Domain {
+	return predicate.Domain(sql.FieldNotNull(FieldNotifiedState))
+}
+
+// NotifiedStateEqualFold applies the EqualFold predicate on the "notified_state" field.
+func NotifiedStateEqualFold(v string) predicate.Domain {
+	return predicate.Domain(sql.FieldEqualFold(FieldNotifiedState, v))
+}
+
+// NotifiedStateContainsFold applies the ContainsFold predicate on the "notified_state" field.
+func NotifiedStateContainsFold(v string) predicate.Domain {
+	return predicate.Domain(sql.FieldContainsFold(FieldNotifiedState, v))
+}
+
+// LastNotifiedAtEQ applies the EQ predicate on the "last_notified_at" field.
+func LastNotifiedAtEQ(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldEQ(FieldLastNotifiedAt, v))
+}
+
+// LastNotifiedAtNEQ applies the NEQ predicate on the "last_notified_at" field.
+func LastNotifiedAtNEQ(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldNEQ(FieldLastNotifiedAt, v))
+}
+
+// LastNotifiedAtIn applies the In predicate on the "last_notified_at" field.
+func LastNotifiedAtIn(vs ...time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldIn(FieldLastNotifiedAt, vs...))
+}
+
+// LastNotifiedAtNotIn applies the NotIn predicate on the "last_notified_at" field.
+func LastNotifiedAtNotIn(vs ...time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldNotIn(FieldLastNotifiedAt, vs...))
+}
+
+// LastNotifiedAtGT applies the GT predicate on the "last_notified_at" field.
+func LastNotifiedAtGT(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldGT(FieldLastNotifiedAt, v))
+}
+
+// LastNotifiedAtGTE applies the GTE predicate on the "last_notified_at" field.
+func LastNotifiedAtGTE(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldGTE(FieldLastNotifiedAt, v))
+}
+
+// LastNotifiedAtLT applies the LT predicate on the "last_notified_at" field.
+func LastNotifiedAtLT(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldLT(FieldLastNotifiedAt, v))
+}
+
+// LastNotifiedAtLTE applies the LTE predicate on the "last_notified_at" field.
+func LastNotifiedAtLTE(v time.Time) predicate.Domain {
+	return predicate.Domain(sql.FieldLTE(FieldLastNotifiedAt, v))
+}
+
+// LastNotifiedAtIsNil applies the IsNil predicate on the "last_notified_at" field.
+func LastNotifiedAtIsNil() predicate.Domain {
+	return predicate.Domain(sql.FieldIsNull(FieldLastNotifiedAt))
+}
+
+// LastNotifiedAtNotNil applies the NotNil predicate on the "last_notified_at" field.
+func LastNotifiedAtNotNil() predicate.Domain {
+	return predicate.Domain(sql.FieldNotNull(FieldLastNotifiedAt))
 }
 
 // ErrorMessageEQ applies the EQ predicate on the "error_message" field.

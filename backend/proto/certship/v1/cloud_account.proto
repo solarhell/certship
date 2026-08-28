@@ -61,4 +61,8 @@ message RescanCloudAccountResponse {
   uint32 added = 1;
   uint32 updated = 2;
   uint32 total = 3;
+  // 本次对账中被判定为已下线 / 已归档 / 重新出现的域名数
+  uint32 missing = 4;
+  uint32 archived = 5;
+  uint32 revived = 6;
 }

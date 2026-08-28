@@ -20,26 +20,6 @@ type AppSettingsCreate struct {
 	hooks    []Hook
 }
 
-// SetAcmeEmail sets the "acme_email" field.
-func (_c *AppSettingsCreate) SetAcmeEmail(v string) *AppSettingsCreate {
-	_c.mutation.SetAcmeEmail(v)
-	return _c
-}
-
-// SetAcmeDirectoryURL sets the "acme_directory_url" field.
-func (_c *AppSettingsCreate) SetAcmeDirectoryURL(v string) *AppSettingsCreate {
-	_c.mutation.SetAcmeDirectoryURL(v)
-	return _c
-}
-
-// SetNillableAcmeDirectoryURL sets the "acme_directory_url" field if the given value is not nil.
-func (_c *AppSettingsCreate) SetNillableAcmeDirectoryURL(v *string) *AppSettingsCreate {
-	if v != nil {
-		_c.SetAcmeDirectoryURL(*v)
-	}
-	return _c
-}
-
 // SetAcmeAccountKey sets the "acme_account_key" field.
 func (_c *AppSettingsCreate) SetAcmeAccountKey(v string) *AppSettingsCreate {
 	_c.mutation.SetAcmeAccountKey(v)
@@ -82,6 +62,34 @@ func (_c *AppSettingsCreate) SetNillableScanInterval(v *string) *AppSettingsCrea
 	return _c
 }
 
+// SetMissingGrace sets the "missing_grace" field.
+func (_c *AppSettingsCreate) SetMissingGrace(v string) *AppSettingsCreate {
+	_c.mutation.SetMissingGrace(v)
+	return _c
+}
+
+// SetNillableMissingGrace sets the "missing_grace" field if the given value is not nil.
+func (_c *AppSettingsCreate) SetNillableMissingGrace(v *string) *AppSettingsCreate {
+	if v != nil {
+		_c.SetMissingGrace(*v)
+	}
+	return _c
+}
+
+// SetArchiveAfter sets the "archive_after" field.
+func (_c *AppSettingsCreate) SetArchiveAfter(v string) *AppSettingsCreate {
+	_c.mutation.SetArchiveAfter(v)
+	return _c
+}
+
+// SetNillableArchiveAfter sets the "archive_after" field if the given value is not nil.
+func (_c *AppSettingsCreate) SetNillableArchiveAfter(v *string) *AppSettingsCreate {
+	if v != nil {
+		_c.SetArchiveAfter(*v)
+	}
+	return _c
+}
+
 // SetRenewBeforeDays sets the "renew_before_days" field.
 func (_c *AppSettingsCreate) SetRenewBeforeDays(v int) *AppSettingsCreate {
 	_c.mutation.SetRenewBeforeDays(v)
@@ -92,6 +100,34 @@ func (_c *AppSettingsCreate) SetRenewBeforeDays(v int) *AppSettingsCreate {
 func (_c *AppSettingsCreate) SetNillableRenewBeforeDays(v *int) *AppSettingsCreate {
 	if v != nil {
 		_c.SetRenewBeforeDays(*v)
+	}
+	return _c
+}
+
+// SetArchivedRetention sets the "archived_retention" field.
+func (_c *AppSettingsCreate) SetArchivedRetention(v string) *AppSettingsCreate {
+	_c.mutation.SetArchivedRetention(v)
+	return _c
+}
+
+// SetNillableArchivedRetention sets the "archived_retention" field if the given value is not nil.
+func (_c *AppSettingsCreate) SetNillableArchivedRetention(v *string) *AppSettingsCreate {
+	if v != nil {
+		_c.SetArchivedRetention(*v)
+	}
+	return _c
+}
+
+// SetDNSResolvers sets the "dns_resolvers" field.
+func (_c *AppSettingsCreate) SetDNSResolvers(v string) *AppSettingsCreate {
+	_c.mutation.SetDNSResolvers(v)
+	return _c
+}
+
+// SetNillableDNSResolvers sets the "dns_resolvers" field if the given value is not nil.
+func (_c *AppSettingsCreate) SetNillableDNSResolvers(v *string) *AppSettingsCreate {
+	if v != nil {
+		_c.SetDNSResolvers(*v)
 	}
 	return _c
 }
@@ -165,17 +201,29 @@ func (_c *AppSettingsCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *AppSettingsCreate) defaults() {
-	if _, ok := _c.mutation.AcmeDirectoryURL(); !ok {
-		v := appsettings.DefaultAcmeDirectoryURL
-		_c.mutation.SetAcmeDirectoryURL(v)
-	}
 	if _, ok := _c.mutation.ScanInterval(); !ok {
 		v := appsettings.DefaultScanInterval
 		_c.mutation.SetScanInterval(v)
 	}
+	if _, ok := _c.mutation.MissingGrace(); !ok {
+		v := appsettings.DefaultMissingGrace
+		_c.mutation.SetMissingGrace(v)
+	}
+	if _, ok := _c.mutation.ArchiveAfter(); !ok {
+		v := appsettings.DefaultArchiveAfter
+		_c.mutation.SetArchiveAfter(v)
+	}
 	if _, ok := _c.mutation.RenewBeforeDays(); !ok {
 		v := appsettings.DefaultRenewBeforeDays
 		_c.mutation.SetRenewBeforeDays(v)
+	}
+	if _, ok := _c.mutation.ArchivedRetention(); !ok {
+		v := appsettings.DefaultArchivedRetention
+		_c.mutation.SetArchivedRetention(v)
+	}
+	if _, ok := _c.mutation.DNSResolvers(); !ok {
+		v := appsettings.DefaultDNSResolvers
+		_c.mutation.SetDNSResolvers(v)
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		v := appsettings.DefaultUpdatedAt()
@@ -185,22 +233,6 @@ func (_c *AppSettingsCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *AppSettingsCreate) check() error {
-	if _, ok := _c.mutation.AcmeEmail(); !ok {
-		return &ValidationError{Name: "acme_email", err: errors.New(`ent: missing required field "AppSettings.acme_email"`)}
-	}
-	if v, ok := _c.mutation.AcmeEmail(); ok {
-		if err := appsettings.AcmeEmailValidator(v); err != nil {
-			return &ValidationError{Name: "acme_email", err: fmt.Errorf(`ent: validator failed for field "AppSettings.acme_email": %w`, err)}
-		}
-	}
-	if _, ok := _c.mutation.AcmeDirectoryURL(); !ok {
-		return &ValidationError{Name: "acme_directory_url", err: errors.New(`ent: missing required field "AppSettings.acme_directory_url"`)}
-	}
-	if v, ok := _c.mutation.AcmeDirectoryURL(); ok {
-		if err := appsettings.AcmeDirectoryURLValidator(v); err != nil {
-			return &ValidationError{Name: "acme_directory_url", err: fmt.Errorf(`ent: validator failed for field "AppSettings.acme_directory_url": %w`, err)}
-		}
-	}
 	if _, ok := _c.mutation.ScanInterval(); !ok {
 		return &ValidationError{Name: "scan_interval", err: errors.New(`ent: missing required field "AppSettings.scan_interval"`)}
 	}
@@ -209,12 +241,44 @@ func (_c *AppSettingsCreate) check() error {
 			return &ValidationError{Name: "scan_interval", err: fmt.Errorf(`ent: validator failed for field "AppSettings.scan_interval": %w`, err)}
 		}
 	}
+	if _, ok := _c.mutation.MissingGrace(); !ok {
+		return &ValidationError{Name: "missing_grace", err: errors.New(`ent: missing required field "AppSettings.missing_grace"`)}
+	}
+	if v, ok := _c.mutation.MissingGrace(); ok {
+		if err := appsettings.MissingGraceValidator(v); err != nil {
+			return &ValidationError{Name: "missing_grace", err: fmt.Errorf(`ent: validator failed for field "AppSettings.missing_grace": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.ArchiveAfter(); !ok {
+		return &ValidationError{Name: "archive_after", err: errors.New(`ent: missing required field "AppSettings.archive_after"`)}
+	}
+	if v, ok := _c.mutation.ArchiveAfter(); ok {
+		if err := appsettings.ArchiveAfterValidator(v); err != nil {
+			return &ValidationError{Name: "archive_after", err: fmt.Errorf(`ent: validator failed for field "AppSettings.archive_after": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.RenewBeforeDays(); !ok {
 		return &ValidationError{Name: "renew_before_days", err: errors.New(`ent: missing required field "AppSettings.renew_before_days"`)}
 	}
 	if v, ok := _c.mutation.RenewBeforeDays(); ok {
 		if err := appsettings.RenewBeforeDaysValidator(v); err != nil {
 			return &ValidationError{Name: "renew_before_days", err: fmt.Errorf(`ent: validator failed for field "AppSettings.renew_before_days": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.ArchivedRetention(); !ok {
+		return &ValidationError{Name: "archived_retention", err: errors.New(`ent: missing required field "AppSettings.archived_retention"`)}
+	}
+	if v, ok := _c.mutation.ArchivedRetention(); ok {
+		if err := appsettings.ArchivedRetentionValidator(v); err != nil {
+			return &ValidationError{Name: "archived_retention", err: fmt.Errorf(`ent: validator failed for field "AppSettings.archived_retention": %w`, err)}
+		}
+	}
+	if _, ok := _c.mutation.DNSResolvers(); !ok {
+		return &ValidationError{Name: "dns_resolvers", err: errors.New(`ent: missing required field "AppSettings.dns_resolvers"`)}
+	}
+	if v, ok := _c.mutation.DNSResolvers(); ok {
+		if err := appsettings.DNSResolversValidator(v); err != nil {
+			return &ValidationError{Name: "dns_resolvers", err: fmt.Errorf(`ent: validator failed for field "AppSettings.dns_resolvers": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
@@ -260,14 +324,6 @@ func (_c *AppSettingsCreate) createSpec() (*AppSettings, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
-	if value, ok := _c.mutation.AcmeEmail(); ok {
-		_spec.SetField(appsettings.FieldAcmeEmail, field.TypeString, value)
-		_node.AcmeEmail = value
-	}
-	if value, ok := _c.mutation.AcmeDirectoryURL(); ok {
-		_spec.SetField(appsettings.FieldAcmeDirectoryURL, field.TypeString, value)
-		_node.AcmeDirectoryURL = value
-	}
 	if value, ok := _c.mutation.AcmeAccountKey(); ok {
 		_spec.SetField(appsettings.FieldAcmeAccountKey, field.TypeString, value)
 		_node.AcmeAccountKey = value
@@ -280,9 +336,25 @@ func (_c *AppSettingsCreate) createSpec() (*AppSettings, *sqlgraph.CreateSpec) {
 		_spec.SetField(appsettings.FieldScanInterval, field.TypeString, value)
 		_node.ScanInterval = value
 	}
+	if value, ok := _c.mutation.MissingGrace(); ok {
+		_spec.SetField(appsettings.FieldMissingGrace, field.TypeString, value)
+		_node.MissingGrace = value
+	}
+	if value, ok := _c.mutation.ArchiveAfter(); ok {
+		_spec.SetField(appsettings.FieldArchiveAfter, field.TypeString, value)
+		_node.ArchiveAfter = value
+	}
 	if value, ok := _c.mutation.RenewBeforeDays(); ok {
 		_spec.SetField(appsettings.FieldRenewBeforeDays, field.TypeInt, value)
 		_node.RenewBeforeDays = value
+	}
+	if value, ok := _c.mutation.ArchivedRetention(); ok {
+		_spec.SetField(appsettings.FieldArchivedRetention, field.TypeString, value)
+		_node.ArchivedRetention = value
+	}
+	if value, ok := _c.mutation.DNSResolvers(); ok {
+		_spec.SetField(appsettings.FieldDNSResolvers, field.TypeString, value)
+		_node.DNSResolvers = value
 	}
 	if value, ok := _c.mutation.JwtSecret(); ok {
 		_spec.SetField(appsettings.FieldJwtSecret, field.TypeString, value)

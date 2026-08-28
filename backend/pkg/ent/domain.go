@@ -18,11 +18,11 @@ type Domain struct {
 	// ID of the ent.
 	// 主键 UUID
 	ID string `json:"id,omitempty"`
-	// OSS 自定义域名
+	// 自定义域名
 	Domain string `json:"domain,omitempty"`
-	// OSS bucket 名称
+	// OSS bucket 名称,CDN 域名时为回源 bucket,源站非 OSS 时为空
 	Bucket string `json:"bucket,omitempty"`
-	// OSS 区域，如 cn-hangzhou
+	// OSS 区域,如 cn-hangzhou
 	Region string `json:"region,omitempty"`
 	// 阿里云账号名称
 	AccountName string `json:"account_name,omitempty"`
@@ -38,6 +38,24 @@ type Domain struct {
 	Status domain.Status `json:"status,omitempty"`
 	// 部署目标：oss=直连 OSS，cdn=CDN 加速
 	DeployTarget domain.DeployTarget `json:"deploy_target,omitempty"`
+	// 云上存在性：present=在云上，missing=连续多轮未扫到，archived=已确认下线
+	Presence domain.Presence `json:"presence,omitempty"`
+	// 发现来源：oss=OSS cname，cdn=CDN 加速域名，both=两侧都有
+	Origin domain.Origin `json:"origin,omitempty"`
+	// 最后一次在云上扫描到的时间,用于判定下线
+	LastSeenAt *time.Time `json:"last_seen_at,omitempty"`
+	// 是否由 certship 托管签发/续期,false=暂停托管(证书由别处管理)
+	Managed bool `json:"managed,omitempty"`
+	// 连续失败次数,成功后清零
+	RetryCount int `json:"retry_count,omitempty"`
+	// 下次允许重试的时间,未到不建续期任务
+	NextRetryAt *time.Time `json:"next_retry_at,omitempty"`
+	// 最近一次错误的分类：transient=可重试，permanent=需人工介入，rate_limited=被限速
+	ErrorKind domain.ErrorKind `json:"error_kind,omitempty"`
+	// 上次已通知的状态(ok/failed/blocked/missing/archived),用于只在状态变化时告警
+	NotifiedState string `json:"notified_state,omitempty"`
+	// 上次发出告警的时间,用于持续失败时按递增间隔提醒
+	LastNotifiedAt *time.Time `json:"last_notified_at,omitempty"`
 	// 最近一次错误信息
 	ErrorMessage string `json:"error_message,omitempty"`
 	// 无法自动续期的阻塞原因(如 DNS 不在阿里云/未添加对应账号),非空表示跳过续期
@@ -54,9 +72,13 @@ func (*Domain) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case domain.FieldID, domain.FieldDomain, domain.FieldBucket, domain.FieldRegion, domain.FieldAccountName, domain.FieldCertPem, domain.FieldKeyPem, domain.FieldStatus, domain.FieldDeployTarget, domain.FieldErrorMessage, domain.FieldBlockedReason:
+		case domain.FieldManaged:
+			values[i] = new(sql.NullBool)
+		case domain.FieldRetryCount:
+			values[i] = new(sql.NullInt64)
+		case domain.FieldID, domain.FieldDomain, domain.FieldBucket, domain.FieldRegion, domain.FieldAccountName, domain.FieldCertPem, domain.FieldKeyPem, domain.FieldStatus, domain.FieldDeployTarget, domain.FieldPresence, domain.FieldOrigin, domain.FieldErrorKind, domain.FieldNotifiedState, domain.FieldErrorMessage, domain.FieldBlockedReason:
 			values[i] = new(sql.NullString)
-		case domain.FieldIssuedAt, domain.FieldExpiresAt, domain.FieldCreatedAt, domain.FieldUpdatedAt:
+		case domain.FieldIssuedAt, domain.FieldExpiresAt, domain.FieldLastSeenAt, domain.FieldNextRetryAt, domain.FieldLastNotifiedAt, domain.FieldCreatedAt, domain.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -140,6 +162,63 @@ func (_m *Domain) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field deploy_target", values[i])
 			} else if value.Valid {
 				_m.DeployTarget = domain.DeployTarget(value.String)
+			}
+		case domain.FieldPresence:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field presence", values[i])
+			} else if value.Valid {
+				_m.Presence = domain.Presence(value.String)
+			}
+		case domain.FieldOrigin:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field origin", values[i])
+			} else if value.Valid {
+				_m.Origin = domain.Origin(value.String)
+			}
+		case domain.FieldLastSeenAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field last_seen_at", values[i])
+			} else if value.Valid {
+				_m.LastSeenAt = new(time.Time)
+				*_m.LastSeenAt = value.Time
+			}
+		case domain.FieldManaged:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field managed", values[i])
+			} else if value.Valid {
+				_m.Managed = value.Bool
+			}
+		case domain.FieldRetryCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field retry_count", values[i])
+			} else if value.Valid {
+				_m.RetryCount = int(value.Int64)
+			}
+		case domain.FieldNextRetryAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field next_retry_at", values[i])
+			} else if value.Valid {
+				_m.NextRetryAt = new(time.Time)
+				*_m.NextRetryAt = value.Time
+			}
+		case domain.FieldErrorKind:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field error_kind", values[i])
+			} else if value.Valid {
+				_m.ErrorKind = domain.ErrorKind(value.String)
+			}
+		case domain.FieldNotifiedState:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field notified_state", values[i])
+			} else if value.Valid {
+				_m.NotifiedState = value.String
+			}
+		case domain.FieldLastNotifiedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field last_notified_at", values[i])
+			} else if value.Valid {
+				_m.LastNotifiedAt = new(time.Time)
+				*_m.LastNotifiedAt = value.Time
 			}
 		case domain.FieldErrorMessage:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -234,6 +313,39 @@ func (_m *Domain) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("deploy_target=")
 	builder.WriteString(fmt.Sprintf("%v", _m.DeployTarget))
+	builder.WriteString(", ")
+	builder.WriteString("presence=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Presence))
+	builder.WriteString(", ")
+	builder.WriteString("origin=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Origin))
+	builder.WriteString(", ")
+	if v := _m.LastSeenAt; v != nil {
+		builder.WriteString("last_seen_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("managed=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Managed))
+	builder.WriteString(", ")
+	builder.WriteString("retry_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RetryCount))
+	builder.WriteString(", ")
+	if v := _m.NextRetryAt; v != nil {
+		builder.WriteString("next_retry_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
+	builder.WriteString(", ")
+	builder.WriteString("error_kind=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ErrorKind))
+	builder.WriteString(", ")
+	builder.WriteString("notified_state=")
+	builder.WriteString(_m.NotifiedState)
+	builder.WriteString(", ")
+	if v := _m.LastNotifiedAt; v != nil {
+		builder.WriteString("last_notified_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("error_message=")
 	builder.WriteString(_m.ErrorMessage)

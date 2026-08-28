@@ -13,18 +13,22 @@ const (
 	Label = "app_settings"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldAcmeEmail holds the string denoting the acme_email field in the database.
-	FieldAcmeEmail = "acme_email"
-	// FieldAcmeDirectoryURL holds the string denoting the acme_directory_url field in the database.
-	FieldAcmeDirectoryURL = "acme_directory_url"
 	// FieldAcmeAccountKey holds the string denoting the acme_account_key field in the database.
 	FieldAcmeAccountKey = "acme_account_key"
 	// FieldAcmeRegistration holds the string denoting the acme_registration field in the database.
 	FieldAcmeRegistration = "acme_registration"
 	// FieldScanInterval holds the string denoting the scan_interval field in the database.
 	FieldScanInterval = "scan_interval"
+	// FieldMissingGrace holds the string denoting the missing_grace field in the database.
+	FieldMissingGrace = "missing_grace"
+	// FieldArchiveAfter holds the string denoting the archive_after field in the database.
+	FieldArchiveAfter = "archive_after"
 	// FieldRenewBeforeDays holds the string denoting the renew_before_days field in the database.
 	FieldRenewBeforeDays = "renew_before_days"
+	// FieldArchivedRetention holds the string denoting the archived_retention field in the database.
+	FieldArchivedRetention = "archived_retention"
+	// FieldDNSResolvers holds the string denoting the dns_resolvers field in the database.
+	FieldDNSResolvers = "dns_resolvers"
 	// FieldJwtSecret holds the string denoting the jwt_secret field in the database.
 	FieldJwtSecret = "jwt_secret"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -36,12 +40,14 @@ const (
 // Columns holds all SQL columns for appsettings fields.
 var Columns = []string{
 	FieldID,
-	FieldAcmeEmail,
-	FieldAcmeDirectoryURL,
 	FieldAcmeAccountKey,
 	FieldAcmeRegistration,
 	FieldScanInterval,
+	FieldMissingGrace,
+	FieldArchiveAfter,
 	FieldRenewBeforeDays,
+	FieldArchivedRetention,
+	FieldDNSResolvers,
 	FieldJwtSecret,
 	FieldUpdatedAt,
 }
@@ -57,20 +63,30 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// AcmeEmailValidator is a validator for the "acme_email" field. It is called by the builders before save.
-	AcmeEmailValidator func(string) error
-	// DefaultAcmeDirectoryURL holds the default value on creation for the "acme_directory_url" field.
-	DefaultAcmeDirectoryURL string
-	// AcmeDirectoryURLValidator is a validator for the "acme_directory_url" field. It is called by the builders before save.
-	AcmeDirectoryURLValidator func(string) error
 	// DefaultScanInterval holds the default value on creation for the "scan_interval" field.
 	DefaultScanInterval string
 	// ScanIntervalValidator is a validator for the "scan_interval" field. It is called by the builders before save.
 	ScanIntervalValidator func(string) error
+	// DefaultMissingGrace holds the default value on creation for the "missing_grace" field.
+	DefaultMissingGrace string
+	// MissingGraceValidator is a validator for the "missing_grace" field. It is called by the builders before save.
+	MissingGraceValidator func(string) error
+	// DefaultArchiveAfter holds the default value on creation for the "archive_after" field.
+	DefaultArchiveAfter string
+	// ArchiveAfterValidator is a validator for the "archive_after" field. It is called by the builders before save.
+	ArchiveAfterValidator func(string) error
 	// DefaultRenewBeforeDays holds the default value on creation for the "renew_before_days" field.
 	DefaultRenewBeforeDays int
 	// RenewBeforeDaysValidator is a validator for the "renew_before_days" field. It is called by the builders before save.
 	RenewBeforeDaysValidator func(int) error
+	// DefaultArchivedRetention holds the default value on creation for the "archived_retention" field.
+	DefaultArchivedRetention string
+	// ArchivedRetentionValidator is a validator for the "archived_retention" field. It is called by the builders before save.
+	ArchivedRetentionValidator func(string) error
+	// DefaultDNSResolvers holds the default value on creation for the "dns_resolvers" field.
+	DefaultDNSResolvers string
+	// DNSResolversValidator is a validator for the "dns_resolvers" field. It is called by the builders before save.
+	DNSResolversValidator func(string) error
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
@@ -85,16 +101,6 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
-}
-
-// ByAcmeEmail orders the results by the acme_email field.
-func ByAcmeEmail(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAcmeEmail, opts...).ToFunc()
-}
-
-// ByAcmeDirectoryURL orders the results by the acme_directory_url field.
-func ByAcmeDirectoryURL(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAcmeDirectoryURL, opts...).ToFunc()
 }
 
 // ByAcmeAccountKey orders the results by the acme_account_key field.
@@ -112,9 +118,29 @@ func ByScanInterval(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldScanInterval, opts...).ToFunc()
 }
 
+// ByMissingGrace orders the results by the missing_grace field.
+func ByMissingGrace(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMissingGrace, opts...).ToFunc()
+}
+
+// ByArchiveAfter orders the results by the archive_after field.
+func ByArchiveAfter(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldArchiveAfter, opts...).ToFunc()
+}
+
 // ByRenewBeforeDays orders the results by the renew_before_days field.
 func ByRenewBeforeDays(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRenewBeforeDays, opts...).ToFunc()
+}
+
+// ByArchivedRetention orders the results by the archived_retention field.
+func ByArchivedRetention(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldArchivedRetention, opts...).ToFunc()
+}
+
+// ByDNSResolvers orders the results by the dns_resolvers field.
+func ByDNSResolvers(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDNSResolvers, opts...).ToFunc()
 }
 
 // ByJwtSecret orders the results by the jwt_secret field.

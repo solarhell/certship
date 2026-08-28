@@ -12,12 +12,14 @@ var (
 	// TAppSettingsColumns holds the columns for the "t_app_settings" table.
 	TAppSettingsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Comment: "固定为 default，单行配置"},
-		{Name: "acme_email", Type: field.TypeString, Comment: "Let's Encrypt 注册邮箱"},
-		{Name: "acme_directory_url", Type: field.TypeString, Comment: "ACME 目录 URL", Default: "https://acme-v02.api.letsencrypt.org/directory"},
 		{Name: "acme_account_key", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "ACME 账号私钥 PEM，首次注册后写入"},
 		{Name: "acme_registration", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "ACME 注册信息 JSON，首次注册后写入"},
 		{Name: "scan_interval", Type: field.TypeString, Comment: "扫描间隔，Go duration 格式", Default: "24h"},
+		{Name: "missing_grace", Type: field.TypeString, Comment: "域名连续多久未在云上扫到才判定为 missing,Go duration 格式", Default: "72h"},
+		{Name: "archive_after", Type: field.TypeString, Comment: "域名进入 missing 后再过多久归档并停止托管,Go duration 格式", Default: "168h"},
 		{Name: "renew_before_days", Type: field.TypeInt, Comment: "证书到期前多少天续期", Default: 30},
+		{Name: "archived_retention", Type: field.TypeString, Comment: "归档且证书已过期的域名记录保留多久后物理删除,0s 表示永久保留", Default: "2160h"},
+		{Name: "dns_resolvers", Type: field.TypeString, Comment: "做 zone 探测与 DNS-01 校验时使用的递归 DNS,逗号分隔的 host:port", Default: "223.5.5.5:53,119.29.29.29:53"},
 		{Name: "jwt_secret", Type: field.TypeString, Nullable: true, Comment: "JWT 签名密钥，首次启动时自动生成"},
 		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时间", Default: "CURRENT_TIMESTAMP"},
 	}
@@ -88,9 +90,9 @@ var (
 	// TDomainColumns holds the columns for the "t_domain" table.
 	TDomainColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString, Unique: true, Comment: "主键 UUID"},
-		{Name: "domain", Type: field.TypeString, Comment: "OSS 自定义域名"},
-		{Name: "bucket", Type: field.TypeString, Comment: "OSS bucket 名称"},
-		{Name: "region", Type: field.TypeString, Comment: "OSS 区域，如 cn-hangzhou"},
+		{Name: "domain", Type: field.TypeString, Comment: "自定义域名"},
+		{Name: "bucket", Type: field.TypeString, Nullable: true, Comment: "OSS bucket 名称,CDN 域名时为回源 bucket,源站非 OSS 时为空"},
+		{Name: "region", Type: field.TypeString, Nullable: true, Comment: "OSS 区域,如 cn-hangzhou"},
 		{Name: "account_name", Type: field.TypeString, Comment: "阿里云账号名称"},
 		{Name: "issued_at", Type: field.TypeTime, Nullable: true, Comment: "证书颁发时间"},
 		{Name: "expires_at", Type: field.TypeTime, Nullable: true, Comment: "证书过期时间"},
@@ -98,6 +100,15 @@ var (
 		{Name: "key_pem", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "证书私钥 PEM 内容"},
 		{Name: "status", Type: field.TypeEnum, Comment: "证书状态：pending=待颁发，active=有效，error=错误", Enums: []string{"pending", "active", "error"}, Default: "pending"},
 		{Name: "deploy_target", Type: field.TypeEnum, Comment: "部署目标：oss=直连 OSS，cdn=CDN 加速", Enums: []string{"oss", "cdn"}, Default: "oss"},
+		{Name: "presence", Type: field.TypeEnum, Comment: "云上存在性：present=在云上，missing=连续多轮未扫到，archived=已确认下线", Enums: []string{"present", "missing", "archived"}, Default: "present"},
+		{Name: "origin", Type: field.TypeEnum, Comment: "发现来源：oss=OSS cname，cdn=CDN 加速域名，both=两侧都有", Enums: []string{"oss", "cdn", "both"}, Default: "oss"},
+		{Name: "last_seen_at", Type: field.TypeTime, Nullable: true, Comment: "最后一次在云上扫描到的时间,用于判定下线"},
+		{Name: "managed", Type: field.TypeBool, Comment: "是否由 certship 托管签发/续期,false=暂停托管(证书由别处管理)", Default: true},
+		{Name: "retry_count", Type: field.TypeInt, Comment: "连续失败次数,成功后清零", Default: 0},
+		{Name: "next_retry_at", Type: field.TypeTime, Nullable: true, Comment: "下次允许重试的时间,未到不建续期任务"},
+		{Name: "error_kind", Type: field.TypeEnum, Comment: "最近一次错误的分类：transient=可重试，permanent=需人工介入，rate_limited=被限速", Enums: []string{"none", "transient", "permanent", "rate_limited"}, Default: "none"},
+		{Name: "notified_state", Type: field.TypeString, Nullable: true, Comment: "上次已通知的状态(ok/failed/blocked/missing/archived),用于只在状态变化时告警"},
+		{Name: "last_notified_at", Type: field.TypeTime, Nullable: true, Comment: "上次发出告警的时间,用于持续失败时按递增间隔提醒"},
 		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "最近一次错误信息"},
 		{Name: "blocked_reason", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "无法自动续期的阻塞原因(如 DNS 不在阿里云/未添加对应账号),非空表示跳过续期"},
 		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间", Default: "CURRENT_TIMESTAMP"},
@@ -123,6 +134,21 @@ var (
 				Name:    "domain_status",
 				Unique:  false,
 				Columns: []*schema.Column{TDomainColumns[9]},
+			},
+			{
+				Name:    "domain_presence",
+				Unique:  false,
+				Columns: []*schema.Column{TDomainColumns[11]},
+			},
+			{
+				Name:    "domain_last_seen_at",
+				Unique:  false,
+				Columns: []*schema.Column{TDomainColumns[13]},
+			},
+			{
+				Name:    "domain_next_retry_at",
+				Unique:  false,
+				Columns: []*schema.Column{TDomainColumns[16]},
 			},
 		},
 	}

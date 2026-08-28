@@ -6,6 +6,12 @@ option go_package = "github.com/solarhell/certship/pkg/api/certship/v1;certshipv
 
 service CertificateService {
   rpc ListCertificates(ListCertificatesRequest) returns (ListCertificatesResponse);
+  // SetCertificateManaged 暂停 / 恢复由 certship 托管签发与续期。
+  // 用于"证书由别处管理"这类场景,不影响记录本身。
+  rpc SetCertificateManaged(SetCertificateManagedRequest) returns (SetCertificateManagedResponse);
+  // DeleteCertificate 删除一条已归档的域名记录。
+  // 只对 archived 开放:云上还在的域名删了也会被下一轮扫描重新写回来。
+  rpc DeleteCertificate(DeleteCertificateRequest) returns (DeleteCertificateResponse);
 }
 
 message ListCertificatesRequest {
@@ -25,7 +31,34 @@ message CertificateItem {
   string error_message = 9;
   string deploy_target = 10;
   string blocked_reason = 11;
+
+  // present / missing / archived,域名在云上的存在性,与证书状态正交
+  string presence = 12;
+  // oss / cdn / both,域名的发现来源
+  string origin = 13;
+  // 最后一次在云上扫描到的时间,RFC3339
+  string last_seen_at = 14;
+  // 是否仍由 certship 托管签发续期
+  bool managed = 15;
+  // 连续失败次数与下次重试时间
+  uint32 retry_count = 16;
+  string next_retry_at = 17;
+  // none / transient / permanent / rate_limited
+  string error_kind = 18;
 }
+
+message SetCertificateManagedRequest {
+  string id = 1;
+  bool managed = 2;
+}
+
+message SetCertificateManagedResponse {}
+
+message DeleteCertificateRequest {
+  string id = 1;
+}
+
+message DeleteCertificateResponse {}
 
 message ListCertificatesResponse {
   repeated CertificateItem certificates = 1;
