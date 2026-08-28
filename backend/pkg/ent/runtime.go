@@ -223,6 +223,10 @@ func init() {
 	domain.DefaultRetryCount = domainDescRetryCount.Default.(int)
 	// domain.RetryCountValidator is a validator for the "retry_count" field. It is called by the builders before save.
 	domain.RetryCountValidator = domainDescRetryCount.Validators[0].(func(int) error)
+	// domainDescBlockedReason is the schema descriptor for blocked_reason field.
+	domainDescBlockedReason := domainFields[21].Descriptor()
+	// domain.DefaultBlockedReason holds the default value on creation for the blocked_reason field.
+	domain.DefaultBlockedReason = domainDescBlockedReason.Default.(string)
 	// domainDescCreatedAt is the schema descriptor for created_at field.
 	domainDescCreatedAt := domainFields[22].Descriptor()
 	// domain.DefaultCreatedAt holds the default value on creation for the created_at field.

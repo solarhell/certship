@@ -113,6 +113,8 @@ var (
 	DefaultRetryCount int
 	// RetryCountValidator is a validator for the "retry_count" field. It is called by the builders before save.
 	RetryCountValidator func(int) error
+	// DefaultBlockedReason holds the default value on creation for the "blocked_reason" field.
+	DefaultBlockedReason string
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.

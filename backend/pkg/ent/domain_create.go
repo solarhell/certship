@@ -403,6 +403,10 @@ func (_c *DomainCreate) defaults() {
 		v := domain.DefaultErrorKind
 		_c.mutation.SetErrorKind(v)
 	}
+	if _, ok := _c.mutation.BlockedReason(); !ok {
+		v := domain.DefaultBlockedReason
+		_c.mutation.SetBlockedReason(v)
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := domain.DefaultCreatedAt()
 		_c.mutation.SetCreatedAt(v)

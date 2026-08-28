@@ -200,6 +200,8 @@ func (d *Daemon) checkAndRedeploy(ctx context.Context) {
 	activeDomains, err := db.Domain.Query().
 		Where(
 			entdomain.StatusEQ(entdomain.StatusActive),
+			// cert_pem 为 NULL 同样表示"没有证书"，SQL 的 != '' 不匹配 NULL，
+			// 正好把它们排除在外——这里依赖的是这个语义，不是笔误
 			entdomain.CertPemNEQ(""),
 			entdomain.ExpiresAtGT(time.Now()),
 			entdomain.PresenceEQ(entdomain.PresencePresent),
@@ -309,7 +311,12 @@ func (d *Daemon) createRenewTasks(ctx context.Context, renewBeforeDays int) {
 		Where(
 			entdomain.PresenceEQ(entdomain.PresencePresent),
 			entdomain.ManagedEQ(true),
-			entdomain.BlockedReasonEQ(""),
+			// blocked_reason 是可空字段:从未被阻塞过的记录存的是 NULL 而不是空串，
+			// 只写 EQ("") 会把它们统统排除在续期之外
+			entdomain.Or(
+				entdomain.BlockedReasonIsNil(),
+				entdomain.BlockedReasonEQ(""),
+			),
 			entdomain.Or(
 				entdomain.NextRetryAtIsNil(),
 				entdomain.NextRetryAtLTE(now),

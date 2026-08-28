@@ -110,7 +110,7 @@ var (
 		{Name: "notified_state", Type: field.TypeString, Nullable: true, Comment: "上次已通知的状态(ok/failed/blocked/missing/archived),用于只在状态变化时告警"},
 		{Name: "last_notified_at", Type: field.TypeTime, Nullable: true, Comment: "上次发出告警的时间,用于持续失败时按递增间隔提醒"},
 		{Name: "error_message", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "最近一次错误信息"},
-		{Name: "blocked_reason", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "无法自动续期的阻塞原因(如 DNS 不在阿里云/未添加对应账号),非空表示跳过续期"},
+		{Name: "blocked_reason", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "无法自动续期的阻塞原因(如 DNS 不在阿里云/未添加对应账号),非空表示跳过续期", Default: ""},
 		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间", Default: "CURRENT_TIMESTAMP"},
 		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时间", Default: "CURRENT_TIMESTAMP"},
 	}

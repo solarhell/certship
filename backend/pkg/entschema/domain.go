@@ -103,6 +103,7 @@ func (Domain) Fields() []ent.Field {
 
 		field.Text("blocked_reason").
 			Optional().
+			Default("").
 			Comment("无法自动续期的阻塞原因(如 DNS 不在阿里云/未添加对应账号),非空表示跳过续期"),
 
 		field.Time("created_at").Immutable().Default(time.Now).Annotations(entsql.Default("CURRENT_TIMESTAMP")).Comment("创建时间"),
