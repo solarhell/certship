@@ -15,11 +15,9 @@ type claims struct {
 
 func GenerateToken(adminID, secret string) (string, error) {
 	t := jwtlib.NewWithClaims(jwtlib.SigningMethodHS256, claims{
-		AdminID: adminID,
-		RegisteredClaims: jwtlib.RegisteredClaims{
-			ID:       uuid.NewString(),
-			IssuedAt: jwtlib.NewNumericDate(time.Now()),
-		},
+		AdminID:  adminID,
+		ID:       uuid.NewString(),
+		IssuedAt: jwtlib.NewNumericDate(time.Now()),
 	})
 	return t.SignedString([]byte(secret))
 }
