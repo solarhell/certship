@@ -1,9 +1,11 @@
 package version
 
 import (
-	"encoding/json"
 	"fmt"
 	"runtime"
+
+	"encoding/json/jsontext"
+	json "encoding/json/v2"
 )
 
 var (
@@ -26,7 +28,8 @@ type Info struct {
 }
 
 func (info Info) String() string {
-	b, _ := json.MarshalIndent(info, "", "  ")
+	// v2 没有 MarshalIndent,缩进作为编码选项传入
+	b, _ := json.Marshal(info, jsontext.WithIndent("  "))
 	return string(b)
 }
 
