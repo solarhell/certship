@@ -1,0 +1,47 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+go_module_name := "github.com/solarhell/certship"
+
+# List available recipes.
+default:
+    @just --list
+
+# Build release binaries for Linux amd64 and macOS arm64 with version metadata.
+build:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    version_pkg="{{ go_module_name }}/internal/version"
+    ldflags="-s -X '$version_pkg.gitBranch=$(git branch --show-current)' -X '$version_pkg.gitCommit=$(git rev-parse HEAD)' -X '$version_pkg.gitTag=$(git describe --always)' -X '$version_pkg.buildUser=$(whoami)' -X '$version_pkg.buildDate=$(date -u +%Y-%m-%dT%H:%M:%SZ)'"
+    rm -rf ./dist
+    GOOS=linux GOARCH=amd64 go build -ldflags "$ldflags" -o ./dist/certship-linux-amd64 ./cmd/certship
+    GOOS=darwin GOARCH=arm64 go build -ldflags "$ldflags" -o ./dist/certship-darwin-arm64 ./cmd/certship
+
+# Regenerate protobuf code with buf and tidy module dependencies.
+proto:
+    buf generate
+    go mod tidy -v
+
+# Regenerate Ent code and tidy module dependencies.
+ent:
+    go generate ./pkg/entgenerate
+    go mod tidy -v
+
+# Format, fix, vet and lint Go code (modifies files).
+lint:
+    go mod tidy -v
+    goimports-reviser -format -set-alias -project-name {{ go_module_name }} -rm-unused ./...
+    go fix ./...
+    go vet ./...
+    golangci-lint run --fix
+    staticcheck ./...
+
+# Build a local binary for the current platform.
+build-local:
+    go build -o ./certship ./cmd/certship
+
+# Install development tools.
+init:
+    go install github.com/incu6us/goimports-reviser/v3@latest
+    go install honnef.co/go/tools/cmd/staticcheck@latest
+    go install entgo.io/ent/cmd/ent@v0.14.5
+    brew install golangci-lint

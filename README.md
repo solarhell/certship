@@ -81,11 +81,11 @@ createdb certship
 cp configs/config.example.toml configs/config.toml
 # 编辑 configs/config.toml 填入数据库连接信息
 
-# 安装工具链（首次）
-make init
+# 安装 just（brew install just）并安装工具链（首次）
+cd backend && just init
 
 # 本地构建并运行
-make build-local
+just build-local
 ./certship --config configs/config.toml --addr 127.0.0.1:8080
 ```
 
@@ -173,13 +173,13 @@ frontend/
 
 ```bash
 # 后端 lint（go vet + golangci-lint + staticcheck）
-cd backend && make lint
+cd backend && just lint
 
 # proto 修改后重新生成（需配置 buf.build 推送权限）
-make proto
+just proto
 
 # ent schema 修改后重新生成
-make ent
+just ent
 ```
 
 ## License
