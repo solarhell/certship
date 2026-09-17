@@ -6,7 +6,7 @@
 # 所以版本锁在 catalog 这一处，package.json 只写 "catalog:"。
 catalog:
   vite: npm:@voidzero-dev/vite-plus-core@0.3.0
-  vite-plus: 0.3.0
+  vite-plus: 0.3.1
 
 overrides:
   # 依赖树里任何版本的 vite 都指向 catalog 里的同一份 core
