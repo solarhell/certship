@@ -1,0 +1,38 @@
+# 参考 wolotech 各仓库的约定：所有版本更新（含大版本）合并成一个 PR，
+# 安全更新单独成组。backend（Go）与 frontend（pnpm）通过 multi-ecosystem
+# 组合并到同一个 PR。
+version: 2
+
+multi-ecosystem-groups:
+  dependencies:
+    schedule:
+      interval: daily
+      time: "09:00"
+      timezone: Asia/Shanghai
+    labels:
+      - dependencies
+    commit-message:
+      prefix: chore(deps)
+
+updates:
+  - package-ecosystem: gomod
+    directory: /backend
+    patterns: ["*"]
+    multi-ecosystem-group: dependencies
+    labels:
+      - go
+    groups:
+      security-dependencies:
+        applies-to: security-updates
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /frontend
+    patterns: ["*"]
+    multi-ecosystem-group: dependencies
+    labels:
+      - javascript
+    groups:
+      security-dependencies:
+        applies-to: security-updates
+        patterns: ["*"]
