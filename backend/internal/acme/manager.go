@@ -15,6 +15,7 @@ import (
 	legoacme "github.com/go-acme/lego/v5/acme"
 	"github.com/go-acme/lego/v5/certcrypto"
 	"github.com/go-acme/lego/v5/certificate"
+	"github.com/go-acme/lego/v5/challenge/dns01"
 	"github.com/go-acme/lego/v5/lego"
 	"github.com/go-acme/lego/v5/providers/dns/alidns"
 	"github.com/go-acme/lego/v5/registration"
@@ -145,7 +146,9 @@ func (m *Manager) ObtainCert(ctx context.Context, account *Account, opts ObtainO
 	if err != nil {
 		return nil, fmt.Errorf("create alidns provider: %w", err)
 	}
-	if err := client.Challenge.SetDNS01Provider(provider); err != nil {
+	// v5 默认额外要求递归解析器也已更新 TXT 缓存；v4 仅要求权威 DNS 传播完成。
+	// 保留 v4 行为，避免公共递归解析器的 NXDOMAIN 负缓存导致有效挑战超时。
+	if err := client.Challenge.SetDNS01Provider(provider, dns01.DisableRecursiveNSsPropagationRequirement()); err != nil {
 		return nil, fmt.Errorf("set dns01 provider: %w", err)
 	}
 
