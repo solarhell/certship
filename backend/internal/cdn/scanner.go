@@ -51,8 +51,8 @@ func (m *Manager) ListDomains(accessKeyID, accessKeySecret string) ([]DomainInfo
 		if err != nil {
 			return nil, fmt.Errorf("查询 CDN 域名列表第 %d 页失败: %w", pageNumber, err)
 		}
-		if resp.Body == nil || resp.Body.Domains == nil {
-			break
+		if resp == nil || resp.Body == nil || resp.Body.Domains == nil {
+			return nil, fmt.Errorf("查询 CDN 域名列表第 %d 页返回不完整响应", pageNumber)
 		}
 
 		page := resp.Body.Domains.PageData
@@ -79,10 +79,10 @@ func (m *Manager) ListDomains(accessKeyID, accessKeySecret string) ([]DomainInfo
 }
 
 // DescribeCert 查询 CDN 域名上已配置证书的有效期,查不到返回 nil
-func (m *Manager) DescribeCert(accessKeyID, accessKeySecret, domain string) *CertInfo {
+func (m *Manager) DescribeCert(accessKeyID, accessKeySecret, domain string) (*CertInfo, error) {
 	client, err := newClient(accessKeyID, accessKeySecret)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	req := &cdn.DescribeDomainCertificateInfoRequest{}
@@ -91,25 +91,28 @@ func (m *Manager) DescribeCert(accessKeyID, accessKeySecret, domain string) *Cer
 	resp, err := client.DescribeDomainCertificateInfo(req)
 	if err != nil {
 		m.logger.Debug("查询 CDN 证书信息失败", zap.String("domain", domain), zap.Error(err))
-		return nil
+		return nil, err
 	}
-	if resp.Body == nil || resp.Body.CertInfos == nil || len(resp.Body.CertInfos.CertInfo) == 0 {
-		return nil
+	if resp == nil || resp.Body == nil || resp.Body.CertInfos == nil {
+		return nil, fmt.Errorf("查询 CDN 域名 %s 证书返回不完整响应", domain)
+	}
+	if len(resp.Body.CertInfos.CertInfo) == 0 {
+		return nil, nil
 	}
 
 	info := resp.Body.CertInfos.CertInfo[0]
 	if info.ServerCertificateStatus != nil && *info.ServerCertificateStatus != "on" {
-		return nil
+		return nil, nil
 	}
 	end, ok := certtime.Parse(deref(info.CertExpireTime))
 	if !ok {
-		return nil
+		return nil, fmt.Errorf("CDN 域名 %s 的证书有效期无法解析", domain)
 	}
 	cert := &CertInfo{ValidEndDate: end}
 	if start, ok := certtime.Parse(deref(info.CertStartTime)); ok {
 		cert.ValidStartDate = start
 	}
-	return cert
+	return cert, nil
 }
 
 // parseOSSSource 从源站列表里找出 OSS 类型的源站,解析出 bucket 与 region。

@@ -93,7 +93,7 @@ var (
 		{Name: "domain", Type: field.TypeString, Comment: "自定义域名"},
 		{Name: "bucket", Type: field.TypeString, Nullable: true, Comment: "OSS bucket 名称,CDN 域名时为回源 bucket,源站非 OSS 时为空"},
 		{Name: "region", Type: field.TypeString, Nullable: true, Comment: "OSS 区域,如 cn-hangzhou"},
-		{Name: "account_name", Type: field.TypeString, Comment: "阿里云账号名称"},
+		{Name: "account_name", Type: field.TypeString, Comment: "旧版兼容字段；当前账号从阿里云观测获取，不再写入", Default: ""},
 		{Name: "issued_at", Type: field.TypeTime, Nullable: true, Comment: "证书颁发时间"},
 		{Name: "expires_at", Type: field.TypeTime, Nullable: true, Comment: "证书过期时间"},
 		{Name: "cert_pem", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "证书 PEM 内容"},

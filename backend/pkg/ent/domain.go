@@ -24,7 +24,7 @@ type Domain struct {
 	Bucket string `json:"bucket,omitempty"`
 	// OSS 区域,如 cn-hangzhou
 	Region string `json:"region,omitempty"`
-	// 阿里云账号名称
+	// 旧版兼容字段；当前账号从阿里云观测获取，不再写入
 	AccountName string `json:"account_name,omitempty"`
 	// 证书颁发时间
 	IssuedAt *time.Time `json:"issued_at,omitempty"`

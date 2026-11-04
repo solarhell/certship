@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { App, Card, Col, Row, Statistic, Table, Tag, Typography } from "antd";
+import { App, Card, Col, Row, Statistic, Table, Tag, Typography, Alert } from "antd";
 import {
   SafetyCertificateOutlined,
   CheckCircleOutlined,
@@ -7,7 +7,6 @@ import {
   ExclamationCircleOutlined,
   CloudOutlined,
   DatabaseOutlined,
-  DisconnectOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
@@ -31,25 +30,26 @@ export default function Dashboard() {
   const { message } = App.useApp();
   const [certs, setCerts] = useState<CertificateItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
     const client = createClient(CertificateService, transport);
     client
       .listCertificates(create(ListCertificatesRequestSchema, { limit: BigInt(100) }))
       .then((res) => setCerts([...res.certificates]))
-      .catch((err) => message.error(`加载证书列表失败:${formatError(err)}`))
+      .catch((err) => {
+        setCerts([]);
+        setLoadError(formatError(err));
+      })
       .finally(() => setLoading(false));
   }, [message]);
 
-  // 已从云上消失的域名不该继续计入证书健康度,否则一条下线记录会永远挂在"异常"里
-  const live = certs.filter((c) => c.presence === "present");
-  const offline = certs.filter((c) => c.presence !== "present");
+  const live = certs;
 
   const total = certs.length;
   const active = live.filter((c) => c.status === "active").length;
   const pending = live.filter((c) => c.status === "pending").length;
   const error = live.filter((c) => c.status === "error").length;
-  const offlineCount = offline.length;
   const cdnCount = live.filter((c) => c.deployTarget === "cdn").length;
   const ossCount = live.filter((c) => c.deployTarget !== "cdn").length;
 
@@ -94,6 +94,15 @@ export default function Dashboard() {
 
   return (
     <div>
+      {loadError && (
+        <Alert
+          type="error"
+          showIcon
+          title="无法获取阿里云资源"
+          description={loadError}
+          style={{ marginBottom: 16 }}
+        />
+      )}
       <Row gutter={[16, 16]}>
         <Col xs={12} sm={6}>
           <Card>
@@ -147,16 +156,6 @@ export default function Dashboard() {
               value={ossCount}
               prefix={<DatabaseOutlined />}
               valueStyle={{ color: "#1677ff" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={12} sm={6}>
-          <Card>
-            <Statistic
-              title="已下线"
-              value={offlineCount}
-              prefix={<DisconnectOutlined />}
-              valueStyle={{ color: "#8c8c8c" }}
             />
           </Card>
         </Col>

@@ -60,6 +60,14 @@ func (_c *DomainCreate) SetAccountName(v string) *DomainCreate {
 	return _c
 }
 
+// SetNillableAccountName sets the "account_name" field if the given value is not nil.
+func (_c *DomainCreate) SetNillableAccountName(v *string) *DomainCreate {
+	if v != nil {
+		_c.SetAccountName(*v)
+	}
+	return _c
+}
+
 // SetIssuedAt sets the "issued_at" field.
 func (_c *DomainCreate) SetIssuedAt(v time.Time) *DomainCreate {
 	_c.mutation.SetIssuedAt(v)
@@ -375,6 +383,10 @@ func (_c *DomainCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *DomainCreate) defaults() {
+	if _, ok := _c.mutation.AccountName(); !ok {
+		v := domain.DefaultAccountName
+		_c.mutation.SetAccountName(v)
+	}
 	if _, ok := _c.mutation.Status(); !ok {
 		v := domain.DefaultStatus
 		_c.mutation.SetStatus(v)
@@ -433,11 +445,6 @@ func (_c *DomainCreate) check() error {
 	}
 	if _, ok := _c.mutation.AccountName(); !ok {
 		return &ValidationError{Name: "account_name", err: errors.New(`ent: missing required field "Domain.account_name"`)}
-	}
-	if v, ok := _c.mutation.AccountName(); ok {
-		if err := domain.AccountNameValidator(v); err != nil {
-			return &ValidationError{Name: "account_name", err: fmt.Errorf(`ent: validator failed for field "Domain.account_name": %w`, err)}
-		}
 	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Domain.status"`)}

@@ -455,11 +455,6 @@ func (_u *DomainUpdate) check() error {
 			return &ValidationError{Name: "domain", err: fmt.Errorf(`ent: validator failed for field "Domain.domain": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.AccountName(); ok {
-		if err := domain.AccountNameValidator(v); err != nil {
-			return &ValidationError{Name: "account_name", err: fmt.Errorf(`ent: validator failed for field "Domain.account_name": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.Status(); ok {
 		if err := domain.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Domain.status": %w`, err)}
@@ -1068,11 +1063,6 @@ func (_u *DomainUpdateOne) check() error {
 	if v, ok := _u.mutation.Domain(); ok {
 		if err := domain.DomainValidator(v); err != nil {
 			return &ValidationError{Name: "domain", err: fmt.Errorf(`ent: validator failed for field "Domain.domain": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.AccountName(); ok {
-		if err := domain.AccountNameValidator(v); err != nil {
-			return &ValidationError{Name: "account_name", err: fmt.Errorf(`ent: validator failed for field "Domain.account_name": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.Status(); ok {

@@ -25,9 +25,6 @@ export default function Settings() {
         form.setFieldsValue({
           scanInterval: data.scanInterval,
           renewBeforeDays: data.renewBeforeDays,
-          missingGrace: data.missingGrace,
-          archiveAfter: data.archiveAfter,
-          archivedRetention: data.archivedRetention,
           dnsResolvers: data.dnsResolvers,
         }),
       )
@@ -38,9 +35,6 @@ export default function Settings() {
   interface SettingsForm {
     scanInterval: string;
     renewBeforeDays: number;
-    missingGrace: string;
-    archiveAfter: string;
-    archivedRetention: string;
     dnsResolvers: string;
   }
 
@@ -75,30 +69,6 @@ export default function Settings() {
             tooltip="证书到期前多少天自动续期(1-60)"
           >
             <InputNumber min={1} max={60} style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item
-            name="missingGrace"
-            label="下线判定宽限期"
-            rules={[{ required: true, message: "请输入宽限期" }]}
-            tooltip="域名连续多久没在云上扫到才判定为已消失。太短会把迁移期间的短暂解绑误判成下线，建议不小于 3 个扫描周期"
-          >
-            <Input placeholder="72h" />
-          </Form.Item>
-          <Form.Item
-            name="archiveAfter"
-            label="归档等待期"
-            rules={[{ required: true, message: "请输入等待期" }]}
-            tooltip="判定消失后再过多久归档。归档后停止续期，记录保留；域名重新出现会自动恢复托管"
-          >
-            <Input placeholder="168h" />
-          </Form.Item>
-          <Form.Item
-            name="archivedRetention"
-            label="归档记录保留期"
-            rules={[{ required: true, message: "请输入保留期" }]}
-            tooltip="归档且证书已过期的记录保留多久后物理删除。填 0s 表示永久保留"
-          >
-            <Input placeholder="2160h" />
           </Form.Item>
           <Form.Item
             name="dnsResolvers"

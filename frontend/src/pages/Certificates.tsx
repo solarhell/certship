@@ -1,5 +1,17 @@
 import { useEffect, useState, useCallback } from "react";
-import { Table, Tag, Button, App, Popconfirm, Card, Input, Select, Space, Tooltip } from "antd";
+import {
+  Table,
+  Tag,
+  Button,
+  App,
+  Popconfirm,
+  Card,
+  Input,
+  Select,
+  Space,
+  Tooltip,
+  Alert,
+} from "antd";
 import {
   SyncOutlined,
   ReloadOutlined,
@@ -7,8 +19,6 @@ import {
   StopOutlined,
   PauseCircleOutlined,
   PlayCircleOutlined,
-  DeleteOutlined,
-  DisconnectOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
@@ -18,7 +28,6 @@ import {
   CertificateService,
   ListCertificatesRequestSchema,
   SetCertificateManagedRequestSchema,
-  DeleteCertificateRequestSchema,
   type CertificateItem,
 } from "@buf/certship_api.bufbuild_es/certship/v1/certificate_pb";
 import {
@@ -35,13 +44,6 @@ const statusMap = {
   error: { color: "error" as const, text: "异常" },
 };
 
-// 云上存在性与证书状态是两回事：域名可能证书还没过期，但已经从阿里云上摘掉了
-const presenceMap = {
-  present: { color: "green" as const, text: "在云上" },
-  missing: { color: "orange" as const, text: "已消失" },
-  archived: { color: "default" as const, text: "已归档" },
-};
-
 const errorKindMap: Record<string, string> = {
   transient: "可重试错误",
   permanent: "需人工介入",
@@ -55,17 +57,21 @@ export default function Certificates() {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const [presenceFilter, setPresenceFilter] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState("");
 
   const fetchData = useCallback(() => {
     setLoading(true);
+    setLoadError("");
     const client = createClient(CertificateService, transport);
     client
       .listCertificates(create(ListCertificatesRequestSchema, { limit: BigInt(100) }))
       .then((res) => setData([...res.certificates]))
-      .catch((err) => message.error(`加载证书列表失败:${formatError(err)}`))
+      .catch((err) => {
+        setData([]);
+        setLoadError(formatError(err));
+      })
       .finally(() => setLoading(false));
-  }, [message]);
+  }, []);
 
   const { interval: refreshInterval, setInterval: setRefreshInterval } = useAutoRefresh(fetchData);
   useEffect(() => {
@@ -114,20 +120,8 @@ export default function Certificates() {
     fetchData();
   };
 
-  const handleDelete = async (record: CertificateItem) => {
-    const client = createClient(CertificateService, transport);
-    try {
-      await client.deleteCertificate(create(DeleteCertificateRequestSchema, { id: record.id }));
-      message.success(`已删除 ${record.domain}`);
-      fetchData();
-    } catch (err) {
-      message.error(`删除失败:${formatError(err)}`);
-    }
-  };
-
   const filtered = data.filter((c) => {
     if (statusFilter && c.status !== statusFilter) return false;
-    if (presenceFilter && c.presence !== presenceFilter) return false;
     if (
       search &&
       !c.domain.includes(search) &&
@@ -182,27 +176,6 @@ export default function Certificates() {
           <Tag color={v === "cdn" ? "orange" : "blue"}>{v === "cdn" ? "CDN" : "OSS"}</Tag>
         </Tooltip>
       ),
-    },
-    {
-      title: "云上",
-      dataIndex: "presence",
-      width: 80,
-      align: "center",
-      render: (p: string, record: CertificateItem) => {
-        const m = presenceMap[p as keyof typeof presenceMap];
-        const seen = record.lastSeenAt
-          ? `最后可见:${dayjs(record.lastSeenAt).format("YYYY-MM-DD HH:mm")}`
-          : "尚未扫描到";
-        return m ? (
-          <Tooltip title={seen}>
-            <Tag color={m.color} icon={p === "present" ? undefined : <DisconnectOutlined />}>
-              {m.text}
-            </Tag>
-          </Tooltip>
-        ) : (
-          p
-        );
-      },
     },
     {
       title: "状态",
@@ -268,13 +241,6 @@ export default function Certificates() {
               <PlayCircleOutlined /> 恢复
             </a>
           )}
-          {record.presence === "archived" && (
-            <Popconfirm title="删除这条已归档的记录？" onConfirm={() => handleDelete(record)}>
-              <a style={{ color: "#ff4d4f" }}>
-                <DeleteOutlined />
-              </a>
-            </Popconfirm>
-          )}
         </Space>
       ),
     },
@@ -310,18 +276,6 @@ export default function Certificates() {
             ]}
           />
           <Select
-            placeholder="云上"
-            allowClear
-            value={presenceFilter}
-            onChange={setPresenceFilter}
-            style={{ width: 110 }}
-            options={[
-              { value: "present", label: "在云上" },
-              { value: "missing", label: "已消失" },
-              { value: "archived", label: "已归档" },
-            ]}
-          />
-          <Select
             value={refreshInterval}
             onChange={setRefreshInterval}
             style={{ width: 140 }}
@@ -350,6 +304,15 @@ export default function Certificates() {
         </Space>
       }
     >
+      {loadError && (
+        <Alert
+          type="error"
+          showIcon
+          title="无法获取阿里云资源"
+          description={loadError}
+          style={{ marginBottom: 16 }}
+        />
+      )}
       <Table<CertificateItem>
         rowKey="id"
         columns={columns}

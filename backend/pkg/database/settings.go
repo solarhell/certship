@@ -75,39 +75,6 @@ func ParseScanInterval(s string) (time.Duration, error) {
 	return d, nil
 }
 
-// 域名下线判定窗口的兜底值,配置非法时使用
-const (
-	DefaultMissingGrace = 72 * time.Hour
-	DefaultArchiveAfter = 168 * time.Hour
-)
-
-// PresenceWindows 读取域名下线判定的两个时间窗口。
-// 配置值非法时退回默认值,而不是让整轮对账跑不下去。
-func PresenceWindows(ctx context.Context) (missingGrace, archiveAfter time.Duration) {
-	missingGrace, archiveAfter = DefaultMissingGrace, DefaultArchiveAfter
-	s, err := GetAppSettings(ctx)
-	if err != nil {
-		return
-	}
-	if d, err := time.ParseDuration(s.MissingGrace); err == nil {
-		missingGrace = d
-	}
-	if d, err := time.ParseDuration(s.ArchiveAfter); err == nil {
-		archiveAfter = d
-	}
-	return
-}
-
-// ParseRetention 解析归档记录保留期,非法值按"永久保留"处理。
-// 宁可留着不该留的数据,也不要因为配置写错就把历史删了。
-func ParseRetention(value string) time.Duration {
-	d, err := time.ParseDuration(value)
-	if err != nil || d < 0 {
-		return 0
-	}
-	return d
-}
-
 // DNSResolvers 读取配置的递归 DNS 列表,读不到时返回 nil(调用方退回系统解析器)
 func DNSResolvers(ctx context.Context) []string {
 	s, err := GetAppSettings(ctx)

@@ -1,71 +1,107 @@
 package discovery
 
 import (
-	"testing"
-
+	"context"
+	"errors"
+	cdn "github.com/solarhell/certship/internal/cdn"
+	"github.com/solarhell/certship/internal/oss"
+	"github.com/solarhell/certship/pkg/ent"
 	entdomain "github.com/solarhell/certship/pkg/ent/domain"
+	"go.uber.org/zap"
+	"testing"
+	"time"
 )
 
-// 对账的全部安全性都压在 CanObserve 上:它一旦把"没扫到"和"扫不到"混为一谈,
-// 一次 API 抖动就会把整批还活着的域名判定成下线。
-func TestCoverageCanObserve(t *testing.T) {
-	c := newCoverage()
-	c.addOSSBuckets("主账号", []string{"bucket-a", "bucket-b"})
-	c.addCDNAccount("主账号")
-	c.addOSSBuckets("备用账号", []string{"bucket-c"}) // 这个账号的 CDN 没扫通
-
-	cases := []struct {
-		name    string
-		origin  entdomain.Origin
-		account string
-		bucket  string
-		want    bool
-	}{
-		{"OSS 域名在已扫通的 bucket 下", entdomain.OriginOss, "主账号", "bucket-a", true},
-		{"OSS 域名所在 bucket 本轮没扫通", entdomain.OriginOss, "主账号", "bucket-x", false},
-		{"OSS 域名所属账号完全没扫", entdomain.OriginOss, "陌生账号", "bucket-a", false},
-		{"OSS 域名没有 bucket 信息时不下结论", entdomain.OriginOss, "主账号", "", false},
-		{"CDN 域名所属账号已扫通", entdomain.OriginCdn, "主账号", "", true},
-		{"CDN 域名所属账号的 CDN 没扫通", entdomain.OriginCdn, "备用账号", "bucket-c", false},
-		{"两侧都有的域名需要两侧都看得见", entdomain.OriginBoth, "主账号", "bucket-b", true},
-		{"两侧都有但只扫通了 OSS 时不下结论", entdomain.OriginBoth, "备用账号", "bucket-c", false},
-		{"两侧都有但 bucket 没扫通时不下结论", entdomain.OriginBoth, "主账号", "bucket-x", false},
+func TestCloudInventory(t *testing.T) {
+	a := &ent.CloudAccount{ID: "a", Name: "a", AccessKeyID: "a"}
+	b := &ent.CloudAccount{ID: "b", Name: "b", AccessKeyID: "b"}
+	base := func() sources {
+		return sources{
+			scanOSS:      func(context.Context, *ent.CloudAccount) (oss.ScanResult, error) { return oss.ScanResult{}, nil },
+			listCDN:      func(string, string) ([]cdn.DomainInfo, error) { return nil, nil },
+			describeCert: func(string, string, string) (*cdn.CertInfo, error) { return nil, nil },
+		}
 	}
-
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			if got := c.CanObserve(tc.origin, tc.account, tc.bucket); got != tc.want {
-				t.Errorf("CanObserve(%v, %q, %q) = %v, want %v", tc.origin, tc.account, tc.bucket, got, tc.want)
+	t.Run("successful empty inventory contains no deleted resources", func(t *testing.T) {
+		result := run(context.Background(), zap.NewNop(), []*ent.CloudAccount{a}, base())
+		if !result.Complete() || result.Coverage.IsEmpty() || len(result.Domains) != 0 {
+			t.Fatalf("empty successful inventory: %+v", result)
+		}
+		if _, ok := result.Lookup("deleted.example.com"); ok {
+			t.Fatal("deleted resource survived fresh inventory")
+		}
+	})
+	t.Run("empty enabled account list", func(t *testing.T) {
+		if r := run(context.Background(), zap.NewNop(), nil, base()); !r.Complete() || len(r.Domains) != 0 {
+			t.Fatal("disabled accounts must produce an empty resource list")
+		}
+	})
+	t.Run("listing failure is unknown not empty", func(t *testing.T) {
+		source := base()
+		source.scanOSS = func(context.Context, *ent.CloudAccount) (oss.ScanResult, error) {
+			return oss.ScanResult{}, errors.New("access denied")
+		}
+		result := run(context.Background(), zap.NewNop(), []*ent.CloudAccount{a}, source)
+		if result.Complete() {
+			t.Fatal("failed listing reported as complete empty inventory")
+		}
+	})
+	t.Run("failed bucket query does not make complete inventory", func(t *testing.T) {
+		source := base()
+		source.scanOSS = func(context.Context, *ent.CloudAccount) (oss.ScanResult, error) {
+			return oss.ScanResult{Buckets: []string{"private"}}, nil
+		}
+		if result := run(context.Background(), zap.NewNop(), []*ent.CloudAccount{a}, source); result.Complete() {
+			t.Fatal("CNAME failure was silently omitted")
+		}
+	})
+	t.Run("unavailable CDN does not downgrade to OSS", func(t *testing.T) {
+		source := base()
+		source.scanOSS = func(_ context.Context, acct *ent.CloudAccount) (oss.ScanResult, error) {
+			return oss.ScanResult{Buckets: []string{"live"}, CoveredBuckets: []string{"live"}, Domains: []oss.DomainInfo{{Domain: "test.example.com", Bucket: "live", Account: acct, CertKnown: true}}}, nil
+		}
+		source.listCDN = func(string, string) ([]cdn.DomainInfo, error) { return nil, errors.New("timeout") }
+		result := run(context.Background(), zap.NewNop(), []*ent.CloudAccount{a}, source)
+		info, ok := result.Lookup("test.example.com")
+		if !ok || result.Deployable(info) || result.Complete() {
+			t.Fatal("partial scan incorrectly authorized OSS deployment")
+		}
+	})
+	t.Run("certificate lookup failure is not absent certificate", func(t *testing.T) {
+		source := base()
+		source.listCDN = func(string, string) ([]cdn.DomainInfo, error) {
+			return []cdn.DomainInfo{{Domain: "test.example.com", SSLOn: true}}, nil
+		}
+		source.describeCert = func(string, string, string) (*cdn.CertInfo, error) { return nil, errors.New("throttled") }
+		result := run(context.Background(), zap.NewNop(), []*ent.CloudAccount{a}, source)
+		info, _ := result.Lookup("test.example.com")
+		if info.CertKnown || result.Complete() {
+			t.Fatal("certificate read failure was interpreted as missing certificate")
+		}
+	})
+	for _, accounts := range [][]*ent.CloudAccount{{a, b}, {b, a}} {
+		t.Run("cross account CDN wins regardless of scan order "+accounts[0].Name, func(t *testing.T) {
+			source := base()
+			source.scanOSS = func(_ context.Context, acct *ent.CloudAccount) (oss.ScanResult, error) {
+				if acct.ID != "a" {
+					return oss.ScanResult{}, nil
+				}
+				return oss.ScanResult{Buckets: []string{"origin"}, CoveredBuckets: []string{"origin"}, Domains: []oss.DomainInfo{{Domain: "test.example.com", Bucket: "origin", Region: "cn-hangzhou", Account: acct, CertKnown: true}}}, nil
+			}
+			source.listCDN = func(id, _ string) ([]cdn.DomainInfo, error) {
+				if id != "b" {
+					return nil, nil
+				}
+				return []cdn.DomainInfo{{Domain: "test.example.com", SourceBucket: "origin", SourceRegion: "cn-hangzhou", SSLOn: true}}, nil
+			}
+			source.describeCert = func(string, string, string) (*cdn.CertInfo, error) {
+				return &cdn.CertInfo{ValidEndDate: time.Now().Add(90 * 24 * time.Hour)}, nil
+			}
+			result := run(context.Background(), zap.NewNop(), accounts, source)
+			info, ok := result.Lookup("test.example.com")
+			if !ok || !result.Complete() || info.Account.ID != "b" || info.OSSAccount.ID != "a" || info.OSSBucket != "origin" || info.Origin != entdomain.OriginBoth || info.DeployTarget() != entdomain.DeployTargetCdn || info.CloudCert() == nil {
+				t.Fatalf("wrong deployment ownership: %+v", info)
 			}
 		})
-	}
-}
-
-func TestCoverageIsEmpty(t *testing.T) {
-	c := newCoverage()
-	if !c.IsEmpty() {
-		t.Error("空 coverage 应当报告为空")
-	}
-	c.addCDNAccount("主账号")
-	if c.IsEmpty() {
-		t.Error("扫通了 CDN 就不算空")
-	}
-}
-
-func TestDeployTarget(t *testing.T) {
-	cases := []struct {
-		origin entdomain.Origin
-		want   entdomain.DeployTarget
-	}{
-		{entdomain.OriginOss, entdomain.DeployTargetOss},
-		{entdomain.OriginCdn, entdomain.DeployTargetCdn},
-		// 两侧都有时 bucket 只是回源源站,证书该上 CDN
-		{entdomain.OriginBoth, entdomain.DeployTargetCdn},
-	}
-	for _, tc := range cases {
-		got := DomainInfo{Origin: tc.origin}.DeployTarget()
-		if got != tc.want {
-			t.Errorf("origin=%v DeployTarget() = %v, want %v", tc.origin, got, tc.want)
-		}
 	}
 }

@@ -7,8 +7,8 @@ import (
 	"connectrpc.com/connect/v2"
 	"go.uber.org/zap"
 
-	"github.com/solarhell/certship/internal/discovery"
-	"github.com/solarhell/certship/internal/domainsync"
+	"github.com/solarhell/certship/internal/cloudstate"
+	"github.com/solarhell/certship/internal/management"
 	certshipv1 "github.com/solarhell/certship/pkg/api/certship/v1"
 	"github.com/solarhell/certship/pkg/api/certship/v1/certshipv1connect"
 	"github.com/solarhell/certship/pkg/database"
@@ -115,28 +115,28 @@ func (s *Server) RescanCloudAccount(ctx context.Context, req *certshipv1.RescanC
 	scanCtx, cancel := context.WithTimeout(ctx, rescanTimeout)
 	defer cancel()
 
-	// 单账号扫描:Coverage 只覆盖这个账号,对账因此也只会影响它自己的域名
-	result := discovery.Run(scanCtx, s.logger, []*ent.CloudAccount{account})
-	if result.Coverage.IsEmpty() {
-		return nil, connect.Errorf(connect.CodeInternal, "扫描失败:该账号的 OSS 与 CDN 均未扫通,详见服务端日志")
-	}
-
-	missingGrace, archiveAfter := database.PresenceWindows(ctx)
-	stats := domainsync.Reconcile(scanCtx, s.logger, result, missingGrace, archiveAfter)
-
-	total, err := db.Domain.Query().Where(entdomain.AccountNameEQ(account.Name)).Count(ctx)
+	result, err := cloudstate.RefreshAccounts(scanCtx, s.logger, []*ent.CloudAccount{account}, true)
 	if err != nil {
-		s.logger.Warn("查询账号域名总数失败", zap.Error(err))
+		return nil, connect.NewError(connect.CodeUnavailable, err.Error()).WithCause(err)
 	}
-
-	return &certshipv1.RescanCloudAccountResponse{
-		Added:    uint32(stats.Added),
-		Updated:  uint32(stats.Updated),
-		Total:    uint32(total),
-		Missing:  uint32(len(stats.Missing)),
-		Archived: uint32(len(stats.Archived)),
-		Revived:  uint32(len(stats.Revived)),
-	}, nil
+	if !result.Complete() {
+		return nil, connect.Errorf(connect.CodeUnavailable, "该账号云资源查询不完整，请稍后重试")
+	}
+	names := make([]string, 0, len(result.Domains))
+	for _, info := range result.Domains {
+		names = append(names, info.Domain)
+	}
+	existing := 0
+	if len(names) > 0 {
+		existing, err = db.Domain.Query().Where(entdomain.DomainIn(names...)).Count(ctx)
+		if err != nil {
+			return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
+		}
+	}
+	if _, err := management.Load(ctx, result); err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
+	}
+	return &certshipv1.RescanCloudAccountResponse{Added: uint32(len(names) - existing), Updated: uint32(existing), Total: uint32(len(names))}, nil
 }
 
 func (s *Server) DeleteCloudAccount(ctx context.Context, req *certshipv1.DeleteCloudAccountRequest) (*certshipv1.DeleteCloudAccountResponse, error) {

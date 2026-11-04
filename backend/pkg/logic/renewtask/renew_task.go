@@ -7,6 +7,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"go.uber.org/zap"
 
+	"github.com/solarhell/certship/internal/cloudstate"
+	"github.com/solarhell/certship/internal/discovery"
+	"github.com/solarhell/certship/internal/management"
 	certshipv1 "github.com/solarhell/certship/pkg/api/certship/v1"
 	"github.com/solarhell/certship/pkg/api/certship/v1/certshipv1connect"
 	"github.com/solarhell/certship/pkg/database"
@@ -124,6 +127,17 @@ func (s *Server) CreateRenewTask(ctx context.Context, req *certshipv1.CreateRene
 		return nil, connect.Errorf(connect.CodeInvalidArgument, "domain 不能为空")
 	}
 
+	info, err := cloudstate.Resolve(ctx, s.logger, domain, true)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeFailedPrecondition, err.Error()).WithCause(err)
+	}
+	states, err := management.Load(ctx, discovery.Result{Domains: []discovery.DomainInfo{info}})
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
+	}
+	if !states[domain].Managed {
+		return nil, connect.Errorf(connect.CodeFailedPrecondition, "域名已暂停托管，请先恢复托管")
+	}
 	db := database.GetClient()
 	busy, err := db.RenewTask.Query().
 		Where(

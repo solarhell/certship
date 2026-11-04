@@ -33,13 +33,7 @@ export default function CloudAccounts() {
     setRescanningIds((prev) => new Set(prev).add(id));
     try {
       const res = await client.rescanCloudAccount(create(RescanCloudAccountRequestSchema, { id }));
-      const offline = [
-        res.missing > 0 ? `${res.missing} 个判定消失` : "",
-        res.archived > 0 ? `${res.archived} 个归档` : "",
-        res.revived > 0 ? `${res.revived} 个恢复` : "",
-      ]
-        .filter(Boolean)
-        .join("，");
+      const offline = [].filter(Boolean).join("，");
       message.success(
         `${name}:新增 ${res.added} 个域名，更新 ${res.updated} 个，共 ${res.total} 个` +
           (offline ? `；${offline}` : ""),

@@ -105,8 +105,8 @@ func ValidColumn(column string) bool {
 var (
 	// DomainValidator is a validator for the "domain" field. It is called by the builders before save.
 	DomainValidator func(string) error
-	// AccountNameValidator is a validator for the "account_name" field. It is called by the builders before save.
-	AccountNameValidator func(string) error
+	// DefaultAccountName holds the default value on creation for the "account_name" field.
+	DefaultAccountName string
 	// DefaultManaged holds the default value on creation for the "managed" field.
 	DefaultManaged bool
 	// DefaultRetryCount holds the default value on creation for the "retry_count" field.

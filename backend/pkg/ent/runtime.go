@@ -211,8 +211,8 @@ func init() {
 	domain.DomainValidator = domainDescDomain.Validators[0].(func(string) error)
 	// domainDescAccountName is the schema descriptor for account_name field.
 	domainDescAccountName := domainFields[4].Descriptor()
-	// domain.AccountNameValidator is a validator for the "account_name" field. It is called by the builders before save.
-	domain.AccountNameValidator = domainDescAccountName.Validators[0].(func(string) error)
+	// domain.DefaultAccountName holds the default value on creation for the account_name field.
+	domain.DefaultAccountName = domainDescAccountName.Default.(string)
 	// domainDescManaged is the schema descriptor for managed field.
 	domainDescManaged := domainFields[14].Descriptor()
 	// domain.DefaultManaged holds the default value on creation for the managed field.

@@ -5,8 +5,11 @@ import (
 	"time"
 
 	"connectrpc.com/connect/v2"
-	"entgo.io/ent/dialect/sql"
+	"github.com/solarhell/certship/internal/cloudstate"
+	"github.com/solarhell/certship/internal/discovery"
+	"github.com/solarhell/certship/internal/management"
 	"go.uber.org/zap"
+	"sort"
 
 	certshipv1 "github.com/solarhell/certship/pkg/api/certship/v1"
 	"github.com/solarhell/certship/pkg/api/certship/v1/certshipv1connect"
@@ -25,106 +28,78 @@ type Server struct {
 }
 
 func (s *Server) ListCertificates(ctx context.Context, req *certshipv1.ListCertificatesRequest) (*certshipv1.ListCertificatesResponse, error) {
-	db := database.GetClient()
-	limit := model.NormalizeLimit(req.Limit)
-
-	// 总数
-	totalCount, err := db.Domain.Query().Count(ctx)
+	snapshot, err := cloudstate.Refresh(ctx, s.logger, true)
 	if err != nil {
-		s.logger.Error("查询证书总数失败", zap.Error(err))
+		return nil, connect.NewError(connect.CodeUnavailable, err.Error()).WithCause(err)
+	}
+	if !snapshot.Complete() {
+		return nil, connect.Errorf(connect.CodeUnavailable, "阿里云资源或证书查询不完整，请稍后重试；本地记录不作为当前资源列表")
+	}
+	states, err := management.Load(ctx, snapshot)
+	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
 	}
-
-	// 按过期时间升序（快过期的排前面），NULL 排最前（pending 状态无过期时间）
-	query := db.Domain.Query().
-		Order(domain.ByExpiresAt(sql.OrderNullsFirst())).
-		Limit(int(limit + 1))
-
-	// 应用 cursor
+	items := currentCertificates(snapshot, states)
+	start := 0
 	if req.Cursor != nil && *req.Cursor != "" {
-		cursorID, err := model.DecodeCursor(*req.Cursor)
+		id, err := model.DecodeCursor(*req.Cursor)
 		if err != nil {
 			return nil, connect.Errorf(connect.CodeInvalidArgument, "无效的分页游标")
 		}
-		lastRecord, err := db.Domain.Get(ctx, cursorID)
-		if err != nil {
-			if ent.IsNotFound(err) {
-				return nil, connect.Errorf(connect.CodeInvalidArgument, "游标无效：记录不存在")
+		found := false
+		for i, item := range items {
+			if item.Id == id {
+				start = i + 1
+				found = true
+				break
 			}
-			return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
 		}
-		// keyset: (expires_at ASC, id ASC) with NULL first
-		if lastRecord.ExpiresAt != nil {
-			query = query.Where(
-				domain.Or(
-					domain.ExpiresAtIsNil(),
-					domain.ExpiresAtGT(*lastRecord.ExpiresAt),
-					domain.And(
-						domain.ExpiresAtEQ(*lastRecord.ExpiresAt),
-						domain.IDGT(cursorID),
-					),
-				),
-			)
-		} else {
-			query = query.Where(
-				domain.Or(
-					domain.And(
-						domain.ExpiresAtIsNil(),
-						domain.IDGT(cursorID),
-					),
-					domain.ExpiresAtNotNil(),
-				),
-			)
+		if !found {
+			return nil, connect.Errorf(connect.CodeInvalidArgument, "云资源列表已变化，请从第一页刷新")
 		}
 	}
-
-	certs, err := query.All(ctx)
-	if err != nil {
-		s.logger.Error("查询证书列表失败", zap.Error(err))
-		return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
+	limit := int(model.NormalizeLimit(req.Limit))
+	end := min(start+limit, len(items))
+	response := &certshipv1.ListCertificatesResponse{Certificates: items[start:end], TotalCount: uint64(len(items)), HasMore: end < len(items)}
+	if response.HasMore {
+		next := model.EncodeCursor(items[end-1].Id)
+		response.NextCursor = &next
 	}
+	return response, nil
+}
 
-	hasMore := len(certs) > int(limit)
-	if hasMore {
-		certs = certs[:limit]
-	}
-
-	items := make([]*certshipv1.CertificateItem, 0, len(certs))
-	for _, c := range certs {
-		item := &certshipv1.CertificateItem{
-			Id:            c.ID,
-			Domain:        c.Domain,
-			Bucket:        c.Bucket,
-			Region:        c.Region,
-			AccountName:   c.AccountName,
-			Status:        string(c.Status),
-			ErrorMessage:  c.ErrorMessage,
-			DeployTarget:  string(c.DeployTarget),
-			BlockedReason: c.BlockedReason,
-			Presence:      string(c.Presence),
-			Origin:        string(c.Origin),
-			Managed:       c.Managed,
-			RetryCount:    uint32(c.RetryCount),
-			ErrorKind:     string(c.ErrorKind),
+// Local state only supplies IDs, intent, retry state and errors. Resource location
+// and online certificate validity always come from this cloud observation.
+func currentCertificates(snapshot discovery.Result, states map[string]*ent.Domain) []*certshipv1.CertificateItem {
+	infos := append([]discovery.DomainInfo(nil), snapshot.Domains...)
+	sort.Slice(infos, func(i, j int) bool {
+		a, b := infos[i].CloudCert(), infos[j].CloudCert()
+		if a == nil && b != nil {
+			return true
 		}
-		item.IssuedAt = formatTime(c.IssuedAt)
-		item.ExpiresAt = formatTime(c.ExpiresAt)
-		item.LastSeenAt = formatTime(c.LastSeenAt)
-		item.NextRetryAt = formatTime(c.NextRetryAt)
+		if a != nil && b == nil {
+			return false
+		}
+		if a != nil && b != nil && !a.ValidEndDate.Equal(b.ValidEndDate) {
+			return a.ValidEndDate.Before(b.ValidEndDate)
+		}
+		return states[infos[i].Domain].ID < states[infos[j].Domain].ID
+	})
+	items := make([]*certshipv1.CertificateItem, 0, len(infos))
+	for _, info := range infos {
+		state := states[info.Domain]
+		item := &certshipv1.CertificateItem{Id: state.ID, Domain: info.Domain, Bucket: info.Bucket, Region: info.Region, AccountName: info.Account.Name, DeployTarget: string(info.DeployTarget()), Origin: string(info.Origin), Presence: "present", LastSeenAt: snapshot.ObservedAt.UTC().Format(time.RFC3339), Managed: state.Managed, RetryCount: uint32(state.RetryCount), ErrorKind: string(state.ErrorKind), ErrorMessage: state.ErrorMessage, BlockedReason: state.BlockedReason, NextRetryAt: formatTime(state.NextRetryAt), Status: "pending"}
+		if cert := info.CloudCert(); cert != nil {
+			item.IssuedAt = cert.ValidStartDate.UTC().Format(time.RFC3339)
+			item.ExpiresAt = cert.ValidEndDate.UTC().Format(time.RFC3339)
+			item.Status = "active"
+			if !cert.ValidEndDate.After(time.Now()) {
+				item.Status = "error"
+			}
+		}
 		items = append(items, item)
 	}
-
-	resp := &certshipv1.ListCertificatesResponse{
-		Certificates: items,
-		HasMore:      hasMore,
-		TotalCount:   uint64(totalCount),
-	}
-	if hasMore && len(certs) > 0 {
-		nc := model.EncodeCursor(certs[len(certs)-1].ID)
-		resp.NextCursor = &nc
-	}
-
-	return resp, nil
+	return items
 }
 
 // SetCertificateManaged 暂停或恢复 certship 对该域名的托管。
@@ -165,10 +140,8 @@ func (s *Server) SetCertificateManaged(ctx context.Context, req *certshipv1.SetC
 	return &certshipv1.SetCertificateManagedResponse{}, nil
 }
 
-// DeleteCertificate 删除一条已归档的域名记录。
-//
-// 只对 archived 开放是有意为之:数据库是云上现状的投影,
-// 云上还在的域名删掉也会被下一轮扫描原样写回来,徒增困惑。
+// DeleteCertificate removes local settings/material only after a complete cloud
+// query confirms that the domain has no current binding. It never deletes cloud resources.
 func (s *Server) DeleteCertificate(ctx context.Context, req *certshipv1.DeleteCertificateRequest) (*certshipv1.DeleteCertificateResponse, error) {
 	if req.Id == "" {
 		return nil, connect.Errorf(connect.CodeInvalidArgument, "id 不能为空")
@@ -183,11 +156,15 @@ func (s *Server) DeleteCertificate(ctx context.Context, req *certshipv1.DeleteCe
 		return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
 	}
 
-	if record.Presence != domain.PresenceArchived {
-		return nil, connect.Errorf(connect.CodeFailedPrecondition,
-			"域名 %s 在云上仍然存在(%s),删除后会被下一轮扫描重新写入；如果只是不想让 certship 管它,请改用暂停托管",
-			record.Domain, record.Presence,
-		)
+	snapshot, err := cloudstate.Refresh(ctx, s.logger, true)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeUnavailable, err.Error()).WithCause(err)
+	}
+	if !snapshot.Complete() {
+		return nil, connect.Errorf(connect.CodeUnavailable, "云资源查询不完整，暂不删除本地托管设置")
+	}
+	if _, exists := snapshot.Lookup(record.Domain); exists {
+		return nil, connect.Errorf(connect.CodeFailedPrecondition, "域名仍在阿里云上；停止自动续期请使用暂停托管")
 	}
 
 	if err := db.Domain.DeleteOne(record).Exec(ctx); err != nil {
@@ -195,7 +172,7 @@ func (s *Server) DeleteCertificate(ctx context.Context, req *certshipv1.DeleteCe
 		return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
 	}
 
-	s.logger.Info("已删除归档的域名记录", zap.String("domain", record.Domain))
+	s.logger.Info("已删除本地域名托管设置和材料", zap.String("domain", record.Domain))
 	return &certshipv1.DeleteCertificateResponse{}, nil
 }
 

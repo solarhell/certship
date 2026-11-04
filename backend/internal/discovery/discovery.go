@@ -1,5 +1,5 @@
 // Package discovery 把 OSS 自定义域名与 CDN 加速域名统一成一份"云上现状"快照,
-// 并如实记录本轮扫描实际覆盖到的范围,供上层做安全的下线对账。
+// 资源仅来自本轮观测，查询不完整时保留明确的完整性标记。
 package discovery
 
 import (
@@ -26,11 +26,15 @@ type CertInfo struct {
 
 // DomainInfo 一个被发现的自定义域名及其在云上的现状
 type DomainInfo struct {
-	Domain  string
-	Bucket  string // 源站/绑定的 bucket,源站非 OSS 的纯 CDN 域名为空
-	Region  string
-	Account *ent.CloudAccount
-	Origin  entdomain.Origin
+	Domain               string
+	Bucket               string // 源站/绑定的 bucket,源站非 OSS 的纯 CDN 域名为空
+	Region               string
+	Account              *ent.CloudAccount
+	Origin               entdomain.Origin
+	OSSAccount           *ent.CloudAccount // 实际 OSS 绑定账号，可能与 CDN 部署账号不同
+	OSSBucket, OSSRegion string
+	CertKnown            bool // 区分无证书与证书查询失败
+	Ambiguous            bool
 
 	// OSSCert / CDNCert 为 nil 表示对应侧未绑证书
 	OSSCert *CertInfo
@@ -46,87 +50,95 @@ func (d DomainInfo) DeployTarget() entdomain.DeployTarget {
 	return entdomain.DeployTargetOss
 }
 
-// Coverage 描述本轮扫描实际成功覆盖到的范围。
-//
-// 存在的意义:只有"本轮确实看得见、却没看到"的域名才可能是下线了。
-// 扫描失败(限流、网络抖动、AK 权限变更)必须表现为"看不见",而不是"不存在"。
+func (d DomainInfo) CloudCert() *CertInfo {
+	if d.DeployTarget() == entdomain.DeployTargetCdn {
+		return d.CDNCert
+	}
+	return d.OSSCert
+}
+
+// Coverage tracks completeness, including successful empty inventories. Query
+// failure is unknown, never evidence that a resource or certificate is absent.
 type Coverage struct {
-	ossBuckets  map[string]map[string]struct{} // account name -> bucket set
-	cdnAccounts map[string]struct{}            // 成功拉全 CDN 域名列表的账号
+	ossAccounts map[string]struct{}
+	cdnAccounts map[string]struct{}
+	accounts    map[string]struct{}
 }
 
 func newCoverage() Coverage {
-	return Coverage{
-		ossBuckets:  make(map[string]map[string]struct{}),
-		cdnAccounts: make(map[string]struct{}),
+	return Coverage{ossAccounts: make(map[string]struct{}), cdnAccounts: make(map[string]struct{}), accounts: make(map[string]struct{})}
+}
+func (c Coverage) addCDNAccount(account string) { c.cdnAccounts[account] = struct{}{} }
+func (c Coverage) CDNComplete() bool {
+	for account := range c.accounts {
+		if _, ok := c.cdnAccounts[account]; !ok {
+			return false
+		}
 	}
+	return true
 }
-
-func (c Coverage) addOSSBuckets(account string, buckets []string) {
-	set, ok := c.ossBuckets[account]
-	if !ok {
-		set = make(map[string]struct{}, len(buckets))
-		c.ossBuckets[account] = set
-	}
-	for _, b := range buckets {
-		set[b] = struct{}{}
-	}
-}
-
-func (c Coverage) addCDNAccount(account string) {
-	c.cdnAccounts[account] = struct{}{}
-}
-
-func (c Coverage) coversOSS(account, bucket string) bool {
-	if bucket == "" {
-		return false
-	}
-	_, ok := c.ossBuckets[account][bucket]
-	return ok
-}
-
-func (c Coverage) coversCDN(account string) bool {
-	_, ok := c.cdnAccounts[account]
-	return ok
-}
-
-// CanObserve 判断本轮扫描是否有能力观察到这条记录。
-// 返回 false 时调用方必须放过这条记录,不得据此判定下线。
-func (c Coverage) CanObserve(origin entdomain.Origin, account, bucket string) bool {
-	switch origin {
-	case entdomain.OriginOss:
-		return c.coversOSS(account, bucket)
-	case entdomain.OriginCdn:
-		return c.coversCDN(account)
-	case entdomain.OriginBoth:
-		// 两侧都要看得见才敢下结论:只有一侧可见时,域名可能只是从这一侧摘掉了
-		return c.coversOSS(account, bucket) && c.coversCDN(account)
-	default:
-		return false
-	}
-}
-
-// IsEmpty 报告本轮是否什么都没扫到。整轮全瞎时不应做任何下线对账。
-func (c Coverage) IsEmpty() bool {
-	return len(c.ossBuckets) == 0 && len(c.cdnAccounts) == 0
-}
+func (c Coverage) IsEmpty() bool { return len(c.ossAccounts) == 0 && len(c.cdnAccounts) == 0 }
 
 // Result 一轮发现的完整结果
 type Result struct {
-	Domains  []DomainInfo
-	Coverage Coverage
+	Domains    []DomainInfo
+	Coverage   Coverage
+	ObservedAt time.Time
+}
+
+func (r Result) Lookup(domain string) (DomainInfo, bool) {
+	for _, info := range r.Domains {
+		if info.Domain == domain {
+			return info, true
+		}
+	}
+	return DomainInfo{}, false
+}
+
+func (r Result) Deployable(info DomainInfo) bool {
+	return !info.Ambiguous && (info.DeployTarget() == entdomain.DeployTargetCdn || r.Coverage.CDNComplete())
+}
+
+// Complete includes all pages, all enabled accounts, all bucket CNAMEs and
+// certificate observations. An empty account or empty bucket list is complete.
+func (r Result) Complete() bool {
+	if !r.Coverage.CDNComplete() {
+		return false
+	}
+	for account := range r.Coverage.accounts {
+		if _, ok := r.Coverage.ossAccounts[account]; !ok {
+			return false
+		}
+	}
+	for _, info := range r.Domains {
+		if !r.Deployable(info) || !info.CertKnown {
+			return false
+		}
+	}
+	return true
 }
 
 // Run 扫描所有账号的 OSS 与 CDN,合并成统一快照。
 // 单个账号、单侧失败只是缩小 Coverage,不会中断整轮。
+type sources struct {
+	scanOSS      func(context.Context, *ent.CloudAccount) (oss.ScanResult, error)
+	listCDN      func(string, string) ([]cdnpkg.DomainInfo, error)
+	describeCert func(string, string, string) (*cdnpkg.CertInfo, error)
+}
+
 func Run(ctx context.Context, logger *zap.Logger, accounts []*ent.CloudAccount) Result {
+	scanner := oss.NewScanner(logger)
+	manager := cdnpkg.NewManager(logger)
+	return run(ctx, logger, accounts, sources{scanner.ScanAccount, manager.ListDomains, manager.DescribeCert})
+}
+
+func run(ctx context.Context, logger *zap.Logger, accounts []*ent.CloudAccount, cloud sources) Result {
 	result := Result{Coverage: newCoverage()}
 	byDomain := make(map[string]*DomainInfo)
 	var order []string
-
-	ossScanner := oss.NewScanner(logger)
-	cdnMgr := cdnpkg.NewManager(logger)
-
+	for _, account := range accounts {
+		result.Coverage.accounts[account.Name] = struct{}{}
+	}
 	for _, account := range accounts {
 		select {
 		case <-ctx.Done():
@@ -135,26 +147,41 @@ func Run(ctx context.Context, logger *zap.Logger, accounts []*ent.CloudAccount) 
 		}
 
 		// ---- OSS 侧 ----
-		scan, err := ossScanner.ScanAccount(ctx, account)
+		scan, err := cloud.scanOSS(ctx, account)
 		if err != nil {
-			logger.Error("扫描账号 OSS 失败,本轮不对该账号的 OSS 域名做下线判定",
+			logger.Error("扫描账号 OSS 失败,本轮 OSS 观测不完整",
 				zap.String("account", account.Name),
 				zap.Error(err),
 			)
 		} else {
-			result.Coverage.addOSSBuckets(account.Name, scan.CoveredBuckets)
+			if len(scan.Buckets) == len(scan.CoveredBuckets) {
+				result.Coverage.ossAccounts[account.Name] = struct{}{}
+			}
 			for _, d := range scan.Domains {
 				info := &DomainInfo{
-					Domain:  d.Domain,
-					Bucket:  d.Bucket,
-					Region:  d.Region,
-					Account: account,
-					Origin:  entdomain.OriginOss,
+					Domain:     d.Domain,
+					Bucket:     d.Bucket,
+					Region:     d.Region,
+					Account:    account,
+					Origin:     entdomain.OriginOss,
+					OSSAccount: account,
+					OSSBucket:  d.Bucket, OSSRegion: d.Region,
+					CertKnown: d.CertKnown,
 				}
 				if d.OSSCert != nil {
 					info.OSSCert = &CertInfo{ValidStartDate: d.OSSCert.ValidStartDate, ValidEndDate: d.OSSCert.ValidEndDate}
 				}
 				if _, dup := byDomain[d.Domain]; dup {
+					existing := byDomain[d.Domain]
+					if existing.DeployTarget() == entdomain.DeployTargetCdn {
+						existing.Origin = entdomain.OriginBoth
+						existing.OSSAccount = account
+						existing.OSSBucket, existing.OSSRegion = d.Bucket, d.Region
+						existing.OSSCert = info.OSSCert
+
+						continue
+					}
+					existing.Ambiguous = true
 					logger.Warn("同一域名在多处绑定,保留先发现的一条", zap.String("domain", d.Domain))
 					continue
 				}
@@ -169,9 +196,9 @@ func Run(ctx context.Context, logger *zap.Logger, accounts []*ent.CloudAccount) 
 		}
 
 		// ---- CDN 侧 ----
-		cdnDomains, err := cdnMgr.ListDomains(account.AccessKeyID, account.AccessKeySecret)
+		cdnDomains, err := cloud.listCDN(account.AccessKeyID, account.AccessKeySecret)
 		if err != nil {
-			logger.Error("扫描账号 CDN 失败,本轮不对该账号的 CDN 域名做下线判定",
+			logger.Error("扫描账号 CDN 失败,本轮 CDN 观测不完整",
 				zap.String("account", account.Name),
 				zap.Error(err),
 			)
@@ -179,22 +206,31 @@ func Run(ctx context.Context, logger *zap.Logger, accounts []*ent.CloudAccount) 
 		}
 		result.Coverage.addCDNAccount(account.Name)
 
-		certs := fetchCDNCerts(ctx, cdnMgr, account, cdnDomains)
+		certs := fetchCDNCerts(ctx, cloud.describeCert, account, cdnDomains)
 		for _, d := range cdnDomains {
 			cert := certs[d.Domain]
 			if existing, ok := byDomain[d.Domain]; ok {
+				if existing.DeployTarget() == entdomain.DeployTargetCdn {
+					existing.Ambiguous = true
+					continue
+				}
 				// 两侧都有:身份不变,但部署目标是 CDN,OSS 侧的 bucket 降格为源站
 				existing.Origin = entdomain.OriginBoth
-				existing.CDNCert = cert
+				existing.Account = account
+				existing.Ambiguous = false
+				existing.CDNCert = cert.cert
+				existing.CertKnown = cert.known
+				existing.Bucket, existing.Region = d.SourceBucket, d.SourceRegion
 				continue
 			}
 			info := &DomainInfo{
-				Domain:  d.Domain,
-				Bucket:  d.SourceBucket,
-				Region:  d.SourceRegion,
-				Account: account,
-				Origin:  entdomain.OriginCdn,
-				CDNCert: cert,
+				Domain:    d.Domain,
+				Bucket:    d.SourceBucket,
+				Region:    d.SourceRegion,
+				Account:   account,
+				Origin:    entdomain.OriginCdn,
+				CDNCert:   cert.cert,
+				CertKnown: cert.known,
 			}
 			byDomain[d.Domain] = info
 			order = append(order, d.Domain)
@@ -209,18 +245,27 @@ func Run(ctx context.Context, logger *zap.Logger, accounts []*ent.CloudAccount) 
 	for _, name := range order {
 		result.Domains = append(result.Domains, *byDomain[name])
 	}
+	result.ObservedAt = time.Now()
 	return result
 }
 
+type certObservation struct {
+	cert  *CertInfo
+	known bool
+}
+
 // fetchCDNCerts 并发查询 CDN 域名上已配置证书的有效期
-func fetchCDNCerts(ctx context.Context, mgr *cdnpkg.Manager, account *ent.CloudAccount, domains []cdnpkg.DomainInfo) map[string]*CertInfo {
-	certs := make(map[string]*CertInfo, len(domains))
+func fetchCDNCerts(ctx context.Context, describe func(string, string, string) (*cdnpkg.CertInfo, error), account *ent.CloudAccount, domains []cdnpkg.DomainInfo) map[string]certObservation {
+	certs := make(map[string]certObservation, len(domains))
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, cdnCertConcurrency)
 
 	for _, d := range domains {
 		if !d.SSLOn {
+			mu.Lock()
+			certs[d.Domain] = certObservation{known: true}
+			mu.Unlock()
 			continue
 		}
 		select {
@@ -235,13 +280,14 @@ func fetchCDNCerts(ctx context.Context, mgr *cdnpkg.Manager, account *ent.CloudA
 			defer wg.Done()
 			defer func() { <-sem }()
 
-			cert := mgr.DescribeCert(account.AccessKeyID, account.AccessKeySecret, domain)
-			if cert == nil {
-				return
-			}
+			cert, err := describe(account.AccessKeyID, account.AccessKeySecret, domain)
 			mu.Lock()
-			certs[domain] = &CertInfo{ValidStartDate: cert.ValidStartDate, ValidEndDate: cert.ValidEndDate}
-			mu.Unlock()
+			defer mu.Unlock()
+			observation := certObservation{known: err == nil}
+			if cert != nil {
+				observation.cert = &CertInfo{ValidStartDate: cert.ValidStartDate, ValidEndDate: cert.ValidEndDate}
+			}
+			certs[domain] = observation
 		}(d.Domain)
 	}
 	wg.Wait()

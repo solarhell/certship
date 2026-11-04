@@ -28,6 +28,8 @@ func newClient(accessKeyID, accessKeySecret string) (*cdn.Client, error) {
 		AccessKeyId:     new(accessKeyID),
 		AccessKeySecret: new(accessKeySecret),
 		Endpoint:        new("cdn.aliyuncs.com"),
+		ReadTimeout:     new(15000),
+		ConnectTimeout:  new(5000),
 	}
 	return cdn.NewClient(config)
 }
@@ -55,8 +57,8 @@ func (m *Manager) CheckOnline(accessKeyID, accessKeySecret, domain string) (bool
 		}
 		return false, fmt.Errorf("查询 CDN 域名 %s 详情失败: %w", domain, err)
 	}
-	if resp.Body == nil || resp.Body.GetDomainDetailModel == nil {
-		return false, nil
+	if resp == nil || resp.Body == nil || resp.Body.GetDomainDetailModel == nil {
+		return false, fmt.Errorf("查询 CDN 域名 %s 返回不完整响应", domain)
 	}
 	return deref(resp.Body.GetDomainDetailModel.DomainStatus) == "online", nil
 }

@@ -11,6 +11,9 @@ import (
 	"github.com/google/uuid"
 )
 
+// Domain holds local management state. bucket/region/account_name/origin/
+// deploy_target/presence/last_seen_at remain only for upgrade compatibility.
+// Current inventory and deployed certificate dates come from Alibaba Cloud.
 type Domain struct {
 	ent.Schema
 }
@@ -30,7 +33,7 @@ func (Domain) Fields() []ent.Field {
 		// bucket/region 对纯 CDN 域名(源站非 OSS)可能为空,只是源站信息而非域名身份
 		field.String("bucket").Optional().Comment("OSS bucket 名称,CDN 域名时为回源 bucket,源站非 OSS 时为空"),
 		field.String("region").Optional().Comment("OSS 区域,如 cn-hangzhou"),
-		field.String("account_name").NotEmpty().Comment("阿里云账号名称"),
+		field.String("account_name").Default("").Comment("旧版兼容字段；当前账号从阿里云观测获取，不再写入"),
 
 		field.Time("issued_at").Optional().Nillable().Comment("证书颁发时间"),
 		field.Time("expires_at").Optional().Nillable().Comment("证书过期时间"),
