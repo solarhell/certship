@@ -17,7 +17,7 @@
     "@bufbuild/protobuf": "^2.15.0",
     "@connectrpc/connect": "^2.2.0",
     "@connectrpc/connect-web": "^2.2.0",
-    "antd": "^6.6.4",
+    "antd": "^6.6.5",
     "dayjs": "^1.11.23",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
