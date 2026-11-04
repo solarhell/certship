@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.3.4",
-    "@buf/certship_api.bufbuild_es": "2.14.0-20260909020841-f2573a0faf9e.2",
-    "@bufbuild/protobuf": "^2.15.0",
+    "@buf/certship_api.bufbuild_es": "2.16.0-00000000000000-785f201c4325.1",
+    "@bufbuild/protobuf": "^2.16.0",
     "@connectrpc/connect": "^2.2.0",
     "@connectrpc/connect-web": "^2.2.0",
     "antd": "^6.6.5",

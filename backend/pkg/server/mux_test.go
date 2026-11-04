@@ -1,7 +1,6 @@
 package server_test
 
 import (
-	"bytes"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -75,17 +74,14 @@ func TestGeneratedClientsAcrossHTTPProtocols(t *testing.T) {
 	}
 }
 
-func TestLoginPreservesV1ReadLimit(t *testing.T) {
-	body, err := json.Marshal(map[string]string{"username": strings.Repeat("x", 4*1024*1024+1)})
-	if err != nil {
-		t.Fatal(err)
+func TestLoginEnforcesDefaultRequestLimit(t *testing.T) {
+	httpServer := httptest.NewServer(server.Setup(nil))
+	defer httpServer.Close()
+	client := connect.NewClient(connecthttp.NewTransport(httpServer.Client(), httpServer.URL))
+	_, err := certshipv1connect.NewAuthServiceClient(client).Login(t.Context(), &certshipv1.LoginRequest{Username: strings.Repeat("x", 4*1024*1024+1)})
+	if connect.CodeOf(err) != connect.CodeResourceExhausted {
+		t.Fatalf("oversized request was not rejected: %v", err)
 	}
-	req := httptest.NewRequest(http.MethodPost, certshipv1connect.AuthServiceLoginProcedure, bytes.NewReader(body))
-	req.Header.Set("Content-Type", "application/json")
-	resp := httptest.NewRecorder()
-	server.Setup(nil).ServeHTTP(resp, req)
-	// An otherwise valid >4 MiB request must reach the existing empty-password validation.
-	assertWireError(t, resp, http.StatusBadRequest, "invalid_argument", "用户名和密码不能为空")
 }
 
 func TestCORSPreflightAllowsBrowserAuthentication(t *testing.T) {

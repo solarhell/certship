@@ -16,12 +16,6 @@ const (
 	FieldID = "id"
 	// FieldDomain holds the string denoting the domain field in the database.
 	FieldDomain = "domain"
-	// FieldBucket holds the string denoting the bucket field in the database.
-	FieldBucket = "bucket"
-	// FieldRegion holds the string denoting the region field in the database.
-	FieldRegion = "region"
-	// FieldAccountName holds the string denoting the account_name field in the database.
-	FieldAccountName = "account_name"
 	// FieldIssuedAt holds the string denoting the issued_at field in the database.
 	FieldIssuedAt = "issued_at"
 	// FieldExpiresAt holds the string denoting the expires_at field in the database.
@@ -32,14 +26,6 @@ const (
 	FieldKeyPem = "key_pem"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
-	// FieldDeployTarget holds the string denoting the deploy_target field in the database.
-	FieldDeployTarget = "deploy_target"
-	// FieldPresence holds the string denoting the presence field in the database.
-	FieldPresence = "presence"
-	// FieldOrigin holds the string denoting the origin field in the database.
-	FieldOrigin = "origin"
-	// FieldLastSeenAt holds the string denoting the last_seen_at field in the database.
-	FieldLastSeenAt = "last_seen_at"
 	// FieldManaged holds the string denoting the managed field in the database.
 	FieldManaged = "managed"
 	// FieldRetryCount holds the string denoting the retry_count field in the database.
@@ -68,18 +54,11 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldDomain,
-	FieldBucket,
-	FieldRegion,
-	FieldAccountName,
 	FieldIssuedAt,
 	FieldExpiresAt,
 	FieldCertPem,
 	FieldKeyPem,
 	FieldStatus,
-	FieldDeployTarget,
-	FieldPresence,
-	FieldOrigin,
-	FieldLastSeenAt,
 	FieldManaged,
 	FieldRetryCount,
 	FieldNextRetryAt,
@@ -105,8 +84,6 @@ func ValidColumn(column string) bool {
 var (
 	// DomainValidator is a validator for the "domain" field. It is called by the builders before save.
 	DomainValidator func(string) error
-	// DefaultAccountName holds the default value on creation for the "account_name" field.
-	DefaultAccountName string
 	// DefaultManaged holds the default value on creation for the "managed" field.
 	DefaultManaged bool
 	// DefaultRetryCount holds the default value on creation for the "retry_count" field.
@@ -154,86 +131,6 @@ func StatusValidator(s Status) error {
 	}
 }
 
-// DeployTarget defines the type for the "deploy_target" enum field.
-type DeployTarget string
-
-// DeployTargetOss is the default value of the DeployTarget enum.
-const DefaultDeployTarget = DeployTargetOss
-
-// DeployTarget values.
-const (
-	DeployTargetOss DeployTarget = "oss"
-	DeployTargetCdn DeployTarget = "cdn"
-)
-
-func (dt DeployTarget) String() string {
-	return string(dt)
-}
-
-// DeployTargetValidator is a validator for the "deploy_target" field enum values. It is called by the builders before save.
-func DeployTargetValidator(dt DeployTarget) error {
-	switch dt {
-	case DeployTargetOss, DeployTargetCdn:
-		return nil
-	default:
-		return fmt.Errorf("domain: invalid enum value for deploy_target field: %q", dt)
-	}
-}
-
-// Presence defines the type for the "presence" enum field.
-type Presence string
-
-// PresencePresent is the default value of the Presence enum.
-const DefaultPresence = PresencePresent
-
-// Presence values.
-const (
-	PresencePresent  Presence = "present"
-	PresenceMissing  Presence = "missing"
-	PresenceArchived Presence = "archived"
-)
-
-func (pr Presence) String() string {
-	return string(pr)
-}
-
-// PresenceValidator is a validator for the "presence" field enum values. It is called by the builders before save.
-func PresenceValidator(pr Presence) error {
-	switch pr {
-	case PresencePresent, PresenceMissing, PresenceArchived:
-		return nil
-	default:
-		return fmt.Errorf("domain: invalid enum value for presence field: %q", pr)
-	}
-}
-
-// Origin defines the type for the "origin" enum field.
-type Origin string
-
-// OriginOss is the default value of the Origin enum.
-const DefaultOrigin = OriginOss
-
-// Origin values.
-const (
-	OriginOss  Origin = "oss"
-	OriginCdn  Origin = "cdn"
-	OriginBoth Origin = "both"
-)
-
-func (o Origin) String() string {
-	return string(o)
-}
-
-// OriginValidator is a validator for the "origin" field enum values. It is called by the builders before save.
-func OriginValidator(o Origin) error {
-	switch o {
-	case OriginOss, OriginCdn, OriginBoth:
-		return nil
-	default:
-		return fmt.Errorf("domain: invalid enum value for origin field: %q", o)
-	}
-}
-
 // ErrorKind defines the type for the "error_kind" enum field.
 type ErrorKind string
 
@@ -275,21 +172,6 @@ func ByDomain(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDomain, opts...).ToFunc()
 }
 
-// ByBucket orders the results by the bucket field.
-func ByBucket(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBucket, opts...).ToFunc()
-}
-
-// ByRegion orders the results by the region field.
-func ByRegion(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRegion, opts...).ToFunc()
-}
-
-// ByAccountName orders the results by the account_name field.
-func ByAccountName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAccountName, opts...).ToFunc()
-}
-
 // ByIssuedAt orders the results by the issued_at field.
 func ByIssuedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIssuedAt, opts...).ToFunc()
@@ -313,26 +195,6 @@ func ByKeyPem(opts ...sql.OrderTermOption) OrderOption {
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
-}
-
-// ByDeployTarget orders the results by the deploy_target field.
-func ByDeployTarget(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDeployTarget, opts...).ToFunc()
-}
-
-// ByPresence orders the results by the presence field.
-func ByPresence(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPresence, opts...).ToFunc()
-}
-
-// ByOrigin orders the results by the origin field.
-func ByOrigin(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOrigin, opts...).ToFunc()
-}
-
-// ByLastSeenAt orders the results by the last_seen_at field.
-func ByLastSeenAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldLastSeenAt, opts...).ToFunc()
 }
 
 // ByManaged orders the results by the managed field.

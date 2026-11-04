@@ -24,14 +24,8 @@ type AppSettings struct {
 	AcmeRegistration string `json:"acme_registration,omitempty"`
 	// 扫描间隔，Go duration 格式
 	ScanInterval string `json:"scan_interval,omitempty"`
-	// 域名连续多久未在云上扫到才判定为 missing,Go duration 格式
-	MissingGrace string `json:"missing_grace,omitempty"`
-	// 域名进入 missing 后再过多久归档并停止托管,Go duration 格式
-	ArchiveAfter string `json:"archive_after,omitempty"`
 	// 证书到期前多少天续期
 	RenewBeforeDays int `json:"renew_before_days,omitempty"`
-	// 归档且证书已过期的域名记录保留多久后物理删除,0s 表示永久保留
-	ArchivedRetention string `json:"archived_retention,omitempty"`
 	// 做 zone 探测与 DNS-01 校验时使用的递归 DNS,逗号分隔的 host:port
 	DNSResolvers string `json:"dns_resolvers,omitempty"`
 	// JWT 签名密钥，首次启动时自动生成
@@ -48,7 +42,7 @@ func (*AppSettings) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case appsettings.FieldRenewBeforeDays:
 			values[i] = new(sql.NullInt64)
-		case appsettings.FieldID, appsettings.FieldAcmeAccountKey, appsettings.FieldAcmeRegistration, appsettings.FieldScanInterval, appsettings.FieldMissingGrace, appsettings.FieldArchiveAfter, appsettings.FieldArchivedRetention, appsettings.FieldDNSResolvers, appsettings.FieldJwtSecret:
+		case appsettings.FieldID, appsettings.FieldAcmeAccountKey, appsettings.FieldAcmeRegistration, appsettings.FieldScanInterval, appsettings.FieldDNSResolvers, appsettings.FieldJwtSecret:
 			values[i] = new(sql.NullString)
 		case appsettings.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -91,29 +85,11 @@ func (_m *AppSettings) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.ScanInterval = value.String
 			}
-		case appsettings.FieldMissingGrace:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field missing_grace", values[i])
-			} else if value.Valid {
-				_m.MissingGrace = value.String
-			}
-		case appsettings.FieldArchiveAfter:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field archive_after", values[i])
-			} else if value.Valid {
-				_m.ArchiveAfter = value.String
-			}
 		case appsettings.FieldRenewBeforeDays:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field renew_before_days", values[i])
 			} else if value.Valid {
 				_m.RenewBeforeDays = int(value.Int64)
-			}
-		case appsettings.FieldArchivedRetention:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field archived_retention", values[i])
-			} else if value.Valid {
-				_m.ArchivedRetention = value.String
 			}
 		case appsettings.FieldDNSResolvers:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -178,17 +154,8 @@ func (_m *AppSettings) String() string {
 	builder.WriteString("scan_interval=")
 	builder.WriteString(_m.ScanInterval)
 	builder.WriteString(", ")
-	builder.WriteString("missing_grace=")
-	builder.WriteString(_m.MissingGrace)
-	builder.WriteString(", ")
-	builder.WriteString("archive_after=")
-	builder.WriteString(_m.ArchiveAfter)
-	builder.WriteString(", ")
 	builder.WriteString("renew_before_days=")
 	builder.WriteString(fmt.Sprintf("%v", _m.RenewBeforeDays))
-	builder.WriteString(", ")
-	builder.WriteString("archived_retention=")
-	builder.WriteString(_m.ArchivedRetention)
 	builder.WriteString(", ")
 	builder.WriteString("dns_resolvers=")
 	builder.WriteString(_m.DNSResolvers)

@@ -24,8 +24,6 @@ func TestShouldNotify(t *testing.T) {
 		{"从失败恢复要通知", StateFailed, &justNow, StateOK, true},
 		{"从未报过错就不报恢复", "", nil, StateOK, false},
 		{"一直正常不重复通知", StateOK, &longAgo, StateOK, false},
-		{"域名下线要通知", StateOK, &justNow, StateMissing, true},
-		{"下线转归档是状态变化", StateMissing, &justNow, StateArchived, true},
 	}
 
 	for _, tc := range cases {

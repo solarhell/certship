@@ -33,11 +33,7 @@ export default function CloudAccounts() {
     setRescanningIds((prev) => new Set(prev).add(id));
     try {
       const res = await client.rescanCloudAccount(create(RescanCloudAccountRequestSchema, { id }));
-      const offline = [].filter(Boolean).join("，");
-      message.success(
-        `${name}:新增 ${res.added} 个域名，更新 ${res.updated} 个，共 ${res.total} 个` +
-          (offline ? `；${offline}` : ""),
-      );
+      message.success(`${name}:已从阿里云获取 ${res.total} 个当前域名`);
     } catch (err) {
       message.error(`扫描失败：${err instanceof Error ? err.message : String(err)}`);
     } finally {

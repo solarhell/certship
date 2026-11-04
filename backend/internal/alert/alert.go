@@ -10,11 +10,9 @@ import "time"
 type State string
 
 const (
-	StateOK       State = "ok"
-	StateFailed   State = "failed"
-	StateBlocked  State = "blocked"
-	StateMissing  State = "missing"
-	StateArchived State = "archived"
+	StateOK      State = "ok"
+	StateFailed  State = "failed"
+	StateBlocked State = "blocked"
 )
 
 // RepeatInterval 状态持续不变时的重复提醒间隔。

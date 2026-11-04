@@ -7,14 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/solarhell/certship/internal/discovery"
 	"github.com/solarhell/certship/pkg/ent"
 )
-
-func applyTarget(dom *ent.Domain, info discovery.DomainInfo) {
-	dom.Bucket, dom.Region, dom.AccountName = info.Bucket, info.Region, info.Account.Name
-	dom.Origin, dom.DeployTarget = info.Origin, info.DeployTarget()
-}
 
 // Local material must validate independently of cloud observation dates in DB.
 func reusableCertificate(domain, certPEM, keyPEM string, threshold time.Time) (*x509.Certificate, error) {

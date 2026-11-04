@@ -12,7 +12,21 @@ import (
 	cdnpkg "github.com/solarhell/certship/internal/cdn"
 	"github.com/solarhell/certship/internal/oss"
 	"github.com/solarhell/certship/pkg/ent"
-	entdomain "github.com/solarhell/certship/pkg/ent/domain"
+)
+
+type Origin string
+
+const (
+	OriginOSS  Origin = "oss"
+	OriginCDN  Origin = "cdn"
+	OriginBoth Origin = "both"
+)
+
+type DeploymentTarget string
+
+const (
+	DeployTargetOSS DeploymentTarget = "oss"
+	DeployTargetCDN DeploymentTarget = "cdn"
 )
 
 // cdnCertConcurrency 查询 CDN 证书信息的并发度
@@ -30,7 +44,7 @@ type DomainInfo struct {
 	Bucket               string // 源站/绑定的 bucket,源站非 OSS 的纯 CDN 域名为空
 	Region               string
 	Account              *ent.CloudAccount
-	Origin               entdomain.Origin
+	Origin               Origin
 	OSSAccount           *ent.CloudAccount // 实际 OSS 绑定账号，可能与 CDN 部署账号不同
 	OSSBucket, OSSRegion string
 	CertKnown            bool // 区分无证书与证书查询失败
@@ -43,15 +57,15 @@ type DomainInfo struct {
 
 // DeployTarget 返回该域名应当部署证书的目标。
 // 只要域名出现在 CDN 加速域名列表里就走 CDN——此时 OSS 侧的 bucket 只是回源源站。
-func (d DomainInfo) DeployTarget() entdomain.DeployTarget {
-	if d.Origin == entdomain.OriginCdn || d.Origin == entdomain.OriginBoth {
-		return entdomain.DeployTargetCdn
+func (d DomainInfo) DeployTarget() DeploymentTarget {
+	if d.Origin == OriginCDN || d.Origin == OriginBoth {
+		return DeployTargetCDN
 	}
-	return entdomain.DeployTargetOss
+	return DeployTargetOSS
 }
 
 func (d DomainInfo) CloudCert() *CertInfo {
-	if d.DeployTarget() == entdomain.DeployTargetCdn {
+	if d.DeployTarget() == DeployTargetCDN {
 		return d.CDNCert
 	}
 	return d.OSSCert
@@ -96,7 +110,7 @@ func (r Result) Lookup(domain string) (DomainInfo, bool) {
 }
 
 func (r Result) Deployable(info DomainInfo) bool {
-	return !info.Ambiguous && (info.DeployTarget() == entdomain.DeployTargetCdn || r.Coverage.CDNComplete())
+	return !info.Ambiguous && (info.DeployTarget() == DeployTargetCDN || r.Coverage.CDNComplete())
 }
 
 // Complete includes all pages, all enabled accounts, all bucket CNAMEs and
@@ -163,7 +177,7 @@ func run(ctx context.Context, logger *zap.Logger, accounts []*ent.CloudAccount, 
 					Bucket:     d.Bucket,
 					Region:     d.Region,
 					Account:    account,
-					Origin:     entdomain.OriginOss,
+					Origin:     OriginOSS,
 					OSSAccount: account,
 					OSSBucket:  d.Bucket, OSSRegion: d.Region,
 					CertKnown: d.CertKnown,
@@ -173,8 +187,8 @@ func run(ctx context.Context, logger *zap.Logger, accounts []*ent.CloudAccount, 
 				}
 				if _, dup := byDomain[d.Domain]; dup {
 					existing := byDomain[d.Domain]
-					if existing.DeployTarget() == entdomain.DeployTargetCdn {
-						existing.Origin = entdomain.OriginBoth
+					if existing.DeployTarget() == DeployTargetCDN {
+						existing.Origin = OriginBoth
 						existing.OSSAccount = account
 						existing.OSSBucket, existing.OSSRegion = d.Bucket, d.Region
 						existing.OSSCert = info.OSSCert
@@ -210,12 +224,12 @@ func run(ctx context.Context, logger *zap.Logger, accounts []*ent.CloudAccount, 
 		for _, d := range cdnDomains {
 			cert := certs[d.Domain]
 			if existing, ok := byDomain[d.Domain]; ok {
-				if existing.DeployTarget() == entdomain.DeployTargetCdn {
+				if existing.DeployTarget() == DeployTargetCDN {
 					existing.Ambiguous = true
 					continue
 				}
 				// 两侧都有:身份不变,但部署目标是 CDN,OSS 侧的 bucket 降格为源站
-				existing.Origin = entdomain.OriginBoth
+				existing.Origin = OriginBoth
 				existing.Account = account
 				existing.Ambiguous = false
 				existing.CDNCert = cert.cert
@@ -228,7 +242,7 @@ func run(ctx context.Context, logger *zap.Logger, accounts []*ent.CloudAccount, 
 				Bucket:    d.SourceBucket,
 				Region:    d.SourceRegion,
 				Account:   account,
-				Origin:    entdomain.OriginCdn,
+				Origin:    OriginCDN,
 				CDNCert:   cert.cert,
 				CertKnown: cert.known,
 			}

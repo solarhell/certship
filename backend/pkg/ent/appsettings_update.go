@@ -82,34 +82,6 @@ func (_u *AppSettingsUpdate) SetNillableScanInterval(v *string) *AppSettingsUpda
 	return _u
 }
 
-// SetMissingGrace sets the "missing_grace" field.
-func (_u *AppSettingsUpdate) SetMissingGrace(v string) *AppSettingsUpdate {
-	_u.mutation.SetMissingGrace(v)
-	return _u
-}
-
-// SetNillableMissingGrace sets the "missing_grace" field if the given value is not nil.
-func (_u *AppSettingsUpdate) SetNillableMissingGrace(v *string) *AppSettingsUpdate {
-	if v != nil {
-		_u.SetMissingGrace(*v)
-	}
-	return _u
-}
-
-// SetArchiveAfter sets the "archive_after" field.
-func (_u *AppSettingsUpdate) SetArchiveAfter(v string) *AppSettingsUpdate {
-	_u.mutation.SetArchiveAfter(v)
-	return _u
-}
-
-// SetNillableArchiveAfter sets the "archive_after" field if the given value is not nil.
-func (_u *AppSettingsUpdate) SetNillableArchiveAfter(v *string) *AppSettingsUpdate {
-	if v != nil {
-		_u.SetArchiveAfter(*v)
-	}
-	return _u
-}
-
 // SetRenewBeforeDays sets the "renew_before_days" field.
 func (_u *AppSettingsUpdate) SetRenewBeforeDays(v int) *AppSettingsUpdate {
 	_u.mutation.ResetRenewBeforeDays()
@@ -128,20 +100,6 @@ func (_u *AppSettingsUpdate) SetNillableRenewBeforeDays(v *int) *AppSettingsUpda
 // AddRenewBeforeDays adds value to the "renew_before_days" field.
 func (_u *AppSettingsUpdate) AddRenewBeforeDays(v int) *AppSettingsUpdate {
 	_u.mutation.AddRenewBeforeDays(v)
-	return _u
-}
-
-// SetArchivedRetention sets the "archived_retention" field.
-func (_u *AppSettingsUpdate) SetArchivedRetention(v string) *AppSettingsUpdate {
-	_u.mutation.SetArchivedRetention(v)
-	return _u
-}
-
-// SetNillableArchivedRetention sets the "archived_retention" field if the given value is not nil.
-func (_u *AppSettingsUpdate) SetNillableArchivedRetention(v *string) *AppSettingsUpdate {
-	if v != nil {
-		_u.SetArchivedRetention(*v)
-	}
 	return _u
 }
 
@@ -233,24 +191,9 @@ func (_u *AppSettingsUpdate) check() error {
 			return &ValidationError{Name: "scan_interval", err: fmt.Errorf(`ent: validator failed for field "AppSettings.scan_interval": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.MissingGrace(); ok {
-		if err := appsettings.MissingGraceValidator(v); err != nil {
-			return &ValidationError{Name: "missing_grace", err: fmt.Errorf(`ent: validator failed for field "AppSettings.missing_grace": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.ArchiveAfter(); ok {
-		if err := appsettings.ArchiveAfterValidator(v); err != nil {
-			return &ValidationError{Name: "archive_after", err: fmt.Errorf(`ent: validator failed for field "AppSettings.archive_after": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.RenewBeforeDays(); ok {
 		if err := appsettings.RenewBeforeDaysValidator(v); err != nil {
 			return &ValidationError{Name: "renew_before_days", err: fmt.Errorf(`ent: validator failed for field "AppSettings.renew_before_days": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.ArchivedRetention(); ok {
-		if err := appsettings.ArchivedRetentionValidator(v); err != nil {
-			return &ValidationError{Name: "archived_retention", err: fmt.Errorf(`ent: validator failed for field "AppSettings.archived_retention": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.DNSResolvers(); ok {
@@ -288,20 +231,11 @@ func (_u *AppSettingsUpdate) sqlSave(ctx context.Context) (_node int, err error)
 	if value, ok := _u.mutation.ScanInterval(); ok {
 		_spec.SetField(appsettings.FieldScanInterval, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.MissingGrace(); ok {
-		_spec.SetField(appsettings.FieldMissingGrace, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.ArchiveAfter(); ok {
-		_spec.SetField(appsettings.FieldArchiveAfter, field.TypeString, value)
-	}
 	if value, ok := _u.mutation.RenewBeforeDays(); ok {
 		_spec.SetField(appsettings.FieldRenewBeforeDays, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.AddedRenewBeforeDays(); ok {
 		_spec.AddField(appsettings.FieldRenewBeforeDays, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.ArchivedRetention(); ok {
-		_spec.SetField(appsettings.FieldArchivedRetention, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.DNSResolvers(); ok {
 		_spec.SetField(appsettings.FieldDNSResolvers, field.TypeString, value)
@@ -389,34 +323,6 @@ func (_u *AppSettingsUpdateOne) SetNillableScanInterval(v *string) *AppSettingsU
 	return _u
 }
 
-// SetMissingGrace sets the "missing_grace" field.
-func (_u *AppSettingsUpdateOne) SetMissingGrace(v string) *AppSettingsUpdateOne {
-	_u.mutation.SetMissingGrace(v)
-	return _u
-}
-
-// SetNillableMissingGrace sets the "missing_grace" field if the given value is not nil.
-func (_u *AppSettingsUpdateOne) SetNillableMissingGrace(v *string) *AppSettingsUpdateOne {
-	if v != nil {
-		_u.SetMissingGrace(*v)
-	}
-	return _u
-}
-
-// SetArchiveAfter sets the "archive_after" field.
-func (_u *AppSettingsUpdateOne) SetArchiveAfter(v string) *AppSettingsUpdateOne {
-	_u.mutation.SetArchiveAfter(v)
-	return _u
-}
-
-// SetNillableArchiveAfter sets the "archive_after" field if the given value is not nil.
-func (_u *AppSettingsUpdateOne) SetNillableArchiveAfter(v *string) *AppSettingsUpdateOne {
-	if v != nil {
-		_u.SetArchiveAfter(*v)
-	}
-	return _u
-}
-
 // SetRenewBeforeDays sets the "renew_before_days" field.
 func (_u *AppSettingsUpdateOne) SetRenewBeforeDays(v int) *AppSettingsUpdateOne {
 	_u.mutation.ResetRenewBeforeDays()
@@ -435,20 +341,6 @@ func (_u *AppSettingsUpdateOne) SetNillableRenewBeforeDays(v *int) *AppSettingsU
 // AddRenewBeforeDays adds value to the "renew_before_days" field.
 func (_u *AppSettingsUpdateOne) AddRenewBeforeDays(v int) *AppSettingsUpdateOne {
 	_u.mutation.AddRenewBeforeDays(v)
-	return _u
-}
-
-// SetArchivedRetention sets the "archived_retention" field.
-func (_u *AppSettingsUpdateOne) SetArchivedRetention(v string) *AppSettingsUpdateOne {
-	_u.mutation.SetArchivedRetention(v)
-	return _u
-}
-
-// SetNillableArchivedRetention sets the "archived_retention" field if the given value is not nil.
-func (_u *AppSettingsUpdateOne) SetNillableArchivedRetention(v *string) *AppSettingsUpdateOne {
-	if v != nil {
-		_u.SetArchivedRetention(*v)
-	}
 	return _u
 }
 
@@ -553,24 +445,9 @@ func (_u *AppSettingsUpdateOne) check() error {
 			return &ValidationError{Name: "scan_interval", err: fmt.Errorf(`ent: validator failed for field "AppSettings.scan_interval": %w`, err)}
 		}
 	}
-	if v, ok := _u.mutation.MissingGrace(); ok {
-		if err := appsettings.MissingGraceValidator(v); err != nil {
-			return &ValidationError{Name: "missing_grace", err: fmt.Errorf(`ent: validator failed for field "AppSettings.missing_grace": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.ArchiveAfter(); ok {
-		if err := appsettings.ArchiveAfterValidator(v); err != nil {
-			return &ValidationError{Name: "archive_after", err: fmt.Errorf(`ent: validator failed for field "AppSettings.archive_after": %w`, err)}
-		}
-	}
 	if v, ok := _u.mutation.RenewBeforeDays(); ok {
 		if err := appsettings.RenewBeforeDaysValidator(v); err != nil {
 			return &ValidationError{Name: "renew_before_days", err: fmt.Errorf(`ent: validator failed for field "AppSettings.renew_before_days": %w`, err)}
-		}
-	}
-	if v, ok := _u.mutation.ArchivedRetention(); ok {
-		if err := appsettings.ArchivedRetentionValidator(v); err != nil {
-			return &ValidationError{Name: "archived_retention", err: fmt.Errorf(`ent: validator failed for field "AppSettings.archived_retention": %w`, err)}
 		}
 	}
 	if v, ok := _u.mutation.DNSResolvers(); ok {
@@ -625,20 +502,11 @@ func (_u *AppSettingsUpdateOne) sqlSave(ctx context.Context) (_node *AppSettings
 	if value, ok := _u.mutation.ScanInterval(); ok {
 		_spec.SetField(appsettings.FieldScanInterval, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.MissingGrace(); ok {
-		_spec.SetField(appsettings.FieldMissingGrace, field.TypeString, value)
-	}
-	if value, ok := _u.mutation.ArchiveAfter(); ok {
-		_spec.SetField(appsettings.FieldArchiveAfter, field.TypeString, value)
-	}
 	if value, ok := _u.mutation.RenewBeforeDays(); ok {
 		_spec.SetField(appsettings.FieldRenewBeforeDays, field.TypeInt, value)
 	}
 	if value, ok := _u.mutation.AddedRenewBeforeDays(); ok {
 		_spec.AddField(appsettings.FieldRenewBeforeDays, field.TypeInt, value)
-	}
-	if value, ok := _u.mutation.ArchivedRetention(); ok {
-		_spec.SetField(appsettings.FieldArchivedRetention, field.TypeString, value)
 	}
 	if value, ok := _u.mutation.DNSResolvers(); ok {
 		_spec.SetField(appsettings.FieldDNSResolvers, field.TypeString, value)

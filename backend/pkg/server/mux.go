@@ -39,8 +39,7 @@ func Setup(executor TaskExecutor) *http.ServeMux {
 	certshipv1connect.RegisterAppSettingsServiceHandler(server, appsettings.NewServer())
 	certshipv1connect.RegisterNotificationChannelServiceHandler(server, notificationchannel.NewServer())
 	certshipv1connect.RegisterRenewTaskServiceHandler(server, renewtask.NewServer(executor))
-	// 保留 v1 的请求大小行为，避免升级后新增默认 4 MiB 限制。
-	connecthttp.Mount(mux, server, connecthttp.WithReadMaxBytes(0))
+	connecthttp.Mount(mux, server)
 
 	return mux
 }

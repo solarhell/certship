@@ -61,12 +61,6 @@ type GetAppSettingsResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	ScanInterval    string                 `protobuf:"bytes,3,opt,name=scan_interval,json=scanInterval,proto3" json:"scan_interval,omitempty"`
 	RenewBeforeDays int32                  `protobuf:"varint,4,opt,name=renew_before_days,json=renewBeforeDays,proto3" json:"renew_before_days,omitempty"`
-	// 域名连续多久没在云上扫到才判定为已消失
-	MissingGrace string `protobuf:"bytes,5,opt,name=missing_grace,json=missingGrace,proto3" json:"missing_grace,omitempty"`
-	// 判定消失后再过多久归档并停止托管
-	ArchiveAfter string `protobuf:"bytes,6,opt,name=archive_after,json=archiveAfter,proto3" json:"archive_after,omitempty"`
-	// 归档且证书已过期的记录保留多久后物理删除，0s 表示永久保留
-	ArchivedRetention string `protobuf:"bytes,9,opt,name=archived_retention,json=archivedRetention,proto3" json:"archived_retention,omitempty"`
 	// 做 zone 探测与 DNS-01 校验的递归 DNS，逗号分隔的 host:port
 	DnsResolvers  string `protobuf:"bytes,10,opt,name=dns_resolvers,json=dnsResolvers,proto3" json:"dns_resolvers,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -117,27 +111,6 @@ func (x *GetAppSettingsResponse) GetRenewBeforeDays() int32 {
 	return 0
 }
 
-func (x *GetAppSettingsResponse) GetMissingGrace() string {
-	if x != nil {
-		return x.MissingGrace
-	}
-	return ""
-}
-
-func (x *GetAppSettingsResponse) GetArchiveAfter() string {
-	if x != nil {
-		return x.ArchiveAfter
-	}
-	return ""
-}
-
-func (x *GetAppSettingsResponse) GetArchivedRetention() string {
-	if x != nil {
-		return x.ArchivedRetention
-	}
-	return ""
-}
-
 func (x *GetAppSettingsResponse) GetDnsResolvers() string {
 	if x != nil {
 		return x.DnsResolvers
@@ -146,15 +119,12 @@ func (x *GetAppSettingsResponse) GetDnsResolvers() string {
 }
 
 type UpdateAppSettingsRequest struct {
-	state             protoimpl.MessageState `protogen:"open.v1"`
-	ScanInterval      string                 `protobuf:"bytes,3,opt,name=scan_interval,json=scanInterval,proto3" json:"scan_interval,omitempty"`
-	RenewBeforeDays   int32                  `protobuf:"varint,4,opt,name=renew_before_days,json=renewBeforeDays,proto3" json:"renew_before_days,omitempty"`
-	MissingGrace      string                 `protobuf:"bytes,5,opt,name=missing_grace,json=missingGrace,proto3" json:"missing_grace,omitempty"`
-	ArchiveAfter      string                 `protobuf:"bytes,6,opt,name=archive_after,json=archiveAfter,proto3" json:"archive_after,omitempty"`
-	ArchivedRetention string                 `protobuf:"bytes,9,opt,name=archived_retention,json=archivedRetention,proto3" json:"archived_retention,omitempty"`
-	DnsResolvers      string                 `protobuf:"bytes,10,opt,name=dns_resolvers,json=dnsResolvers,proto3" json:"dns_resolvers,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	ScanInterval    string                 `protobuf:"bytes,3,opt,name=scan_interval,json=scanInterval,proto3" json:"scan_interval,omitempty"`
+	RenewBeforeDays int32                  `protobuf:"varint,4,opt,name=renew_before_days,json=renewBeforeDays,proto3" json:"renew_before_days,omitempty"`
+	DnsResolvers    string                 `protobuf:"bytes,10,opt,name=dns_resolvers,json=dnsResolvers,proto3" json:"dns_resolvers,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *UpdateAppSettingsRequest) Reset() {
@@ -199,27 +169,6 @@ func (x *UpdateAppSettingsRequest) GetRenewBeforeDays() int32 {
 		return x.RenewBeforeDays
 	}
 	return 0
-}
-
-func (x *UpdateAppSettingsRequest) GetMissingGrace() string {
-	if x != nil {
-		return x.MissingGrace
-	}
-	return ""
-}
-
-func (x *UpdateAppSettingsRequest) GetArchiveAfter() string {
-	if x != nil {
-		return x.ArchiveAfter
-	}
-	return ""
-}
-
-func (x *UpdateAppSettingsRequest) GetArchivedRetention() string {
-	if x != nil {
-		return x.ArchivedRetention
-	}
-	return ""
 }
 
 func (x *UpdateAppSettingsRequest) GetDnsResolvers() string {
@@ -270,23 +219,19 @@ var File_certship_v1_app_settings_proto protoreflect.FileDescriptor
 const file_certship_v1_app_settings_proto_rawDesc = "" +
 	"\n" +
 	"\x1ecertship/v1/app_settings.proto\x12\vcertship.v1\"\x17\n" +
-	"\x15GetAppSettingsRequest\"\x93\x02\n" +
+	"\x15GetAppSettingsRequest\"\xde\x01\n" +
 	"\x16GetAppSettingsResponse\x12#\n" +
 	"\rscan_interval\x18\x03 \x01(\tR\fscanInterval\x12*\n" +
 	"\x11renew_before_days\x18\x04 \x01(\x05R\x0frenewBeforeDays\x12#\n" +
-	"\rmissing_grace\x18\x05 \x01(\tR\fmissingGrace\x12#\n" +
-	"\rarchive_after\x18\x06 \x01(\tR\farchiveAfter\x12-\n" +
-	"\x12archived_retention\x18\t \x01(\tR\x11archivedRetention\x12#\n" +
 	"\rdns_resolvers\x18\n" +
-	" \x01(\tR\fdnsResolversJ\x04\b\a\x10\bJ\x04\b\b\x10\t\"\x95\x02\n" +
+	" \x01(\tR\fdnsResolversJ\x04\b\x05\x10\x06J\x04\b\x06\x10\aJ\x04\b\a\x10\bJ\x04\b\b\x10\tJ\x04\b\t\x10\n" +
+	"R\rmissing_graceR\rarchive_afterR\x12archived_retention\"\xe0\x01\n" +
 	"\x18UpdateAppSettingsRequest\x12#\n" +
 	"\rscan_interval\x18\x03 \x01(\tR\fscanInterval\x12*\n" +
 	"\x11renew_before_days\x18\x04 \x01(\x05R\x0frenewBeforeDays\x12#\n" +
-	"\rmissing_grace\x18\x05 \x01(\tR\fmissingGrace\x12#\n" +
-	"\rarchive_after\x18\x06 \x01(\tR\farchiveAfter\x12-\n" +
-	"\x12archived_retention\x18\t \x01(\tR\x11archivedRetention\x12#\n" +
 	"\rdns_resolvers\x18\n" +
-	" \x01(\tR\fdnsResolversJ\x04\b\a\x10\bJ\x04\b\b\x10\t\"\x1b\n" +
+	" \x01(\tR\fdnsResolversJ\x04\b\x05\x10\x06J\x04\b\x06\x10\aJ\x04\b\a\x10\bJ\x04\b\b\x10\tJ\x04\b\t\x10\n" +
+	"R\rmissing_graceR\rarchive_afterR\x12archived_retention\"\x1b\n" +
 	"\x19UpdateAppSettingsResponse2\xd3\x01\n" +
 	"\x12AppSettingsService\x12Y\n" +
 	"\x0eGetAppSettings\x12\".certship.v1.GetAppSettingsRequest\x1a#.certship.v1.GetAppSettingsResponse\x12b\n" +

@@ -526,14 +526,8 @@ func (x *RescanCloudAccountRequest) GetId() string {
 }
 
 type RescanCloudAccountResponse struct {
-	state   protoimpl.MessageState `protogen:"open.v1"`
-	Added   uint32                 `protobuf:"varint,1,opt,name=added,proto3" json:"added,omitempty"`
-	Updated uint32                 `protobuf:"varint,2,opt,name=updated,proto3" json:"updated,omitempty"`
-	Total   uint32                 `protobuf:"varint,3,opt,name=total,proto3" json:"total,omitempty"`
-	// 本次对账中被判定为已下线 / 已归档 / 重新出现的域名数
-	Missing       uint32 `protobuf:"varint,4,opt,name=missing,proto3" json:"missing,omitempty"`
-	Archived      uint32 `protobuf:"varint,5,opt,name=archived,proto3" json:"archived,omitempty"`
-	Revived       uint32 `protobuf:"varint,6,opt,name=revived,proto3" json:"revived,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Total         uint32                 `protobuf:"varint,3,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -568,44 +562,9 @@ func (*RescanCloudAccountResponse) Descriptor() ([]byte, []int) {
 	return file_certship_v1_cloud_account_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *RescanCloudAccountResponse) GetAdded() uint32 {
-	if x != nil {
-		return x.Added
-	}
-	return 0
-}
-
-func (x *RescanCloudAccountResponse) GetUpdated() uint32 {
-	if x != nil {
-		return x.Updated
-	}
-	return 0
-}
-
 func (x *RescanCloudAccountResponse) GetTotal() uint32 {
 	if x != nil {
 		return x.Total
-	}
-	return 0
-}
-
-func (x *RescanCloudAccountResponse) GetMissing() uint32 {
-	if x != nil {
-		return x.Missing
-	}
-	return 0
-}
-
-func (x *RescanCloudAccountResponse) GetArchived() uint32 {
-	if x != nil {
-		return x.Archived
-	}
-	return 0
-}
-
-func (x *RescanCloudAccountResponse) GetRevived() uint32 {
-	if x != nil {
-		return x.Revived
 	}
 	return 0
 }
@@ -643,14 +602,9 @@ const file_certship_v1_cloud_account_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x1c\n" +
 	"\x1aDeleteCloudAccountResponse\"+\n" +
 	"\x19RescanCloudAccountRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\xb2\x01\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"|\n" +
 	"\x1aRescanCloudAccountResponse\x12\x14\n" +
-	"\x05added\x18\x01 \x01(\rR\x05added\x12\x18\n" +
-	"\aupdated\x18\x02 \x01(\rR\aupdated\x12\x14\n" +
-	"\x05total\x18\x03 \x01(\rR\x05total\x12\x18\n" +
-	"\amissing\x18\x04 \x01(\rR\amissing\x12\x1a\n" +
-	"\barchived\x18\x05 \x01(\rR\barchived\x12\x18\n" +
-	"\arevived\x18\x06 \x01(\rR\arevived2\x95\x04\n" +
+	"\x05total\x18\x03 \x01(\rR\x05totalJ\x04\b\x01\x10\x02J\x04\b\x02\x10\x03J\x04\b\x04\x10\x05J\x04\b\x05\x10\x06J\x04\b\x06\x10\aR\x05addedR\aupdatedR\amissingR\barchivedR\arevived2\x95\x04\n" +
 	"\x13CloudAccountService\x12b\n" +
 	"\x11ListCloudAccounts\x12%.certship.v1.ListCloudAccountsRequest\x1a&.certship.v1.ListCloudAccountsResponse\x12e\n" +
 	"\x12CreateCloudAccount\x12&.certship.v1.CreateCloudAccountRequest\x1a'.certship.v1.CreateCloudAccountResponse\x12e\n" +

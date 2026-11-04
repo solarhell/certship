@@ -20,12 +20,6 @@ type Domain struct {
 	ID string `json:"id,omitempty"`
 	// 自定义域名
 	Domain string `json:"domain,omitempty"`
-	// OSS bucket 名称,CDN 域名时为回源 bucket,源站非 OSS 时为空
-	Bucket string `json:"bucket,omitempty"`
-	// OSS 区域,如 cn-hangzhou
-	Region string `json:"region,omitempty"`
-	// 旧版兼容字段；当前账号从阿里云观测获取，不再写入
-	AccountName string `json:"account_name,omitempty"`
 	// 证书颁发时间
 	IssuedAt *time.Time `json:"issued_at,omitempty"`
 	// 证书过期时间
@@ -36,14 +30,6 @@ type Domain struct {
 	KeyPem string `json:"key_pem,omitempty"`
 	// 证书状态：pending=待颁发，active=有效，error=错误
 	Status domain.Status `json:"status,omitempty"`
-	// 部署目标：oss=直连 OSS，cdn=CDN 加速
-	DeployTarget domain.DeployTarget `json:"deploy_target,omitempty"`
-	// 云上存在性：present=在云上，missing=连续多轮未扫到，archived=已确认下线
-	Presence domain.Presence `json:"presence,omitempty"`
-	// 发现来源：oss=OSS cname，cdn=CDN 加速域名，both=两侧都有
-	Origin domain.Origin `json:"origin,omitempty"`
-	// 最后一次在云上扫描到的时间,用于判定下线
-	LastSeenAt *time.Time `json:"last_seen_at,omitempty"`
 	// 是否由 certship 托管签发/续期,false=暂停托管(证书由别处管理)
 	Managed bool `json:"managed,omitempty"`
 	// 连续失败次数,成功后清零
@@ -52,7 +38,7 @@ type Domain struct {
 	NextRetryAt *time.Time `json:"next_retry_at,omitempty"`
 	// 最近一次错误的分类：transient=可重试，permanent=需人工介入，rate_limited=被限速
 	ErrorKind domain.ErrorKind `json:"error_kind,omitempty"`
-	// 上次已通知的状态(ok/failed/blocked/missing/archived),用于只在状态变化时告警
+	// 上次已通知的状态(ok/failed/blocked),用于只在状态变化时告警
 	NotifiedState string `json:"notified_state,omitempty"`
 	// 上次发出告警的时间,用于持续失败时按递增间隔提醒
 	LastNotifiedAt *time.Time `json:"last_notified_at,omitempty"`
@@ -76,9 +62,9 @@ func (*Domain) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case domain.FieldRetryCount:
 			values[i] = new(sql.NullInt64)
-		case domain.FieldID, domain.FieldDomain, domain.FieldBucket, domain.FieldRegion, domain.FieldAccountName, domain.FieldCertPem, domain.FieldKeyPem, domain.FieldStatus, domain.FieldDeployTarget, domain.FieldPresence, domain.FieldOrigin, domain.FieldErrorKind, domain.FieldNotifiedState, domain.FieldErrorMessage, domain.FieldBlockedReason:
+		case domain.FieldID, domain.FieldDomain, domain.FieldCertPem, domain.FieldKeyPem, domain.FieldStatus, domain.FieldErrorKind, domain.FieldNotifiedState, domain.FieldErrorMessage, domain.FieldBlockedReason:
 			values[i] = new(sql.NullString)
-		case domain.FieldIssuedAt, domain.FieldExpiresAt, domain.FieldLastSeenAt, domain.FieldNextRetryAt, domain.FieldLastNotifiedAt, domain.FieldCreatedAt, domain.FieldUpdatedAt:
+		case domain.FieldIssuedAt, domain.FieldExpiresAt, domain.FieldNextRetryAt, domain.FieldLastNotifiedAt, domain.FieldCreatedAt, domain.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -106,24 +92,6 @@ func (_m *Domain) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field domain", values[i])
 			} else if value.Valid {
 				_m.Domain = value.String
-			}
-		case domain.FieldBucket:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field bucket", values[i])
-			} else if value.Valid {
-				_m.Bucket = value.String
-			}
-		case domain.FieldRegion:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field region", values[i])
-			} else if value.Valid {
-				_m.Region = value.String
-			}
-		case domain.FieldAccountName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field account_name", values[i])
-			} else if value.Valid {
-				_m.AccountName = value.String
 			}
 		case domain.FieldIssuedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -156,31 +124,6 @@ func (_m *Domain) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
 				_m.Status = domain.Status(value.String)
-			}
-		case domain.FieldDeployTarget:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field deploy_target", values[i])
-			} else if value.Valid {
-				_m.DeployTarget = domain.DeployTarget(value.String)
-			}
-		case domain.FieldPresence:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field presence", values[i])
-			} else if value.Valid {
-				_m.Presence = domain.Presence(value.String)
-			}
-		case domain.FieldOrigin:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field origin", values[i])
-			} else if value.Valid {
-				_m.Origin = domain.Origin(value.String)
-			}
-		case domain.FieldLastSeenAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field last_seen_at", values[i])
-			} else if value.Valid {
-				_m.LastSeenAt = new(time.Time)
-				*_m.LastSeenAt = value.Time
 			}
 		case domain.FieldManaged:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -283,15 +226,6 @@ func (_m *Domain) String() string {
 	builder.WriteString("domain=")
 	builder.WriteString(_m.Domain)
 	builder.WriteString(", ")
-	builder.WriteString("bucket=")
-	builder.WriteString(_m.Bucket)
-	builder.WriteString(", ")
-	builder.WriteString("region=")
-	builder.WriteString(_m.Region)
-	builder.WriteString(", ")
-	builder.WriteString("account_name=")
-	builder.WriteString(_m.AccountName)
-	builder.WriteString(", ")
 	if v := _m.IssuedAt; v != nil {
 		builder.WriteString("issued_at=")
 		builder.WriteString(v.Format(time.ANSIC))
@@ -310,20 +244,6 @@ func (_m *Domain) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Status))
-	builder.WriteString(", ")
-	builder.WriteString("deploy_target=")
-	builder.WriteString(fmt.Sprintf("%v", _m.DeployTarget))
-	builder.WriteString(", ")
-	builder.WriteString("presence=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Presence))
-	builder.WriteString(", ")
-	builder.WriteString("origin=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Origin))
-	builder.WriteString(", ")
-	if v := _m.LastSeenAt; v != nil {
-		builder.WriteString("last_seen_at=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
 	builder.WriteString(", ")
 	builder.WriteString("managed=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Managed))

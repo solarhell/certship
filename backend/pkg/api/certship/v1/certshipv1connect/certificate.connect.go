@@ -30,9 +30,6 @@ const (
 	// CertificateServiceSetCertificateManagedProcedure is the procedure name of the
 	// CertificateService's SetCertificateManaged RPC.
 	CertificateServiceSetCertificateManagedProcedure = "/certship.v1.CertificateService/SetCertificateManaged"
-	// CertificateServiceDeleteCertificateProcedure is the procedure name of the CertificateService's
-	// DeleteCertificate RPC.
-	CertificateServiceDeleteCertificateProcedure = "/certship.v1.CertificateService/DeleteCertificate"
 )
 
 var (
@@ -50,13 +47,6 @@ var (
 			Procedure:  CertificateServiceSetCertificateManagedProcedure,
 		}
 	})
-	certificateServiceDeleteCertificateSpec = sync.OnceValue(func() connect.Spec {
-		return connect.Spec{
-			StreamType: connect.StreamTypeUnary,
-			Schema:     v1.File_certship_v1_certificate_proto.Services().ByName("CertificateService").Methods().ByName("DeleteCertificate"),
-			Procedure:  CertificateServiceDeleteCertificateProcedure,
-		}
-	})
 )
 
 // CertificateServiceClient is a client for the certship.v1.CertificateService service.
@@ -65,9 +55,6 @@ type CertificateServiceClient interface {
 	// SetCertificateManaged 暂停 / 恢复由 certship 托管签发与续期。
 	// 用于"证书由别处管理"这类场景,不影响记录本身。
 	SetCertificateManaged(context.Context, *v1.SetCertificateManagedRequest) (*v1.SetCertificateManagedResponse, error)
-	// DeleteCertificate 删除一条已归档的域名记录。
-	// 只对 archived 开放:云上还在的域名删了也会被下一轮扫描重新写回来。
-	DeleteCertificate(context.Context, *v1.DeleteCertificateRequest) (*v1.DeleteCertificateResponse, error)
 }
 
 // NewCertificateServiceClient constructs a client for the certship.v1.CertificateService service.
@@ -82,9 +69,6 @@ type CertificateServiceHandler interface {
 	// SetCertificateManaged 暂停 / 恢复由 certship 托管签发与续期。
 	// 用于"证书由别处管理"这类场景,不影响记录本身。
 	SetCertificateManaged(context.Context, *v1.SetCertificateManagedRequest) (*v1.SetCertificateManagedResponse, error)
-	// DeleteCertificate 删除一条已归档的域名记录。
-	// 只对 archived 开放:云上还在的域名删了也会被下一轮扫描重新写回来。
-	DeleteCertificate(context.Context, *v1.DeleteCertificateRequest) (*v1.DeleteCertificateResponse, error)
 }
 
 // RegisterCertificateServiceHandler registers svc as the certship.v1.CertificateService
@@ -94,7 +78,6 @@ func RegisterCertificateServiceHandler(server *connect.Server, svc CertificateSe
 	server.Register(
 		connect.Method{Spec: certificateServiceListCertificatesSpec(), Handler: adapter.listCertificates},
 		connect.Method{Spec: certificateServiceSetCertificateManagedSpec(), Handler: adapter.setCertificateManaged},
-		connect.Method{Spec: certificateServiceDeleteCertificateSpec(), Handler: adapter.deleteCertificate},
 	)
 }
 
@@ -107,10 +90,6 @@ func (UnimplementedCertificateServiceHandler) ListCertificates(context.Context, 
 
 func (UnimplementedCertificateServiceHandler) SetCertificateManaged(context.Context, *v1.SetCertificateManagedRequest) (*v1.SetCertificateManagedResponse, error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, "certship.v1.CertificateService.SetCertificateManaged is not implemented")
-}
-
-func (UnimplementedCertificateServiceHandler) DeleteCertificate(context.Context, *v1.DeleteCertificateRequest) (*v1.DeleteCertificateResponse, error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, "certship.v1.CertificateService.DeleteCertificate is not implemented")
 }
 
 type certificateServiceClient struct {
@@ -128,14 +107,6 @@ func (c *certificateServiceClient) ListCertificates(ctx context.Context, req *v1
 func (c *certificateServiceClient) SetCertificateManaged(ctx context.Context, req *v1.SetCertificateManagedRequest) (*v1.SetCertificateManagedResponse, error) {
 	var res v1.SetCertificateManagedResponse
 	if err := c.client.CallUnary(ctx, certificateServiceSetCertificateManagedSpec(), req, &res); err != nil {
-		return nil, err
-	}
-	return &res, nil
-}
-
-func (c *certificateServiceClient) DeleteCertificate(ctx context.Context, req *v1.DeleteCertificateRequest) (*v1.DeleteCertificateResponse, error) {
-	var res v1.DeleteCertificateResponse
-	if err := c.client.CallUnary(ctx, certificateServiceDeleteCertificateSpec(), req, &res); err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -161,18 +132,6 @@ func (h certificateServiceHandler) setCertificateManaged(ctx context.Context, _ 
 		return err
 	}
 	res, err := h.svc.SetCertificateManaged(ctx, &req)
-	if err != nil {
-		return err
-	}
-	return stream.Send(res)
-}
-
-func (h certificateServiceHandler) deleteCertificate(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
-	var req v1.DeleteCertificateRequest
-	if err := stream.Receive(&req); err != nil {
-		return err
-	}
-	res, err := h.svc.DeleteCertificate(ctx, &req)
 	if err != nil {
 		return err
 	}

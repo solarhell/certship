@@ -34,25 +34,7 @@ func (AppSettings) Fields() []ent.Field {
 			Default("24h").
 			Validate(validDuration("scan_interval")).
 			Comment("扫描间隔，Go duration 格式"),
-		field.String("missing_grace").
-			NotEmpty().
-			Default("72h").
-			Validate(validDuration("missing_grace")).
-			Comment("域名连续多久未在云上扫到才判定为 missing,Go duration 格式"),
-
-		field.String("archive_after").
-			NotEmpty().
-			Default("168h").
-			Validate(validDuration("archive_after")).
-			Comment("域名进入 missing 后再过多久归档并停止托管,Go duration 格式"),
-
 		field.Int("renew_before_days").Min(1).Max(60).Default(30).Comment("证书到期前多少天续期"),
-
-		field.String("archived_retention").
-			NotEmpty().
-			Default("2160h").
-			Validate(validDuration("archived_retention")).
-			Comment("归档且证书已过期的域名记录保留多久后物理删除,0s 表示永久保留"),
 
 		field.String("dns_resolvers").
 			NotEmpty().

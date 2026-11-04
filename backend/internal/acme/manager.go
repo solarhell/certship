@@ -146,8 +146,8 @@ func (m *Manager) ObtainCert(ctx context.Context, account *Account, opts ObtainO
 	if err != nil {
 		return nil, fmt.Errorf("create alidns provider: %w", err)
 	}
-	// v5 默认额外要求递归解析器也已更新 TXT 缓存；v4 仅要求权威 DNS 传播完成。
-	// 保留 v4 行为，避免公共递归解析器的 NXDOMAIN 负缓存导致有效挑战超时。
+	// 以权威 DNS 的 TXT 传播结果为准，避免公共递归解析器的
+	// NXDOMAIN 负缓存导致有效挑战超时。
 	if err := client.Challenge.SetDNS01Provider(provider, dns01.DisableRecursiveNSsPropagationRequirement()); err != nil {
 		return nil, fmt.Errorf("set dns01 provider: %w", err)
 	}
@@ -216,27 +216,16 @@ func (m *Manager) buildUser(accountKeyPEM, registrationJSON string) (*user, erro
 	return u, nil
 }
 
-// parseRegistration 同时读取 Lego v5 账号和数据库中已有的 v4 body/uri 格式。
-// 损坏的记录直接报错，不能默默回退成重新注册账号。
+// parseRegistration validates the persisted Lego v5 account before use.
 func parseRegistration(raw string) (*legoacme.ExtendedAccount, error) {
-	var reg legoacme.ExtendedAccount
-	if err := json.Unmarshal([]byte(raw), &reg); err != nil {
+	var account legoacme.ExtendedAccount
+	if err := json.Unmarshal([]byte(raw), &account); err != nil {
 		return nil, fmt.Errorf("parse acme registration: %w", err)
 	}
-	if reg.Location != "" {
-		return &reg, nil
-	}
-	var legacy struct {
-		Body legoacme.Account `json:"body"`
-		URI  string           `json:"uri"`
-	}
-	if err := json.Unmarshal([]byte(raw), &legacy); err != nil {
-		return nil, fmt.Errorf("parse legacy acme registration: %w", err)
-	}
-	if legacy.URI == "" {
+	if account.Location == "" {
 		return nil, fmt.Errorf("stored ACME registration is missing its account URL")
 	}
-	return &legoacme.ExtendedAccount{Account: legacy.Body, Location: legacy.URI}, nil
+	return &account, nil
 }
 
 // ParseCertExpiry 解析 PEM 格式证书的到期时间

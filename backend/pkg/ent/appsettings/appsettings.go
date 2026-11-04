@@ -19,14 +19,8 @@ const (
 	FieldAcmeRegistration = "acme_registration"
 	// FieldScanInterval holds the string denoting the scan_interval field in the database.
 	FieldScanInterval = "scan_interval"
-	// FieldMissingGrace holds the string denoting the missing_grace field in the database.
-	FieldMissingGrace = "missing_grace"
-	// FieldArchiveAfter holds the string denoting the archive_after field in the database.
-	FieldArchiveAfter = "archive_after"
 	// FieldRenewBeforeDays holds the string denoting the renew_before_days field in the database.
 	FieldRenewBeforeDays = "renew_before_days"
-	// FieldArchivedRetention holds the string denoting the archived_retention field in the database.
-	FieldArchivedRetention = "archived_retention"
 	// FieldDNSResolvers holds the string denoting the dns_resolvers field in the database.
 	FieldDNSResolvers = "dns_resolvers"
 	// FieldJwtSecret holds the string denoting the jwt_secret field in the database.
@@ -43,10 +37,7 @@ var Columns = []string{
 	FieldAcmeAccountKey,
 	FieldAcmeRegistration,
 	FieldScanInterval,
-	FieldMissingGrace,
-	FieldArchiveAfter,
 	FieldRenewBeforeDays,
-	FieldArchivedRetention,
 	FieldDNSResolvers,
 	FieldJwtSecret,
 	FieldUpdatedAt,
@@ -67,22 +58,10 @@ var (
 	DefaultScanInterval string
 	// ScanIntervalValidator is a validator for the "scan_interval" field. It is called by the builders before save.
 	ScanIntervalValidator func(string) error
-	// DefaultMissingGrace holds the default value on creation for the "missing_grace" field.
-	DefaultMissingGrace string
-	// MissingGraceValidator is a validator for the "missing_grace" field. It is called by the builders before save.
-	MissingGraceValidator func(string) error
-	// DefaultArchiveAfter holds the default value on creation for the "archive_after" field.
-	DefaultArchiveAfter string
-	// ArchiveAfterValidator is a validator for the "archive_after" field. It is called by the builders before save.
-	ArchiveAfterValidator func(string) error
 	// DefaultRenewBeforeDays holds the default value on creation for the "renew_before_days" field.
 	DefaultRenewBeforeDays int
 	// RenewBeforeDaysValidator is a validator for the "renew_before_days" field. It is called by the builders before save.
 	RenewBeforeDaysValidator func(int) error
-	// DefaultArchivedRetention holds the default value on creation for the "archived_retention" field.
-	DefaultArchivedRetention string
-	// ArchivedRetentionValidator is a validator for the "archived_retention" field. It is called by the builders before save.
-	ArchivedRetentionValidator func(string) error
 	// DefaultDNSResolvers holds the default value on creation for the "dns_resolvers" field.
 	DefaultDNSResolvers string
 	// DNSResolversValidator is a validator for the "dns_resolvers" field. It is called by the builders before save.
@@ -118,24 +97,9 @@ func ByScanInterval(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldScanInterval, opts...).ToFunc()
 }
 
-// ByMissingGrace orders the results by the missing_grace field.
-func ByMissingGrace(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldMissingGrace, opts...).ToFunc()
-}
-
-// ByArchiveAfter orders the results by the archive_after field.
-func ByArchiveAfter(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldArchiveAfter, opts...).ToFunc()
-}
-
 // ByRenewBeforeDays orders the results by the renew_before_days field.
 func ByRenewBeforeDays(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRenewBeforeDays, opts...).ToFunc()
-}
-
-// ByArchivedRetention orders the results by the archived_retention field.
-func ByArchivedRetention(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldArchivedRetention, opts...).ToFunc()
 }
 
 // ByDNSResolvers orders the results by the dns_resolvers field.

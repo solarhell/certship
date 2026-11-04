@@ -24,17 +24,17 @@ importers:
         specifier: ^6.3.4
         version: 6.3.4(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@buf/certship_api.bufbuild_es':
-        specifier: 2.14.0-20260909020841-f2573a0faf9e.2
-        version: 2.14.0-20260909020841-f2573a0faf9e.2(@bufbuild/protobuf@2.15.0)
+        specifier: 2.16.0-00000000000000-785f201c4325.1
+        version: 2.16.0-00000000000000-785f201c4325.1(@bufbuild/protobuf@2.16.0)
       '@bufbuild/protobuf':
-        specifier: ^2.15.0
-        version: 2.15.0
+        specifier: ^2.16.0
+        version: 2.16.0
       '@connectrpc/connect':
         specifier: ^2.2.0
-        version: 2.2.0(@bufbuild/protobuf@2.15.0)
+        version: 2.2.0(@bufbuild/protobuf@2.16.0)
       '@connectrpc/connect-web':
         specifier: ^2.2.0
-        version: 2.2.0(@bufbuild/protobuf@2.15.0)(@connectrpc/connect@2.2.0(@bufbuild/protobuf@2.15.0))
+        version: 2.2.0(@bufbuild/protobuf@2.16.0)(@connectrpc/connect@2.2.0(@bufbuild/protobuf@2.16.0))
       antd:
         specifier: ^6.6.5
         version: 6.6.5(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -128,13 +128,13 @@ packages:
   '@blazediff/core@1.10.0':
     resolution: {integrity: sha512-AOQff0zgR7cGsZL+4E7hVkmujoPUpm0J9xzWGWZj5wCjd3gmxESXAPfKyuzs93VdpQNFhHlBhfOjrcZ+XTERtQ==}
 
-  '@buf/certship_api.bufbuild_es@2.14.0-20260909020841-f2573a0faf9e.2':
-    resolution: {tarball: https://buf.build/gen/npm/v1/@buf/certship_api.bufbuild_es/-/certship_api.bufbuild_es-2.14.0-20260909020841-f2573a0faf9e.2.tgz}
+  '@buf/certship_api.bufbuild_es@2.16.0-00000000000000-785f201c4325.1':
+    resolution: {tarball: https://buf.build/gen/npm/v1/@buf/certship_api.bufbuild_es/-/certship_api.bufbuild_es-2.16.0-00000000000000-785f201c4325.1.tgz}
     peerDependencies:
-      '@bufbuild/protobuf': ^2.14.0
+      '@bufbuild/protobuf': ^2.16.0
 
-  '@bufbuild/protobuf@2.15.0':
-    resolution: {integrity: sha512-DAheWUkVr/SJTWCc+lg9dhY0eN4SaWlf4+bG1KzHeXbnqt0AfB/NX0Z+VunGlM1ki1B4zVvye27MpKh/svySUA==}
+  '@bufbuild/protobuf@2.16.0':
+    resolution: {integrity: sha512-FWa0sPlqYGJgpTs6OxBRcL/AW4JT0OIO+W1ajerluoTVh8CV0B7XM1qsNCRgnkSCkRCgOICKHRQlY17jrsm0+Q==}
 
   '@connectrpc/connect-web@2.2.0':
     resolution: {integrity: sha512-uuBUcBTYfb/r1o98LzCCZk1H90yx0vmZ5m21dpw/q4EUwsKwkCDGI8H0aEdjcZld+Q2jJ5A5ADvPqfb6lzQ/sg==}
@@ -1672,20 +1672,20 @@ snapshots:
 
   '@blazediff/core@1.10.0': {}
 
-  '@buf/certship_api.bufbuild_es@2.14.0-20260909020841-f2573a0faf9e.2(@bufbuild/protobuf@2.15.0)':
+  '@buf/certship_api.bufbuild_es@2.16.0-00000000000000-785f201c4325.1(@bufbuild/protobuf@2.16.0)':
     dependencies:
-      '@bufbuild/protobuf': 2.15.0
+      '@bufbuild/protobuf': 2.16.0
 
-  '@bufbuild/protobuf@2.15.0': {}
+  '@bufbuild/protobuf@2.16.0': {}
 
-  '@connectrpc/connect-web@2.2.0(@bufbuild/protobuf@2.15.0)(@connectrpc/connect@2.2.0(@bufbuild/protobuf@2.15.0))':
+  '@connectrpc/connect-web@2.2.0(@bufbuild/protobuf@2.16.0)(@connectrpc/connect@2.2.0(@bufbuild/protobuf@2.16.0))':
     dependencies:
-      '@bufbuild/protobuf': 2.15.0
-      '@connectrpc/connect': 2.2.0(@bufbuild/protobuf@2.15.0)
+      '@bufbuild/protobuf': 2.16.0
+      '@connectrpc/connect': 2.2.0(@bufbuild/protobuf@2.16.0)
 
-  '@connectrpc/connect@2.2.0(@bufbuild/protobuf@2.15.0)':
+  '@connectrpc/connect@2.2.0(@bufbuild/protobuf@2.16.0)':
     dependencies:
-      '@bufbuild/protobuf': 2.15.0
+      '@bufbuild/protobuf': 2.16.0
 
   '@emotion/hash@0.8.0': {}
 

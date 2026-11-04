@@ -79,24 +79,9 @@ func ScanInterval(v string) predicate.AppSettings {
 	return predicate.AppSettings(sql.FieldEQ(FieldScanInterval, v))
 }
 
-// MissingGrace applies equality check predicate on the "missing_grace" field. It's identical to MissingGraceEQ.
-func MissingGrace(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldEQ(FieldMissingGrace, v))
-}
-
-// ArchiveAfter applies equality check predicate on the "archive_after" field. It's identical to ArchiveAfterEQ.
-func ArchiveAfter(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldEQ(FieldArchiveAfter, v))
-}
-
 // RenewBeforeDays applies equality check predicate on the "renew_before_days" field. It's identical to RenewBeforeDaysEQ.
 func RenewBeforeDays(v int) predicate.AppSettings {
 	return predicate.AppSettings(sql.FieldEQ(FieldRenewBeforeDays, v))
-}
-
-// ArchivedRetention applies equality check predicate on the "archived_retention" field. It's identical to ArchivedRetentionEQ.
-func ArchivedRetention(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldEQ(FieldArchivedRetention, v))
 }
 
 // DNSResolvers applies equality check predicate on the "dns_resolvers" field. It's identical to DNSResolversEQ.
@@ -329,136 +314,6 @@ func ScanIntervalContainsFold(v string) predicate.AppSettings {
 	return predicate.AppSettings(sql.FieldContainsFold(FieldScanInterval, v))
 }
 
-// MissingGraceEQ applies the EQ predicate on the "missing_grace" field.
-func MissingGraceEQ(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldEQ(FieldMissingGrace, v))
-}
-
-// MissingGraceNEQ applies the NEQ predicate on the "missing_grace" field.
-func MissingGraceNEQ(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldNEQ(FieldMissingGrace, v))
-}
-
-// MissingGraceIn applies the In predicate on the "missing_grace" field.
-func MissingGraceIn(vs ...string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldIn(FieldMissingGrace, vs...))
-}
-
-// MissingGraceNotIn applies the NotIn predicate on the "missing_grace" field.
-func MissingGraceNotIn(vs ...string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldNotIn(FieldMissingGrace, vs...))
-}
-
-// MissingGraceGT applies the GT predicate on the "missing_grace" field.
-func MissingGraceGT(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldGT(FieldMissingGrace, v))
-}
-
-// MissingGraceGTE applies the GTE predicate on the "missing_grace" field.
-func MissingGraceGTE(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldGTE(FieldMissingGrace, v))
-}
-
-// MissingGraceLT applies the LT predicate on the "missing_grace" field.
-func MissingGraceLT(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldLT(FieldMissingGrace, v))
-}
-
-// MissingGraceLTE applies the LTE predicate on the "missing_grace" field.
-func MissingGraceLTE(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldLTE(FieldMissingGrace, v))
-}
-
-// MissingGraceContains applies the Contains predicate on the "missing_grace" field.
-func MissingGraceContains(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldContains(FieldMissingGrace, v))
-}
-
-// MissingGraceHasPrefix applies the HasPrefix predicate on the "missing_grace" field.
-func MissingGraceHasPrefix(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldHasPrefix(FieldMissingGrace, v))
-}
-
-// MissingGraceHasSuffix applies the HasSuffix predicate on the "missing_grace" field.
-func MissingGraceHasSuffix(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldHasSuffix(FieldMissingGrace, v))
-}
-
-// MissingGraceEqualFold applies the EqualFold predicate on the "missing_grace" field.
-func MissingGraceEqualFold(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldEqualFold(FieldMissingGrace, v))
-}
-
-// MissingGraceContainsFold applies the ContainsFold predicate on the "missing_grace" field.
-func MissingGraceContainsFold(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldContainsFold(FieldMissingGrace, v))
-}
-
-// ArchiveAfterEQ applies the EQ predicate on the "archive_after" field.
-func ArchiveAfterEQ(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldEQ(FieldArchiveAfter, v))
-}
-
-// ArchiveAfterNEQ applies the NEQ predicate on the "archive_after" field.
-func ArchiveAfterNEQ(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldNEQ(FieldArchiveAfter, v))
-}
-
-// ArchiveAfterIn applies the In predicate on the "archive_after" field.
-func ArchiveAfterIn(vs ...string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldIn(FieldArchiveAfter, vs...))
-}
-
-// ArchiveAfterNotIn applies the NotIn predicate on the "archive_after" field.
-func ArchiveAfterNotIn(vs ...string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldNotIn(FieldArchiveAfter, vs...))
-}
-
-// ArchiveAfterGT applies the GT predicate on the "archive_after" field.
-func ArchiveAfterGT(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldGT(FieldArchiveAfter, v))
-}
-
-// ArchiveAfterGTE applies the GTE predicate on the "archive_after" field.
-func ArchiveAfterGTE(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldGTE(FieldArchiveAfter, v))
-}
-
-// ArchiveAfterLT applies the LT predicate on the "archive_after" field.
-func ArchiveAfterLT(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldLT(FieldArchiveAfter, v))
-}
-
-// ArchiveAfterLTE applies the LTE predicate on the "archive_after" field.
-func ArchiveAfterLTE(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldLTE(FieldArchiveAfter, v))
-}
-
-// ArchiveAfterContains applies the Contains predicate on the "archive_after" field.
-func ArchiveAfterContains(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldContains(FieldArchiveAfter, v))
-}
-
-// ArchiveAfterHasPrefix applies the HasPrefix predicate on the "archive_after" field.
-func ArchiveAfterHasPrefix(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldHasPrefix(FieldArchiveAfter, v))
-}
-
-// ArchiveAfterHasSuffix applies the HasSuffix predicate on the "archive_after" field.
-func ArchiveAfterHasSuffix(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldHasSuffix(FieldArchiveAfter, v))
-}
-
-// ArchiveAfterEqualFold applies the EqualFold predicate on the "archive_after" field.
-func ArchiveAfterEqualFold(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldEqualFold(FieldArchiveAfter, v))
-}
-
-// ArchiveAfterContainsFold applies the ContainsFold predicate on the "archive_after" field.
-func ArchiveAfterContainsFold(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldContainsFold(FieldArchiveAfter, v))
-}
-
 // RenewBeforeDaysEQ applies the EQ predicate on the "renew_before_days" field.
 func RenewBeforeDaysEQ(v int) predicate.AppSettings {
 	return predicate.AppSettings(sql.FieldEQ(FieldRenewBeforeDays, v))
@@ -497,71 +352,6 @@ func RenewBeforeDaysLT(v int) predicate.AppSettings {
 // RenewBeforeDaysLTE applies the LTE predicate on the "renew_before_days" field.
 func RenewBeforeDaysLTE(v int) predicate.AppSettings {
 	return predicate.AppSettings(sql.FieldLTE(FieldRenewBeforeDays, v))
-}
-
-// ArchivedRetentionEQ applies the EQ predicate on the "archived_retention" field.
-func ArchivedRetentionEQ(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldEQ(FieldArchivedRetention, v))
-}
-
-// ArchivedRetentionNEQ applies the NEQ predicate on the "archived_retention" field.
-func ArchivedRetentionNEQ(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldNEQ(FieldArchivedRetention, v))
-}
-
-// ArchivedRetentionIn applies the In predicate on the "archived_retention" field.
-func ArchivedRetentionIn(vs ...string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldIn(FieldArchivedRetention, vs...))
-}
-
-// ArchivedRetentionNotIn applies the NotIn predicate on the "archived_retention" field.
-func ArchivedRetentionNotIn(vs ...string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldNotIn(FieldArchivedRetention, vs...))
-}
-
-// ArchivedRetentionGT applies the GT predicate on the "archived_retention" field.
-func ArchivedRetentionGT(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldGT(FieldArchivedRetention, v))
-}
-
-// ArchivedRetentionGTE applies the GTE predicate on the "archived_retention" field.
-func ArchivedRetentionGTE(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldGTE(FieldArchivedRetention, v))
-}
-
-// ArchivedRetentionLT applies the LT predicate on the "archived_retention" field.
-func ArchivedRetentionLT(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldLT(FieldArchivedRetention, v))
-}
-
-// ArchivedRetentionLTE applies the LTE predicate on the "archived_retention" field.
-func ArchivedRetentionLTE(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldLTE(FieldArchivedRetention, v))
-}
-
-// ArchivedRetentionContains applies the Contains predicate on the "archived_retention" field.
-func ArchivedRetentionContains(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldContains(FieldArchivedRetention, v))
-}
-
-// ArchivedRetentionHasPrefix applies the HasPrefix predicate on the "archived_retention" field.
-func ArchivedRetentionHasPrefix(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldHasPrefix(FieldArchivedRetention, v))
-}
-
-// ArchivedRetentionHasSuffix applies the HasSuffix predicate on the "archived_retention" field.
-func ArchivedRetentionHasSuffix(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldHasSuffix(FieldArchivedRetention, v))
-}
-
-// ArchivedRetentionEqualFold applies the EqualFold predicate on the "archived_retention" field.
-func ArchivedRetentionEqualFold(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldEqualFold(FieldArchivedRetention, v))
-}
-
-// ArchivedRetentionContainsFold applies the ContainsFold predicate on the "archived_retention" field.
-func ArchivedRetentionContainsFold(v string) predicate.AppSettings {
-	return predicate.AppSettings(sql.FieldContainsFold(FieldArchivedRetention, v))
 }
 
 // DNSResolversEQ applies the EQ predicate on the "dns_resolvers" field.

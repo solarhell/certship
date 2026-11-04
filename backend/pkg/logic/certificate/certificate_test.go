@@ -1,27 +1,27 @@
 package certificate
 
 import (
-	"github.com/solarhell/certship/internal/discovery"
-	"github.com/solarhell/certship/pkg/ent"
-	entdomain "github.com/solarhell/certship/pkg/ent/domain"
 	"testing"
 	"time"
+
+	"github.com/solarhell/certship/internal/discovery"
+	"github.com/solarhell/certship/pkg/ent"
 )
 
 func TestCurrentCertificatesUsesCloudFactsOnly(t *testing.T) {
 	now := time.Now().UTC().Truncate(time.Second)
 	future := now.Add(365 * 24 * time.Hour)
 	states := map[string]*ent.Domain{
-		"live.example.com":    {ID: "live", Domain: "live.example.com", Bucket: "deleted-bucket", Region: "wrong-region", AccountName: "old-account", DeployTarget: entdomain.DeployTargetOss, Presence: entdomain.PresenceArchived, ExpiresAt: &future, Managed: false, RetryCount: 2},
-		"deleted.example.com": {ID: "deleted", Domain: "deleted.example.com", Bucket: "deleted-bucket", Presence: entdomain.PresencePresent, Managed: true},
+		"live.example.com":    {ID: "live", Domain: "live.example.com", ExpiresAt: &future, Managed: false, RetryCount: 2},
+		"deleted.example.com": {ID: "deleted", Domain: "deleted.example.com", Managed: true},
 	}
-	snapshot := discovery.Result{ObservedAt: now, Domains: []discovery.DomainInfo{{Domain: "live.example.com", Bucket: "new-origin", Region: "cn-hangzhou", Account: &ent.CloudAccount{Name: "current-account"}, Origin: entdomain.OriginCdn, CertKnown: true, CDNCert: &discovery.CertInfo{ValidStartDate: now.Add(-24 * time.Hour), ValidEndDate: now.Add(12 * time.Hour)}}}}
+	snapshot := discovery.Result{ObservedAt: now, Domains: []discovery.DomainInfo{{Domain: "live.example.com", Bucket: "new-origin", Region: "cn-hangzhou", Account: &ent.CloudAccount{Name: "current-account"}, Origin: discovery.OriginCDN, CertKnown: true, CDNCert: &discovery.CertInfo{ValidStartDate: now.Add(-24 * time.Hour), ValidEndDate: now.Add(12 * time.Hour)}}}}
 	items := currentCertificates(snapshot, states)
 	if len(items) != 1 {
 		t.Fatal("historical DB resources leaked into cloud list")
 	}
 	item := items[0]
-	if item.Bucket != "new-origin" || item.AccountName != "current-account" || item.DeployTarget != "cdn" || item.Presence != "present" || item.ExpiresAt != now.Add(12*time.Hour).Format(time.RFC3339) {
+	if item.Bucket != "new-origin" || item.AccountName != "current-account" || item.DeployTarget != "cdn" || item.ExpiresAt != now.Add(12*time.Hour).Format(time.RFC3339) {
 		t.Fatalf("DB cloud snapshot overrode current facts: %+v", item)
 	}
 	if item.Managed || item.RetryCount != 2 || item.Id != "live" {

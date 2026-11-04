@@ -26,48 +26,6 @@ func (_c *DomainCreate) SetDomain(v string) *DomainCreate {
 	return _c
 }
 
-// SetBucket sets the "bucket" field.
-func (_c *DomainCreate) SetBucket(v string) *DomainCreate {
-	_c.mutation.SetBucket(v)
-	return _c
-}
-
-// SetNillableBucket sets the "bucket" field if the given value is not nil.
-func (_c *DomainCreate) SetNillableBucket(v *string) *DomainCreate {
-	if v != nil {
-		_c.SetBucket(*v)
-	}
-	return _c
-}
-
-// SetRegion sets the "region" field.
-func (_c *DomainCreate) SetRegion(v string) *DomainCreate {
-	_c.mutation.SetRegion(v)
-	return _c
-}
-
-// SetNillableRegion sets the "region" field if the given value is not nil.
-func (_c *DomainCreate) SetNillableRegion(v *string) *DomainCreate {
-	if v != nil {
-		_c.SetRegion(*v)
-	}
-	return _c
-}
-
-// SetAccountName sets the "account_name" field.
-func (_c *DomainCreate) SetAccountName(v string) *DomainCreate {
-	_c.mutation.SetAccountName(v)
-	return _c
-}
-
-// SetNillableAccountName sets the "account_name" field if the given value is not nil.
-func (_c *DomainCreate) SetNillableAccountName(v *string) *DomainCreate {
-	if v != nil {
-		_c.SetAccountName(*v)
-	}
-	return _c
-}
-
 // SetIssuedAt sets the "issued_at" field.
 func (_c *DomainCreate) SetIssuedAt(v time.Time) *DomainCreate {
 	_c.mutation.SetIssuedAt(v)
@@ -134,62 +92,6 @@ func (_c *DomainCreate) SetStatus(v domain.Status) *DomainCreate {
 func (_c *DomainCreate) SetNillableStatus(v *domain.Status) *DomainCreate {
 	if v != nil {
 		_c.SetStatus(*v)
-	}
-	return _c
-}
-
-// SetDeployTarget sets the "deploy_target" field.
-func (_c *DomainCreate) SetDeployTarget(v domain.DeployTarget) *DomainCreate {
-	_c.mutation.SetDeployTarget(v)
-	return _c
-}
-
-// SetNillableDeployTarget sets the "deploy_target" field if the given value is not nil.
-func (_c *DomainCreate) SetNillableDeployTarget(v *domain.DeployTarget) *DomainCreate {
-	if v != nil {
-		_c.SetDeployTarget(*v)
-	}
-	return _c
-}
-
-// SetPresence sets the "presence" field.
-func (_c *DomainCreate) SetPresence(v domain.Presence) *DomainCreate {
-	_c.mutation.SetPresence(v)
-	return _c
-}
-
-// SetNillablePresence sets the "presence" field if the given value is not nil.
-func (_c *DomainCreate) SetNillablePresence(v *domain.Presence) *DomainCreate {
-	if v != nil {
-		_c.SetPresence(*v)
-	}
-	return _c
-}
-
-// SetOrigin sets the "origin" field.
-func (_c *DomainCreate) SetOrigin(v domain.Origin) *DomainCreate {
-	_c.mutation.SetOrigin(v)
-	return _c
-}
-
-// SetNillableOrigin sets the "origin" field if the given value is not nil.
-func (_c *DomainCreate) SetNillableOrigin(v *domain.Origin) *DomainCreate {
-	if v != nil {
-		_c.SetOrigin(*v)
-	}
-	return _c
-}
-
-// SetLastSeenAt sets the "last_seen_at" field.
-func (_c *DomainCreate) SetLastSeenAt(v time.Time) *DomainCreate {
-	_c.mutation.SetLastSeenAt(v)
-	return _c
-}
-
-// SetNillableLastSeenAt sets the "last_seen_at" field if the given value is not nil.
-func (_c *DomainCreate) SetNillableLastSeenAt(v *time.Time) *DomainCreate {
-	if v != nil {
-		_c.SetLastSeenAt(*v)
 	}
 	return _c
 }
@@ -383,25 +285,9 @@ func (_c *DomainCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (_c *DomainCreate) defaults() {
-	if _, ok := _c.mutation.AccountName(); !ok {
-		v := domain.DefaultAccountName
-		_c.mutation.SetAccountName(v)
-	}
 	if _, ok := _c.mutation.Status(); !ok {
 		v := domain.DefaultStatus
 		_c.mutation.SetStatus(v)
-	}
-	if _, ok := _c.mutation.DeployTarget(); !ok {
-		v := domain.DefaultDeployTarget
-		_c.mutation.SetDeployTarget(v)
-	}
-	if _, ok := _c.mutation.Presence(); !ok {
-		v := domain.DefaultPresence
-		_c.mutation.SetPresence(v)
-	}
-	if _, ok := _c.mutation.Origin(); !ok {
-		v := domain.DefaultOrigin
-		_c.mutation.SetOrigin(v)
 	}
 	if _, ok := _c.mutation.Managed(); !ok {
 		v := domain.DefaultManaged
@@ -443,39 +329,12 @@ func (_c *DomainCreate) check() error {
 			return &ValidationError{Name: "domain", err: fmt.Errorf(`ent: validator failed for field "Domain.domain": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.AccountName(); !ok {
-		return &ValidationError{Name: "account_name", err: errors.New(`ent: missing required field "Domain.account_name"`)}
-	}
 	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "Domain.status"`)}
 	}
 	if v, ok := _c.mutation.Status(); ok {
 		if err := domain.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "Domain.status": %w`, err)}
-		}
-	}
-	if _, ok := _c.mutation.DeployTarget(); !ok {
-		return &ValidationError{Name: "deploy_target", err: errors.New(`ent: missing required field "Domain.deploy_target"`)}
-	}
-	if v, ok := _c.mutation.DeployTarget(); ok {
-		if err := domain.DeployTargetValidator(v); err != nil {
-			return &ValidationError{Name: "deploy_target", err: fmt.Errorf(`ent: validator failed for field "Domain.deploy_target": %w`, err)}
-		}
-	}
-	if _, ok := _c.mutation.Presence(); !ok {
-		return &ValidationError{Name: "presence", err: errors.New(`ent: missing required field "Domain.presence"`)}
-	}
-	if v, ok := _c.mutation.Presence(); ok {
-		if err := domain.PresenceValidator(v); err != nil {
-			return &ValidationError{Name: "presence", err: fmt.Errorf(`ent: validator failed for field "Domain.presence": %w`, err)}
-		}
-	}
-	if _, ok := _c.mutation.Origin(); !ok {
-		return &ValidationError{Name: "origin", err: errors.New(`ent: missing required field "Domain.origin"`)}
-	}
-	if v, ok := _c.mutation.Origin(); ok {
-		if err := domain.OriginValidator(v); err != nil {
-			return &ValidationError{Name: "origin", err: fmt.Errorf(`ent: validator failed for field "Domain.origin": %w`, err)}
 		}
 	}
 	if _, ok := _c.mutation.Managed(); !ok {
@@ -547,18 +406,6 @@ func (_c *DomainCreate) createSpec() (*Domain, *sqlgraph.CreateSpec) {
 		_spec.SetField(domain.FieldDomain, field.TypeString, value)
 		_node.Domain = value
 	}
-	if value, ok := _c.mutation.Bucket(); ok {
-		_spec.SetField(domain.FieldBucket, field.TypeString, value)
-		_node.Bucket = value
-	}
-	if value, ok := _c.mutation.Region(); ok {
-		_spec.SetField(domain.FieldRegion, field.TypeString, value)
-		_node.Region = value
-	}
-	if value, ok := _c.mutation.AccountName(); ok {
-		_spec.SetField(domain.FieldAccountName, field.TypeString, value)
-		_node.AccountName = value
-	}
 	if value, ok := _c.mutation.IssuedAt(); ok {
 		_spec.SetField(domain.FieldIssuedAt, field.TypeTime, value)
 		_node.IssuedAt = &value
@@ -578,22 +425,6 @@ func (_c *DomainCreate) createSpec() (*Domain, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(domain.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
-	}
-	if value, ok := _c.mutation.DeployTarget(); ok {
-		_spec.SetField(domain.FieldDeployTarget, field.TypeEnum, value)
-		_node.DeployTarget = value
-	}
-	if value, ok := _c.mutation.Presence(); ok {
-		_spec.SetField(domain.FieldPresence, field.TypeEnum, value)
-		_node.Presence = value
-	}
-	if value, ok := _c.mutation.Origin(); ok {
-		_spec.SetField(domain.FieldOrigin, field.TypeEnum, value)
-		_node.Origin = value
-	}
-	if value, ok := _c.mutation.LastSeenAt(); ok {
-		_spec.SetField(domain.FieldLastSeenAt, field.TypeTime, value)
-		_node.LastSeenAt = &value
 	}
 	if value, ok := _c.mutation.Managed(); ok {
 		_spec.SetField(domain.FieldManaged, field.TypeBool, value)

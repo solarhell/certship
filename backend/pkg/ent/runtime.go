@@ -41,48 +41,8 @@ func init() {
 			return nil
 		}
 	}()
-	// appsettingsDescMissingGrace is the schema descriptor for missing_grace field.
-	appsettingsDescMissingGrace := appsettingsFields[4].Descriptor()
-	// appsettings.DefaultMissingGrace holds the default value on creation for the missing_grace field.
-	appsettings.DefaultMissingGrace = appsettingsDescMissingGrace.Default.(string)
-	// appsettings.MissingGraceValidator is a validator for the "missing_grace" field. It is called by the builders before save.
-	appsettings.MissingGraceValidator = func() func(string) error {
-		validators := appsettingsDescMissingGrace.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(missing_grace string) error {
-			for _, fn := range fns {
-				if err := fn(missing_grace); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	// appsettingsDescArchiveAfter is the schema descriptor for archive_after field.
-	appsettingsDescArchiveAfter := appsettingsFields[5].Descriptor()
-	// appsettings.DefaultArchiveAfter holds the default value on creation for the archive_after field.
-	appsettings.DefaultArchiveAfter = appsettingsDescArchiveAfter.Default.(string)
-	// appsettings.ArchiveAfterValidator is a validator for the "archive_after" field. It is called by the builders before save.
-	appsettings.ArchiveAfterValidator = func() func(string) error {
-		validators := appsettingsDescArchiveAfter.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(archive_after string) error {
-			for _, fn := range fns {
-				if err := fn(archive_after); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
 	// appsettingsDescRenewBeforeDays is the schema descriptor for renew_before_days field.
-	appsettingsDescRenewBeforeDays := appsettingsFields[6].Descriptor()
+	appsettingsDescRenewBeforeDays := appsettingsFields[4].Descriptor()
 	// appsettings.DefaultRenewBeforeDays holds the default value on creation for the renew_before_days field.
 	appsettings.DefaultRenewBeforeDays = appsettingsDescRenewBeforeDays.Default.(int)
 	// appsettings.RenewBeforeDaysValidator is a validator for the "renew_before_days" field. It is called by the builders before save.
@@ -101,34 +61,14 @@ func init() {
 			return nil
 		}
 	}()
-	// appsettingsDescArchivedRetention is the schema descriptor for archived_retention field.
-	appsettingsDescArchivedRetention := appsettingsFields[7].Descriptor()
-	// appsettings.DefaultArchivedRetention holds the default value on creation for the archived_retention field.
-	appsettings.DefaultArchivedRetention = appsettingsDescArchivedRetention.Default.(string)
-	// appsettings.ArchivedRetentionValidator is a validator for the "archived_retention" field. It is called by the builders before save.
-	appsettings.ArchivedRetentionValidator = func() func(string) error {
-		validators := appsettingsDescArchivedRetention.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(archived_retention string) error {
-			for _, fn := range fns {
-				if err := fn(archived_retention); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
 	// appsettingsDescDNSResolvers is the schema descriptor for dns_resolvers field.
-	appsettingsDescDNSResolvers := appsettingsFields[8].Descriptor()
+	appsettingsDescDNSResolvers := appsettingsFields[5].Descriptor()
 	// appsettings.DefaultDNSResolvers holds the default value on creation for the dns_resolvers field.
 	appsettings.DefaultDNSResolvers = appsettingsDescDNSResolvers.Default.(string)
 	// appsettings.DNSResolversValidator is a validator for the "dns_resolvers" field. It is called by the builders before save.
 	appsettings.DNSResolversValidator = appsettingsDescDNSResolvers.Validators[0].(func(string) error)
 	// appsettingsDescUpdatedAt is the schema descriptor for updated_at field.
-	appsettingsDescUpdatedAt := appsettingsFields[10].Descriptor()
+	appsettingsDescUpdatedAt := appsettingsFields[7].Descriptor()
 	// appsettings.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	appsettings.DefaultUpdatedAt = appsettingsDescUpdatedAt.Default.(func() time.Time)
 	// appsettings.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -209,30 +149,26 @@ func init() {
 	domainDescDomain := domainFields[1].Descriptor()
 	// domain.DomainValidator is a validator for the "domain" field. It is called by the builders before save.
 	domain.DomainValidator = domainDescDomain.Validators[0].(func(string) error)
-	// domainDescAccountName is the schema descriptor for account_name field.
-	domainDescAccountName := domainFields[4].Descriptor()
-	// domain.DefaultAccountName holds the default value on creation for the account_name field.
-	domain.DefaultAccountName = domainDescAccountName.Default.(string)
 	// domainDescManaged is the schema descriptor for managed field.
-	domainDescManaged := domainFields[14].Descriptor()
+	domainDescManaged := domainFields[7].Descriptor()
 	// domain.DefaultManaged holds the default value on creation for the managed field.
 	domain.DefaultManaged = domainDescManaged.Default.(bool)
 	// domainDescRetryCount is the schema descriptor for retry_count field.
-	domainDescRetryCount := domainFields[15].Descriptor()
+	domainDescRetryCount := domainFields[8].Descriptor()
 	// domain.DefaultRetryCount holds the default value on creation for the retry_count field.
 	domain.DefaultRetryCount = domainDescRetryCount.Default.(int)
 	// domain.RetryCountValidator is a validator for the "retry_count" field. It is called by the builders before save.
 	domain.RetryCountValidator = domainDescRetryCount.Validators[0].(func(int) error)
 	// domainDescBlockedReason is the schema descriptor for blocked_reason field.
-	domainDescBlockedReason := domainFields[21].Descriptor()
+	domainDescBlockedReason := domainFields[14].Descriptor()
 	// domain.DefaultBlockedReason holds the default value on creation for the blocked_reason field.
 	domain.DefaultBlockedReason = domainDescBlockedReason.Default.(string)
 	// domainDescCreatedAt is the schema descriptor for created_at field.
-	domainDescCreatedAt := domainFields[22].Descriptor()
+	domainDescCreatedAt := domainFields[15].Descriptor()
 	// domain.DefaultCreatedAt holds the default value on creation for the created_at field.
 	domain.DefaultCreatedAt = domainDescCreatedAt.Default.(func() time.Time)
 	// domainDescUpdatedAt is the schema descriptor for updated_at field.
-	domainDescUpdatedAt := domainFields[23].Descriptor()
+	domainDescUpdatedAt := domainFields[16].Descriptor()
 	// domain.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	domain.DefaultUpdatedAt = domainDescUpdatedAt.Default.(func() time.Time)
 	// domain.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

@@ -66,7 +66,7 @@ func TestReusableCertificateValidatesMaterial(t *testing.T) {
 
 // Run with CERTSHIP_TEST_POSTGRES_DSN pointing to an expendable local server.
 // This creates and removes its own database; no Alibaba Cloud or ACME calls.
-func TestDatabaseCompatibilityAndDeploymentRetry(t *testing.T) {
+func TestManagementAndDeploymentRetry(t *testing.T) {
 	dsn := os.Getenv("CERTSHIP_TEST_POSTGRES_DSN")
 	if dsn == "" {
 		t.Skip("CERTSHIP_TEST_POSTGRES_DSN not set")
@@ -86,32 +86,15 @@ func TestDatabaseCompatibilityAndDeploymentRetry(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _, _ = admin.Exec(ctx, "DROP DATABASE "+pgx.Identifier{name}.Sanitize()+" WITH (FORCE)") })
-	oldCfg := cfg.Copy()
-	oldCfg.Database = name
-	old, err := pgx.ConnectConfig(ctx, oldCfg)
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = old.Exec(ctx, "CREATE TABLE public.t_domain (id varchar PRIMARY KEY, domain varchar NOT NULL, account_name varchar NOT NULL); INSERT INTO public.t_domain VALUES ('legacy', 'legacy.example.com', 'old-account')")
-	old.Close(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
 	database.Setup(config.DatabaseConfig{Host: cfg.Host, Port: uint(cfg.Port), Username: cfg.User, Password: cfg.Password, DB: name})
 	db := database.GetClient()
 	defer db.Close()
-	snapshot := discovery.Result{Domains: []discovery.DomainInfo{{Domain: "test.example.com", Bucket: "cloud-bucket", Account: &ent.CloudAccount{Name: "cloud-account"}}, {Domain: "legacy.example.com", Account: &ent.CloudAccount{Name: "renamed-account"}}}}
+	snapshot := discovery.Result{Domains: []discovery.DomainInfo{{Domain: "test.example.com", Bucket: "cloud-bucket", Account: &ent.CloudAccount{Name: "cloud-account"}}}}
 	states, err := management.Load(ctx, snapshot)
 	if err != nil {
 		t.Fatal(err)
 	}
 	local := states["test.example.com"]
-	if local.AccountName != "" || local.Bucket != "" || local.Region != "" {
-		t.Fatal("cloud metadata was copied to local management state")
-	}
-	if states["legacy.example.com"].AccountName != "old-account" {
-		t.Fatal("compatibility columns were unexpectedly rewritten")
-	}
 	if err := local.Update().SetManaged(false).SetRetryCount(3).Exec(ctx); err != nil {
 		t.Fatal(err)
 	}
@@ -134,7 +117,7 @@ func TestDatabaseCompatibilityAndDeploymentRetry(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Even a missing/wrong old DB expiry must not cause another ACME order.
+	// Even a missing/wrong cached DB expiry must not cause another ACME order.
 	reloaded.ExpiresAt = nil
 	gotCert, gotKey, _, issued, err := New(zap.NewNop()).ensureCert(ctx, reloaded, nil, nil, &ent.AppSettings{RenewBeforeDays: 30}, &taskLog{ctx: ctx})
 	if err != nil || issued || gotCert != cert || gotKey != key {

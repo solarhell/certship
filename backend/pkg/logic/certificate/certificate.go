@@ -2,6 +2,7 @@ package certificate
 
 import (
 	"context"
+	"sort"
 	"time"
 
 	"connectrpc.com/connect/v2"
@@ -9,7 +10,6 @@ import (
 	"github.com/solarhell/certship/internal/discovery"
 	"github.com/solarhell/certship/internal/management"
 	"go.uber.org/zap"
-	"sort"
 
 	certshipv1 "github.com/solarhell/certship/pkg/api/certship/v1"
 	"github.com/solarhell/certship/pkg/api/certship/v1/certshipv1connect"
@@ -88,7 +88,7 @@ func currentCertificates(snapshot discovery.Result, states map[string]*ent.Domai
 	items := make([]*certshipv1.CertificateItem, 0, len(infos))
 	for _, info := range infos {
 		state := states[info.Domain]
-		item := &certshipv1.CertificateItem{Id: state.ID, Domain: info.Domain, Bucket: info.Bucket, Region: info.Region, AccountName: info.Account.Name, DeployTarget: string(info.DeployTarget()), Origin: string(info.Origin), Presence: "present", LastSeenAt: snapshot.ObservedAt.UTC().Format(time.RFC3339), Managed: state.Managed, RetryCount: uint32(state.RetryCount), ErrorKind: string(state.ErrorKind), ErrorMessage: state.ErrorMessage, BlockedReason: state.BlockedReason, NextRetryAt: formatTime(state.NextRetryAt), Status: "pending"}
+		item := &certshipv1.CertificateItem{Id: state.ID, Domain: info.Domain, Bucket: info.Bucket, Region: info.Region, AccountName: info.Account.Name, DeployTarget: string(info.DeployTarget()), Origin: string(info.Origin), Managed: state.Managed, RetryCount: uint32(state.RetryCount), ErrorKind: string(state.ErrorKind), ErrorMessage: state.ErrorMessage, BlockedReason: state.BlockedReason, NextRetryAt: formatTime(state.NextRetryAt), Status: "pending"}
 		if cert := info.CloudCert(); cert != nil {
 			item.IssuedAt = cert.ValidStartDate.UTC().Format(time.RFC3339)
 			item.ExpiresAt = cert.ValidEndDate.UTC().Format(time.RFC3339)
@@ -138,42 +138,6 @@ func (s *Server) SetCertificateManaged(ctx context.Context, req *certshipv1.SetC
 		zap.Bool("managed", req.Managed),
 	)
 	return &certshipv1.SetCertificateManagedResponse{}, nil
-}
-
-// DeleteCertificate removes local settings/material only after a complete cloud
-// query confirms that the domain has no current binding. It never deletes cloud resources.
-func (s *Server) DeleteCertificate(ctx context.Context, req *certshipv1.DeleteCertificateRequest) (*certshipv1.DeleteCertificateResponse, error) {
-	if req.Id == "" {
-		return nil, connect.Errorf(connect.CodeInvalidArgument, "id 不能为空")
-	}
-
-	db := database.GetClient()
-	record, err := db.Domain.Get(ctx, req.Id)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			return nil, connect.Errorf(connect.CodeNotFound, "域名记录不存在")
-		}
-		return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
-	}
-
-	snapshot, err := cloudstate.Refresh(ctx, s.logger, true)
-	if err != nil {
-		return nil, connect.NewError(connect.CodeUnavailable, err.Error()).WithCause(err)
-	}
-	if !snapshot.Complete() {
-		return nil, connect.Errorf(connect.CodeUnavailable, "云资源查询不完整，暂不删除本地托管设置")
-	}
-	if _, exists := snapshot.Lookup(record.Domain); exists {
-		return nil, connect.Errorf(connect.CodeFailedPrecondition, "域名仍在阿里云上；停止自动续期请使用暂停托管")
-	}
-
-	if err := db.Domain.DeleteOne(record).Exec(ctx); err != nil {
-		s.logger.Error("删除域名记录失败", zap.String("domain", record.Domain), zap.Error(err))
-		return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
-	}
-
-	s.logger.Info("已删除本地域名托管设置和材料", zap.String("domain", record.Domain))
-	return &certshipv1.DeleteCertificateResponse{}, nil
 }
 
 // formatTime 把可空时间格式化为 RFC3339,空值返回空串

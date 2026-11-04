@@ -175,13 +175,12 @@ func (d *Daemon) checkAndRedeploy(ctx context.Context, snapshot discovery.Result
 		if _, err := reusableCertificate(dom.Domain, dom.CertPem, dom.KeyPem, time.Now()); err != nil {
 			continue
 		}
-		applyTarget(dom, info)
 		tl := &taskLog{ctx: ctx}
-		if err := d.preflight(ctx, dom, info.Account, tl); err != nil {
+		if err := d.preflight(ctx, info, tl); err != nil {
 			d.logger.Warn("跳过证书补部署", zap.String("domain", dom.Domain), zap.Error(err))
 			continue
 		}
-		if err := d.deploy(ctx, dom, info, dom.CertPem, dom.KeyPem, tl); err != nil {
+		if err := d.deploy(ctx, info, dom.CertPem, dom.KeyPem, tl); err != nil {
 			d.logger.Warn("补部署证书失败", zap.String("domain", dom.Domain), zap.Error(err))
 			continue
 		}
@@ -406,12 +405,10 @@ func (d *Daemon) executeTask(ctx context.Context, task *ent.RenewTask, acmeMgr *
 		d.failTask(ctx, task, dom, log, tl, err)
 		return
 	}
-	applyTarget(dom, info)
-	account := info.Account
-	tl.appendf("所属云账号: %s,部署目标: %s", account.Name, dom.DeployTarget)
+	tl.appendf("所属云账号: %s,部署目标: %s", info.Account.Name, info.DeployTarget())
 
 	// 第一步:目标侧还认不认这个域名
-	if err := d.preflight(ctx, dom, account, tl); err != nil {
+	if err := d.preflight(ctx, info, tl); err != nil {
 		d.failTask(ctx, task, dom, log, tl, err)
 		return
 	}
@@ -443,15 +440,13 @@ func (d *Daemon) executeTask(ctx context.Context, task *ent.RenewTask, acmeMgr *
 		d.failTask(ctx, task, dom, log, tl, renewerr.Permanent("域名 %s 已暂停托管", dom.Domain))
 		return
 	}
-	applyTarget(dom, info)
-	account = info.Account
-	if err := d.preflight(ctx, dom, account, tl); err != nil {
+	if err := d.preflight(ctx, info, tl); err != nil {
 		d.failTask(ctx, task, dom, log, tl, err)
 		return
 	}
 
 	// 第三步:部署到目标侧
-	if err := d.deploy(ctx, dom, info, certPEM, keyPEM, tl); err != nil {
+	if err := d.deploy(ctx, info, certPEM, keyPEM, tl); err != nil {
 		d.failTask(ctx, task, dom, log, tl, err)
 		return
 	}
@@ -491,7 +486,8 @@ func (d *Daemon) executeTask(ctx context.Context, task *ent.RenewTask, acmeMgr *
 //
 // 这是最省钱的一道闸:域名早就从 bucket 解绑、或从 CDN 下线时,
 // 阿里云一定会在绑定阶段拒绝——没必要先去 Let's Encrypt 签一张注定用不上的证书。
-func (d *Daemon) preflight(ctx context.Context, dom *ent.Domain, account *ent.CloudAccount, tl *taskLog) error {
+func (d *Daemon) preflight(ctx context.Context, info discovery.DomainInfo, tl *taskLog) error {
+	account := info.Account
 	current, err := database.GetClient().CloudAccount.Get(ctx, account.ID)
 	if err != nil {
 		return err
@@ -499,36 +495,36 @@ func (d *Daemon) preflight(ctx context.Context, dom *ent.Domain, account *ent.Cl
 	if !current.Enabled || current.AccessKeyID != account.AccessKeyID || current.AccessKeySecret != account.AccessKeySecret {
 		return fmt.Errorf("云账号配置已变更，请重新扫描后重试")
 	}
-	if dom.DeployTarget == entdomain.DeployTargetCdn {
-		online, err := cdnpkg.NewManager(d.logger).CheckOnline(account.AccessKeyID, account.AccessKeySecret, dom.Domain)
+	if info.DeployTarget() == discovery.DeployTargetCDN {
+		online, err := cdnpkg.NewManager(d.logger).CheckOnline(account.AccessKeyID, account.AccessKeySecret, info.Domain)
 		if err != nil {
-			return fmt.Errorf("预检 CDN 域名 %s 失败: %w", dom.Domain, err)
+			return fmt.Errorf("预检 CDN 域名 %s 失败: %w", info.Domain, err)
 		}
 		if !online {
-			return renewerr.Permanent("域名 %s 已不是账号 %s 下 online 的 CDN 加速域名", dom.Domain, account.Name)
+			return renewerr.Permanent("域名 %s 已不是账号 %s 下 online 的 CDN 加速域名", info.Domain, account.Name)
 		}
-		tl.appendf("✓ 预检通过: %s 在 CDN 上处于 online", dom.Domain)
+		tl.appendf("✓ 预检通过: %s 在 CDN 上处于 online", info.Domain)
 		return nil
 	}
-	online, err := cdnpkg.NewManager(d.logger).CheckOnline(account.AccessKeyID, account.AccessKeySecret, dom.Domain)
+	online, err := cdnpkg.NewManager(d.logger).CheckOnline(account.AccessKeyID, account.AccessKeySecret, info.Domain)
 	if err != nil {
 		return fmt.Errorf("确认 OSS 域名未迁往 CDN: %w", err)
 	}
 	if online {
-		return fmt.Errorf("域名 %s 已迁往 CDN，请重新扫描后重试", dom.Domain)
+		return fmt.Errorf("域名 %s 已迁往 CDN，请重新扫描后重试", info.Domain)
 	}
 
-	cname, err := oss.NewScanner(d.logger).FindCname(ctx, account, dom.Bucket, dom.Region, dom.Domain)
+	cname, err := oss.NewScanner(d.logger).FindCname(ctx, account, info.Bucket, info.Region, info.Domain)
 	if err != nil {
-		return fmt.Errorf("预检 OSS 域名 %s 失败: %w", dom.Domain, err)
+		return fmt.Errorf("预检 OSS 域名 %s 失败: %w", info.Domain, err)
 	}
 	if cname == nil {
-		return renewerr.Permanent("域名 %s 已不在 bucket %s 的自定义域名列表中", dom.Domain, dom.Bucket)
+		return renewerr.Permanent("域名 %s 已不在 bucket %s 的自定义域名列表中", info.Domain, info.Bucket)
 	}
 	if cname.Status != "Enabled" {
-		return renewerr.Permanent("域名 %s 在 bucket %s 上的状态为 %s,非 Enabled", dom.Domain, dom.Bucket, cname.Status)
+		return renewerr.Permanent("域名 %s 在 bucket %s 上的状态为 %s,非 Enabled", info.Domain, info.Bucket, cname.Status)
 	}
-	tl.appendf("✓ 预检通过: %s 仍绑定在 bucket %s 上", dom.Domain, dom.Bucket)
+	tl.appendf("✓ 预检通过: %s 仍绑定在 bucket %s 上", info.Domain, info.Bucket)
 	return nil
 }
 
@@ -560,11 +556,7 @@ func (d *Daemon) ensureCert(
 	if err != nil {
 		return "", "", time.Time{}, false, fmt.Errorf("定位 DNS 账号失败: %w", err)
 	}
-	if dnsAccount.Name != dom.AccountName {
-		tl.appendf("DNS zone %s 在账号 %s 下,使用其 AK 做 DNS-01 挑战", zone, dnsAccount.Name)
-	} else {
-		tl.appendf("DNS zone %s 就在部署账号下", zone)
-	}
+	tl.appendf("DNS zone %s，使用账号 %s 做 DNS-01 挑战", zone, dnsAccount.Name)
 
 	tl.appendf("正在申请证书 (DNS-01)...")
 	result, err := acmeMgr.ObtainCert(ctx, acmeAccount, acme.ObtainOptions{
@@ -586,38 +578,38 @@ func (d *Daemon) ensureCert(
 }
 
 // deploy 把证书部署到域名的目标侧
-func (d *Daemon) deploy(ctx context.Context, dom *ent.Domain, info discovery.DomainInfo, certPEM, keyPEM string, tl *taskLog) error {
+func (d *Daemon) deploy(ctx context.Context, info discovery.DomainInfo, certPEM, keyPEM string, tl *taskLog) error {
 	account := info.Account
-	if dom.DeployTarget == entdomain.DeployTargetCdn {
+	if info.DeployTarget() == discovery.DeployTargetCDN {
 		cdnMgr := cdnpkg.NewManager(d.logger)
-		tl.appendf("部署证书到 CDN 域名 %s...", dom.Domain)
-		if err := cdnMgr.DeployCert(account.AccessKeyID, account.AccessKeySecret, dom.Domain, certPEM, keyPEM); err != nil {
-			return fmt.Errorf("部署证书到 CDN %s 失败: %w", dom.Domain, err)
+		tl.appendf("部署证书到 CDN 域名 %s...", info.Domain)
+		if err := cdnMgr.DeployCert(account.AccessKeyID, account.AccessKeySecret, info.Domain, certPEM, keyPEM); err != nil {
+			return fmt.Errorf("部署证书到 CDN %s 失败: %w", info.Domain, err)
 		}
-		tl.appendf("✓ CDN 证书部署成功: %s", dom.Domain)
+		tl.appendf("✓ CDN 证书部署成功: %s", info.Domain)
 
 		// 域名同时绑在 bucket 上时清掉 OSS 侧的旧证书,避免两处过期时间不一致
-		if dom.Origin == entdomain.OriginBoth && info.OSSAccount != nil && info.OSSBucket != "" {
+		if info.Origin == discovery.OriginBoth && info.OSSAccount != nil && info.OSSBucket != "" {
 			ossScanner := oss.NewScanner(d.logger)
 			ossBinder := oss.NewCertBinder(d.logger)
-			binding := oss.DomainInfo{Domain: dom.Domain, Bucket: info.OSSBucket, Region: info.OSSRegion, Account: info.OSSAccount}
-			if cert := ossScanner.GetDomainCert(ctx, binding.Account, binding.Bucket, binding.Region, dom.Domain); cert != nil {
+			binding := oss.DomainInfo{Domain: info.Domain, Bucket: info.OSSBucket, Region: info.OSSRegion, Account: info.OSSAccount}
+			if cert := ossScanner.GetDomainCert(ctx, binding.Account, binding.Bucket, binding.Region, info.Domain); cert != nil {
 				if err := ossBinder.DeleteCert(ctx, binding); err != nil {
 					tl.appendf("⚠ 删除 OSS 侧证书失败: %v", err)
 				} else {
-					tl.appendf("✓ 已清理 OSS 侧证书: %s", dom.Domain)
+					tl.appendf("✓ 已清理 OSS 侧证书: %s", info.Domain)
 				}
 			}
 		}
 		return nil
 	}
 
-	tl.appendf("绑定证书到 OSS 自定义域名 %s...", dom.Domain)
-	binding := oss.DomainInfo{Domain: dom.Domain, Bucket: dom.Bucket, Region: dom.Region, Account: account}
+	tl.appendf("绑定证书到 OSS 自定义域名 %s...", info.Domain)
+	binding := oss.DomainInfo{Domain: info.Domain, Bucket: info.Bucket, Region: info.Region, Account: account}
 	if err := oss.NewCertBinder(d.logger).BindCert(ctx, binding, certPEM, keyPEM); err != nil {
-		return fmt.Errorf("绑定证书到 OSS %s 失败: %w", dom.Domain, err)
+		return fmt.Errorf("绑定证书到 OSS %s 失败: %w", info.Domain, err)
 	}
-	tl.appendf("✓ OSS 证书绑定成功: %s (bucket: %s)", dom.Domain, dom.Bucket)
+	tl.appendf("✓ OSS 证书绑定成功: %s (bucket: %s)", info.Domain, info.Bucket)
 	return nil
 }
 

@@ -11,9 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Domain holds local management state. bucket/region/account_name/origin/
-// deploy_target/presence/last_seen_at remain only for upgrade compatibility.
-// Current inventory and deployed certificate dates come from Alibaba Cloud.
+// Domain holds local management intent, issued material and task state.
 type Domain struct {
 	ent.Schema
 }
@@ -30,11 +28,6 @@ func (Domain) Fields() []ent.Field {
 		field.String("id").Unique().Immutable().NotEmpty().DefaultFunc(uuid.NewString).Comment("主键 UUID"),
 
 		field.String("domain").NotEmpty().Comment("自定义域名"),
-		// bucket/region 对纯 CDN 域名(源站非 OSS)可能为空,只是源站信息而非域名身份
-		field.String("bucket").Optional().Comment("OSS bucket 名称,CDN 域名时为回源 bucket,源站非 OSS 时为空"),
-		field.String("region").Optional().Comment("OSS 区域,如 cn-hangzhou"),
-		field.String("account_name").Default("").Comment("旧版兼容字段；当前账号从阿里云观测获取，不再写入"),
-
 		field.Time("issued_at").Optional().Nillable().Comment("证书颁发时间"),
 		field.Time("expires_at").Optional().Nillable().Comment("证书过期时间"),
 
@@ -45,28 +38,6 @@ func (Domain) Fields() []ent.Field {
 			Values("pending", "active", "error").
 			Default("pending").
 			Comment("证书状态：pending=待颁发，active=有效，error=错误"),
-
-		field.Enum("deploy_target").
-			Values("oss", "cdn").
-			Default("oss").
-			Comment("部署目标：oss=直连 OSS，cdn=CDN 加速"),
-
-		// ---- 存在性(云上是否还有这个域名),与证书状态正交 ----
-
-		field.Enum("presence").
-			Values("present", "missing", "archived").
-			Default("present").
-			Comment("云上存在性：present=在云上，missing=连续多轮未扫到，archived=已确认下线"),
-
-		field.Enum("origin").
-			Values("oss", "cdn", "both").
-			Default("oss").
-			Comment("发现来源：oss=OSS cname，cdn=CDN 加速域名，both=两侧都有"),
-
-		field.Time("last_seen_at").
-			Optional().
-			Nillable().
-			Comment("最后一次在云上扫描到的时间,用于判定下线"),
 
 		field.Bool("managed").
 			Default(true).
@@ -93,7 +64,7 @@ func (Domain) Fields() []ent.Field {
 
 		field.String("notified_state").
 			Optional().
-			Comment("上次已通知的状态(ok/failed/blocked/missing/archived),用于只在状态变化时告警"),
+			Comment("上次已通知的状态(ok/failed/blocked),用于只在状态变化时告警"),
 
 		field.Time("last_notified_at").
 			Optional().
@@ -119,8 +90,6 @@ func (Domain) Indexes() []ent.Index {
 		index.Fields("domain").Unique(),
 		index.Fields("expires_at"),
 		index.Fields("status"),
-		index.Fields("presence"),
-		index.Fields("last_seen_at"),
 		index.Fields("next_retry_at"),
 	}
 }

@@ -40,7 +40,6 @@ func TestEnsureAccountReusesStoredRegistration(t *testing.T) {
 		name string
 		json string
 	}{
-		{"lego v4", `{"uri":"https://acme.invalid/acct/123","body":{"status":"valid","contact":["mailto:acme@certship.dev"],"orders":"https://acme.invalid/orders/123"}}`},
 		{"lego v5", `{"accountURL":"https://acme.invalid/acct/123","status":"valid","contact":["mailto:acme@certship.dev"],"orders":"https://acme.invalid/orders/123"}`},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -82,14 +81,14 @@ func TestBuildUserRejectsInvalidStoredAccount(t *testing.T) {
 		t.Fatal(err)
 	}
 	keyPEM := string(pem.EncodeToMemory(certcrypto.PEMBlock(u.key)))
-	for _, raw := range []string{`{`, `null`, `{}`, `{"status":"valid"}`, `{"uri":123}`, `{"uri":"https://acme.invalid/acct/1","body":"invalid"}`} {
+	for _, raw := range []string{`{`, `null`, `{}`, `{"status":"valid"}`, `{"accountURL":123}`, `{"uri":"https://acme.invalid/acct/1","body":{"status":"valid"}}`} {
 		t.Run(raw, func(t *testing.T) {
 			if _, err := mgr.buildUser(keyPEM, raw); err == nil {
 				t.Fatal("invalid registration must not silently trigger a new registration")
 			}
 		})
 	}
-	if _, err := mgr.buildUser("", `{"uri":"https://acme.invalid/acct/1","body":{}}`); err == nil {
+	if _, err := mgr.buildUser("", `{"accountURL":"https://acme.invalid/acct/1","status":"valid"}`); err == nil {
 		t.Fatal("stored registration without its original key must be rejected")
 	}
 	if _, err := mgr.buildUser("not a key", ""); err == nil {

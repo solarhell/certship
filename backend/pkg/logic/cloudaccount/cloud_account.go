@@ -8,12 +8,10 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/solarhell/certship/internal/cloudstate"
-	"github.com/solarhell/certship/internal/management"
 	certshipv1 "github.com/solarhell/certship/pkg/api/certship/v1"
 	"github.com/solarhell/certship/pkg/api/certship/v1/certshipv1connect"
 	"github.com/solarhell/certship/pkg/database"
 	"github.com/solarhell/certship/pkg/ent"
-	entdomain "github.com/solarhell/certship/pkg/ent/domain"
 )
 
 const rescanTimeout = 2 * time.Minute
@@ -122,21 +120,7 @@ func (s *Server) RescanCloudAccount(ctx context.Context, req *certshipv1.RescanC
 	if !result.Complete() {
 		return nil, connect.Errorf(connect.CodeUnavailable, "该账号云资源查询不完整，请稍后重试")
 	}
-	names := make([]string, 0, len(result.Domains))
-	for _, info := range result.Domains {
-		names = append(names, info.Domain)
-	}
-	existing := 0
-	if len(names) > 0 {
-		existing, err = db.Domain.Query().Where(entdomain.DomainIn(names...)).Count(ctx)
-		if err != nil {
-			return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
-		}
-	}
-	if _, err := management.Load(ctx, result); err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
-	}
-	return &certshipv1.RescanCloudAccountResponse{Added: uint32(len(names) - existing), Updated: uint32(existing), Total: uint32(len(names))}, nil
+	return &certshipv1.RescanCloudAccountResponse{Total: uint32(len(result.Domains))}, nil
 }
 
 func (s *Server) DeleteCloudAccount(ctx context.Context, req *certshipv1.DeleteCloudAccountRequest) (*certshipv1.DeleteCloudAccountResponse, error) {

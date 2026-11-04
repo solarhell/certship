@@ -86,12 +86,8 @@ type CertificateItem struct {
 	ErrorMessage  string                 `protobuf:"bytes,9,opt,name=error_message,json=errorMessage,proto3" json:"error_message,omitempty"`
 	DeployTarget  string                 `protobuf:"bytes,10,opt,name=deploy_target,json=deployTarget,proto3" json:"deploy_target,omitempty"`
 	BlockedReason string                 `protobuf:"bytes,11,opt,name=blocked_reason,json=blockedReason,proto3" json:"blocked_reason,omitempty"`
-	// present / missing / archived,域名在云上的存在性,与证书状态正交
-	Presence string `protobuf:"bytes,12,opt,name=presence,proto3" json:"presence,omitempty"`
 	// oss / cdn / both,域名的发现来源
 	Origin string `protobuf:"bytes,13,opt,name=origin,proto3" json:"origin,omitempty"`
-	// 最后一次在云上扫描到的时间,RFC3339
-	LastSeenAt string `protobuf:"bytes,14,opt,name=last_seen_at,json=lastSeenAt,proto3" json:"last_seen_at,omitempty"`
 	// 是否仍由 certship 托管签发续期
 	Managed bool `protobuf:"varint,15,opt,name=managed,proto3" json:"managed,omitempty"`
 	// 连续失败次数与下次重试时间
@@ -210,23 +206,9 @@ func (x *CertificateItem) GetBlockedReason() string {
 	return ""
 }
 
-func (x *CertificateItem) GetPresence() string {
-	if x != nil {
-		return x.Presence
-	}
-	return ""
-}
-
 func (x *CertificateItem) GetOrigin() string {
 	if x != nil {
 		return x.Origin
-	}
-	return ""
-}
-
-func (x *CertificateItem) GetLastSeenAt() string {
-	if x != nil {
-		return x.LastSeenAt
 	}
 	return ""
 }
@@ -347,86 +329,6 @@ func (*SetCertificateManagedResponse) Descriptor() ([]byte, []int) {
 	return file_certship_v1_certificate_proto_rawDescGZIP(), []int{3}
 }
 
-type DeleteCertificateRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteCertificateRequest) Reset() {
-	*x = DeleteCertificateRequest{}
-	mi := &file_certship_v1_certificate_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteCertificateRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteCertificateRequest) ProtoMessage() {}
-
-func (x *DeleteCertificateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_certship_v1_certificate_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteCertificateRequest.ProtoReflect.Descriptor instead.
-func (*DeleteCertificateRequest) Descriptor() ([]byte, []int) {
-	return file_certship_v1_certificate_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *DeleteCertificateRequest) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
-type DeleteCertificateResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DeleteCertificateResponse) Reset() {
-	*x = DeleteCertificateResponse{}
-	mi := &file_certship_v1_certificate_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DeleteCertificateResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DeleteCertificateResponse) ProtoMessage() {}
-
-func (x *DeleteCertificateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_certship_v1_certificate_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use DeleteCertificateResponse.ProtoReflect.Descriptor instead.
-func (*DeleteCertificateResponse) Descriptor() ([]byte, []int) {
-	return file_certship_v1_certificate_proto_rawDescGZIP(), []int{5}
-}
-
 type ListCertificatesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Certificates  []*CertificateItem     `protobuf:"bytes,1,rep,name=certificates,proto3" json:"certificates,omitempty"`
@@ -439,7 +341,7 @@ type ListCertificatesResponse struct {
 
 func (x *ListCertificatesResponse) Reset() {
 	*x = ListCertificatesResponse{}
-	mi := &file_certship_v1_certificate_proto_msgTypes[6]
+	mi := &file_certship_v1_certificate_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -451,7 +353,7 @@ func (x *ListCertificatesResponse) String() string {
 func (*ListCertificatesResponse) ProtoMessage() {}
 
 func (x *ListCertificatesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_certship_v1_certificate_proto_msgTypes[6]
+	mi := &file_certship_v1_certificate_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -464,7 +366,7 @@ func (x *ListCertificatesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListCertificatesResponse.ProtoReflect.Descriptor instead.
 func (*ListCertificatesResponse) Descriptor() ([]byte, []int) {
-	return file_certship_v1_certificate_proto_rawDescGZIP(), []int{6}
+	return file_certship_v1_certificate_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListCertificatesResponse) GetCertificates() []*CertificateItem {
@@ -503,7 +405,7 @@ const file_certship_v1_certificate_proto_rawDesc = "" +
 	"\x17ListCertificatesRequest\x12\x14\n" +
 	"\x05limit\x18\x01 \x01(\x04R\x05limit\x12\x1b\n" +
 	"\x06cursor\x18\x02 \x01(\tH\x00R\x06cursor\x88\x01\x01B\t\n" +
-	"\a_cursor\"\xa5\x04\n" +
+	"\a_cursor\"\x8b\x04\n" +
 	"\x0fCertificateItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x16\n" +
 	"\x06domain\x18\x02 \x01(\tR\x06domain\x12\x16\n" +
@@ -517,24 +419,18 @@ const file_certship_v1_certificate_proto_rawDesc = "" +
 	"\rerror_message\x18\t \x01(\tR\ferrorMessage\x12#\n" +
 	"\rdeploy_target\x18\n" +
 	" \x01(\tR\fdeployTarget\x12%\n" +
-	"\x0eblocked_reason\x18\v \x01(\tR\rblockedReason\x12\x1a\n" +
-	"\bpresence\x18\f \x01(\tR\bpresence\x12\x16\n" +
-	"\x06origin\x18\r \x01(\tR\x06origin\x12 \n" +
-	"\flast_seen_at\x18\x0e \x01(\tR\n" +
-	"lastSeenAt\x12\x18\n" +
+	"\x0eblocked_reason\x18\v \x01(\tR\rblockedReason\x12\x16\n" +
+	"\x06origin\x18\r \x01(\tR\x06origin\x12\x18\n" +
 	"\amanaged\x18\x0f \x01(\bR\amanaged\x12\x1f\n" +
 	"\vretry_count\x18\x10 \x01(\rR\n" +
 	"retryCount\x12\"\n" +
 	"\rnext_retry_at\x18\x11 \x01(\tR\vnextRetryAt\x12\x1d\n" +
 	"\n" +
-	"error_kind\x18\x12 \x01(\tR\terrorKind\"H\n" +
+	"error_kind\x18\x12 \x01(\tR\terrorKindJ\x04\b\f\x10\rJ\x04\b\x0e\x10\x0fR\bpresenceR\flast_seen_at\"H\n" +
 	"\x1cSetCertificateManagedRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x18\n" +
 	"\amanaged\x18\x02 \x01(\bR\amanaged\"\x1f\n" +
-	"\x1dSetCertificateManagedResponse\"*\n" +
-	"\x18DeleteCertificateRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x1b\n" +
-	"\x19DeleteCertificateResponse\"\xce\x01\n" +
+	"\x1dSetCertificateManagedResponse\"\xce\x01\n" +
 	"\x18ListCertificatesResponse\x12@\n" +
 	"\fcertificates\x18\x01 \x03(\v2\x1c.certship.v1.CertificateItemR\fcertificates\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
@@ -542,11 +438,10 @@ const file_certship_v1_certificate_proto_rawDesc = "" +
 	"\bhas_more\x18\x03 \x01(\bR\ahasMore\x12\x1f\n" +
 	"\vtotal_count\x18\x04 \x01(\x04R\n" +
 	"totalCountB\x0e\n" +
-	"\f_next_cursor2\xc9\x02\n" +
+	"\f_next_cursor2\xe5\x01\n" +
 	"\x12CertificateService\x12_\n" +
 	"\x10ListCertificates\x12$.certship.v1.ListCertificatesRequest\x1a%.certship.v1.ListCertificatesResponse\x12n\n" +
-	"\x15SetCertificateManaged\x12).certship.v1.SetCertificateManagedRequest\x1a*.certship.v1.SetCertificateManagedResponse\x12b\n" +
-	"\x11DeleteCertificate\x12%.certship.v1.DeleteCertificateRequest\x1a&.certship.v1.DeleteCertificateResponseB>Z<github.com/solarhell/certship/pkg/api/certship/v1;certshipv1b\x06proto3"
+	"\x15SetCertificateManaged\x12).certship.v1.SetCertificateManagedRequest\x1a*.certship.v1.SetCertificateManagedResponseB>Z<github.com/solarhell/certship/pkg/api/certship/v1;certshipv1b\x06proto3"
 
 var (
 	file_certship_v1_certificate_proto_rawDescOnce sync.Once
@@ -560,26 +455,22 @@ func file_certship_v1_certificate_proto_rawDescGZIP() []byte {
 	return file_certship_v1_certificate_proto_rawDescData
 }
 
-var file_certship_v1_certificate_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_certship_v1_certificate_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_certship_v1_certificate_proto_goTypes = []any{
 	(*ListCertificatesRequest)(nil),       // 0: certship.v1.ListCertificatesRequest
 	(*CertificateItem)(nil),               // 1: certship.v1.CertificateItem
 	(*SetCertificateManagedRequest)(nil),  // 2: certship.v1.SetCertificateManagedRequest
 	(*SetCertificateManagedResponse)(nil), // 3: certship.v1.SetCertificateManagedResponse
-	(*DeleteCertificateRequest)(nil),      // 4: certship.v1.DeleteCertificateRequest
-	(*DeleteCertificateResponse)(nil),     // 5: certship.v1.DeleteCertificateResponse
-	(*ListCertificatesResponse)(nil),      // 6: certship.v1.ListCertificatesResponse
+	(*ListCertificatesResponse)(nil),      // 4: certship.v1.ListCertificatesResponse
 }
 var file_certship_v1_certificate_proto_depIdxs = []int32{
 	1, // 0: certship.v1.ListCertificatesResponse.certificates:type_name -> certship.v1.CertificateItem
 	0, // 1: certship.v1.CertificateService.ListCertificates:input_type -> certship.v1.ListCertificatesRequest
 	2, // 2: certship.v1.CertificateService.SetCertificateManaged:input_type -> certship.v1.SetCertificateManagedRequest
-	4, // 3: certship.v1.CertificateService.DeleteCertificate:input_type -> certship.v1.DeleteCertificateRequest
-	6, // 4: certship.v1.CertificateService.ListCertificates:output_type -> certship.v1.ListCertificatesResponse
-	3, // 5: certship.v1.CertificateService.SetCertificateManaged:output_type -> certship.v1.SetCertificateManagedResponse
-	5, // 6: certship.v1.CertificateService.DeleteCertificate:output_type -> certship.v1.DeleteCertificateResponse
-	4, // [4:7] is the sub-list for method output_type
-	1, // [1:4] is the sub-list for method input_type
+	4, // 3: certship.v1.CertificateService.ListCertificates:output_type -> certship.v1.ListCertificatesResponse
+	3, // 4: certship.v1.CertificateService.SetCertificateManaged:output_type -> certship.v1.SetCertificateManagedResponse
+	3, // [3:5] is the sub-list for method output_type
+	1, // [1:3] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -591,14 +482,14 @@ func file_certship_v1_certificate_proto_init() {
 		return
 	}
 	file_certship_v1_certificate_proto_msgTypes[0].OneofWrappers = []any{}
-	file_certship_v1_certificate_proto_msgTypes[6].OneofWrappers = []any{}
+	file_certship_v1_certificate_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_certship_v1_certificate_proto_rawDesc), len(file_certship_v1_certificate_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

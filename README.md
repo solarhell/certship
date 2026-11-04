@@ -34,7 +34,7 @@
 
 必须完整获取所有分页、bucket CNAME 和线上证书后才返回当前列表。查询失败明确报错，不会用旧 DB 记录补齐，更不会把权限不足或超时当成资源已删除。CDN 查询不完整时，不会将部署目标降级为 OSS；线上证书查询失败时，不会据此重新签发。
 
-数据库中的旧 bucket、region、account_name、origin、deploy_target、presence、last_seen_at 字段，以及旧的下线/归档设置仅为升级兼容保留，不再决定当前资源、续期、部署或自动删除。历史本地托管设置和签发材料保留供域名重新出现时复用，但不作为云资源展示。
+数据库只保存本地托管设置、签发材料和任务状态。资源位置、发现来源及线上证书直接来自云端观测；域名重新出现时可以复用已保存的托管设置和签发材料。
 
 ## 失败是怎么处理的
 
@@ -160,12 +160,11 @@ frontend/
   src/                 # React 应用
 ```
 
-## 从 Lego v4 升级
+## ACME 账号与 DNS 校验
 
-服务兼容读取数据库中已有的 Lego v4 账号注册信息和私钥，无需重新注册 ACME 账号。
-新注册账号使用 Lego v5 格式；账号记录损坏或丢失原私钥时会报错，避免意外创建新身份。
+ACME 注册信息使用 Lego v5 格式，账号记录损坏或缺少私钥时直接报错。已有账号的私钥和 CA 账号地址用于维持原有签发身份。
 
-相同 DNS 解析器配置下，证书签发继续并发执行。修改解析器配置后，使用新配置的签发会等待旧配置的在途签发结束，避免 Lego v5 的全局 DNS client 在签发过程中被切换。
+相同 DNS 解析器配置下，证书签发并发执行。修改解析器配置后，新签发等待原配置的在途签发结束，避免 Lego 的全局 DNS client 在签发中途变更。DNS-01 以权威 DNS 的 TXT 传播结果为准，避免递归解析器的 NXDOMAIN 负缓存阻塞挑战。
 
 ## 开发
 
@@ -187,8 +186,8 @@ just ent
 
 `go test -race ./...` 覆盖资源清单为空、分页/查询不完整、CDN 降级保护、跨账号部署、云端证书日期优先和并发任务缓存等场景。
 
-本地 PostgreSQL 上可额外验证旧表迁移、托管意图保留、部署失败后复用签发材料及任务并发领取。测试自动创建并删除独立数据库，不调用阿里云或 ACME：
+本地 PostgreSQL 上可额外验证托管意图保留、部署失败后复用签发材料及任务并发领取。测试自动创建并删除独立数据库，不调用阿里云或 ACME：
 
 ```bash
-CERTSHIP_TEST_POSTGRES_DSN='host=127.0.0.1 port=5432 user=postgres password=test dbname=postgres sslmode=disable' go test -race ./internal/daemon -run TestDatabaseCompatibilityAndDeploymentRetry
+CERTSHIP_TEST_POSTGRES_DSN='host=127.0.0.1 port=5432 user=postgres password=test dbname=postgres sslmode=disable' go test -race ./internal/daemon -run TestManagementAndDeploymentRetry
 ```

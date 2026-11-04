@@ -6,7 +6,6 @@ import (
 	cdn "github.com/solarhell/certship/internal/cdn"
 	"github.com/solarhell/certship/internal/oss"
 	"github.com/solarhell/certship/pkg/ent"
-	entdomain "github.com/solarhell/certship/pkg/ent/domain"
 	"go.uber.org/zap"
 	"testing"
 	"time"
@@ -99,7 +98,7 @@ func TestCloudInventory(t *testing.T) {
 			}
 			result := run(context.Background(), zap.NewNop(), accounts, source)
 			info, ok := result.Lookup("test.example.com")
-			if !ok || !result.Complete() || info.Account.ID != "b" || info.OSSAccount.ID != "a" || info.OSSBucket != "origin" || info.Origin != entdomain.OriginBoth || info.DeployTarget() != entdomain.DeployTargetCdn || info.CloudCert() == nil {
+			if !ok || !result.Complete() || info.Account.ID != "b" || info.OSSAccount.ID != "a" || info.OSSBucket != "origin" || info.Origin != OriginBoth || info.DeployTarget() != DeployTargetCDN || info.CloudCert() == nil {
 				t.Fatalf("wrong deployment ownership: %+v", info)
 			}
 		})
