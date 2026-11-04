@@ -1,6 +1,7 @@
 package alidns
 
 import (
+	"context"
 	"net"
 	"strings"
 )
@@ -23,8 +24,8 @@ func ParseResolvers(raw string) []string {
 }
 
 // systemLookupNS 用系统解析器查 NS,仅在没有配置 resolvers 时使用
-func systemLookupNS(zone string) ([]string, error) {
-	nss, err := net.LookupNS(zone)
+func systemLookupNS(ctx context.Context, zone string) ([]string, error) {
+	nss, err := net.DefaultResolver.LookupNS(ctx, zone)
 	if err != nil {
 		return nil, err
 	}

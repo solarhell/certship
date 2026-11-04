@@ -1,6 +1,7 @@
 package acme
 
 import (
+	"context"
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"
@@ -11,12 +12,12 @@ import (
 	"time"
 
 	json "encoding/json/v2"
-	"github.com/go-acme/lego/v4/certcrypto"
-	"github.com/go-acme/lego/v4/certificate"
-	"github.com/go-acme/lego/v4/challenge/dns01"
-	"github.com/go-acme/lego/v4/lego"
-	"github.com/go-acme/lego/v4/providers/dns/alidns"
-	"github.com/go-acme/lego/v4/registration"
+	legoacme "github.com/go-acme/lego/v5/acme"
+	"github.com/go-acme/lego/v5/certcrypto"
+	"github.com/go-acme/lego/v5/certificate"
+	"github.com/go-acme/lego/v5/lego"
+	"github.com/go-acme/lego/v5/providers/dns/alidns"
+	"github.com/go-acme/lego/v5/registration"
 	"go.uber.org/zap"
 )
 
@@ -27,21 +28,21 @@ import (
 // 要演练就另起一个实例连独立的库,不要在生产实例上切开关。
 const (
 	accountEmail = "acme@certship.dev"
-	directoryURL = lego.LEDirectoryProduction
+	directoryURL = lego.DirectoryURLLetsEncrypt
 )
 
 // user 实现 registration.User 接口
 type user struct {
 	Email        string
-	Registration *registration.Resource
-	key          crypto.PrivateKey
+	Registration *legoacme.ExtendedAccount
+	key          crypto.Signer
 }
 
 func (u *user) GetEmail() string { return u.Email }
 
-func (u *user) GetRegistration() *registration.Resource { return u.Registration }
+func (u *user) GetRegistration() *legoacme.ExtendedAccount { return u.Registration }
 
-func (u *user) GetPrivateKey() crypto.PrivateKey { return u.key }
+func (u *user) GetPrivateKey() crypto.Signer { return u.key }
 
 // CertResult 保存申请结果，AccountKeyPEM 和 RegistrationJSON 应持久化回数据库
 type CertResult struct {
@@ -86,7 +87,10 @@ type ObtainOptions struct {
 //
 // accountKeyPEM / registrationJSON 从数据库传入(首次为空)。
 // 返回的账号可以并发用于多个 ObtainCert。
-func (m *Manager) EnsureAccount(accountKeyPEM, registrationJSON string) (*Account, error) {
+func (m *Manager) EnsureAccount(ctx context.Context, accountKeyPEM, registrationJSON string) (*Account, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	u, err := m.buildUser(accountKeyPEM, registrationJSON)
 	if err != nil {
 		return nil, fmt.Errorf("build acme user: %w", err)
@@ -104,7 +108,7 @@ func (m *Manager) EnsureAccount(accountKeyPEM, registrationJSON string) (*Accoun
 	if err != nil {
 		return nil, err
 	}
-	reg, err := client.Registration.Register(registration.RegisterOptions{TermsOfServiceAgreed: true})
+	reg, err := client.Registration.Register(ctx, registration.RegisterOptions{TermsOfServiceAgreed: true})
 	if err != nil {
 		return nil, fmt.Errorf("register acme account: %w", err)
 	}
@@ -122,7 +126,13 @@ func (m *Manager) EnsureAccount(accountKeyPEM, registrationJSON string) (*Accoun
 
 // ObtainCert 使用阿里云 DNS-01 挑战为 opts.Domains 申请证书（支持 SAN 多域名）。
 // account 由 EnsureAccount 提供,可被并发调用共用。
-func (m *Manager) ObtainCert(account *Account, opts ObtainOptions) (*CertResult, error) {
+func (m *Manager) ObtainCert(ctx context.Context, account *Account, opts ObtainOptions) (*CertResult, error) {
+	release, err := dnsResolvers.acquire(ctx, opts.Resolvers)
+	if err != nil {
+		return nil, err
+	}
+	defer release()
+
 	client, err := m.newClient(account.user)
 	if err != nil {
 		return nil, err
@@ -135,18 +145,15 @@ func (m *Manager) ObtainCert(account *Account, opts ObtainOptions) (*CertResult,
 	if err != nil {
 		return nil, fmt.Errorf("create alidns provider: %w", err)
 	}
-	var challengeOpts []dns01.ChallengeOption
-	if len(opts.Resolvers) > 0 {
-		challengeOpts = append(challengeOpts, dns01.AddRecursiveNameservers(opts.Resolvers))
-	}
-	if err := client.Challenge.SetDNS01Provider(provider, challengeOpts...); err != nil {
+	if err := client.Challenge.SetDNS01Provider(provider); err != nil {
 		return nil, fmt.Errorf("set dns01 provider: %w", err)
 	}
 
 	m.logger.Info("开始申请证书", zap.Strings("domains", opts.Domains))
-	certs, err := client.Certificate.Obtain(certificate.ObtainRequest{
+	certs, err := client.Certificate.Obtain(ctx, certificate.ObtainRequest{
 		Domains: opts.Domains,
 		Bundle:  true,
+		KeyType: certcrypto.RSA2048,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("obtain cert for %v: %w", opts.Domains, err)
@@ -164,7 +171,6 @@ func (m *Manager) ObtainCert(account *Account, opts ObtainOptions) (*CertResult,
 // newClient 建立指向 Let's Encrypt 生产环境的 lego client
 func (m *Manager) newClient(u *user) (*lego.Client, error) {
 	legoCfg := lego.NewConfig(u)
-	legoCfg.Certificate.KeyType = certcrypto.RSA2048
 	legoCfg.CADirURL = directoryURL
 	client, err := lego.NewClient(legoCfg)
 	if err != nil {
@@ -174,7 +180,10 @@ func (m *Manager) newClient(u *user) (*lego.Client, error) {
 }
 
 func (m *Manager) buildUser(accountKeyPEM, registrationJSON string) (*user, error) {
-	var privateKey crypto.PrivateKey
+	if registrationJSON != "" && accountKeyPEM == "" {
+		return nil, fmt.Errorf("stored ACME registration is missing its account key")
+	}
+	var privateKey crypto.Signer
 
 	if accountKeyPEM != "" {
 		key, err := certcrypto.ParsePEMPrivateKey([]byte(accountKeyPEM))
@@ -194,13 +203,37 @@ func (m *Manager) buildUser(accountKeyPEM, registrationJSON string) (*user, erro
 	u := &user{Email: accountEmail, key: privateKey}
 
 	if registrationJSON != "" {
-		var reg registration.Resource
-		if err := json.Unmarshal([]byte(registrationJSON), &reg); err == nil {
-			u.Registration = &reg
+		reg, err := parseRegistration(registrationJSON)
+		if err != nil {
+			return nil, err
 		}
+		u.Registration = reg
 	}
 
 	return u, nil
+}
+
+// parseRegistration 同时读取 Lego v5 账号和数据库中已有的 v4 body/uri 格式。
+// 损坏的记录直接报错，不能默默回退成重新注册账号。
+func parseRegistration(raw string) (*legoacme.ExtendedAccount, error) {
+	var reg legoacme.ExtendedAccount
+	if err := json.Unmarshal([]byte(raw), &reg); err != nil {
+		return nil, fmt.Errorf("parse acme registration: %w", err)
+	}
+	if reg.Location != "" {
+		return &reg, nil
+	}
+	var legacy struct {
+		Body legoacme.Account `json:"body"`
+		URI  string           `json:"uri"`
+	}
+	if err := json.Unmarshal([]byte(raw), &legacy); err != nil {
+		return nil, fmt.Errorf("parse legacy acme registration: %w", err)
+	}
+	if legacy.URI == "" {
+		return nil, fmt.Errorf("stored ACME registration is missing its account URL")
+	}
+	return &legoacme.ExtendedAccount{Account: legacy.Body, Location: legacy.URI}, nil
 }
 
 // ParseCertExpiry 解析 PEM 格式证书的到期时间

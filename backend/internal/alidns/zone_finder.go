@@ -9,8 +9,8 @@ import (
 
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	"github.com/alibabacloud-go/tea/dara"
-	alidnssdk "github.com/go-acme/alidns-20150109/v4/client"
-	"github.com/go-acme/lego/v4/challenge/dns01"
+	alidnssdk "github.com/go-acme/alidns-20150109/v5/client"
+	"github.com/go-acme/lego/v5/challenge/dns01"
 	"github.com/miekg/dns"
 	"go.uber.org/zap"
 
@@ -43,7 +43,7 @@ func FindAccountForDomain(
 	accounts []*ent.CloudAccount,
 	resolvers []string,
 ) (*ent.CloudAccount, string, error) {
-	zone, aliyunNS, err := InspectZone(domain, resolvers)
+	zone, aliyunNS, err := InspectZone(ctx, domain, resolvers)
 	if err != nil {
 		if zone == "" {
 			return nil, "", fmt.Errorf("查询 %s 的 zone 失败: %w", domain, err)
@@ -81,21 +81,21 @@ func FindAccountForDomain(
 //
 // 单独导出是因为"这个域名被判到了哪个 zone"是排查签发失败时最先要问的问题,
 // 而它只依赖 DNS,不需要任何云账号。
-func InspectZone(domain string, resolvers []string) (zone string, aliyunNS bool, err error) {
+func InspectZone(ctx context.Context, domain string, resolvers []string) (zone string, aliyunNS bool, err error) {
 	fqdn := dns.Fqdn(domain)
 
-	var authZone string
-	if len(resolvers) == 0 {
-		authZone, err = dns01.FindZoneByFqdn(fqdn)
-	} else {
-		authZone, err = dns01.FindZoneByFqdnCustom(fqdn, resolvers)
-	}
+	opts := dns01.NewOptions()
+	opts.RecursiveNameservers = resolvers
+	opts.Timeout = dnsQueryTimeout
+	// zone 探测使用独立 client，不修改并发签发正在使用的全局解析器。
+	client := dns01.NewClient(opts)
+	authZone, err := client.FindZoneByFqdn(ctx, fqdn)
 	if err != nil {
 		return "", false, err
 	}
 
 	zone = dns01.UnFqdn(authZone)
-	aliyunNS, err = isAliyunNS(zone, resolvers)
+	aliyunNS, err = isAliyunNS(ctx, zone, resolvers)
 	return zone, aliyunNS, err
 }
 
@@ -103,8 +103,8 @@ func InspectZone(domain string, resolvers []string) (zone string, aliyunNS bool,
 //
 // 用指定的 resolver 直接发查询,而不是 net.LookupNS——后者走系统解析器,
 // 会和 zone 探测用的解析器不一致,两处结论对不上时排查起来非常费劲。
-func isAliyunNS(zone string, resolvers []string) (bool, error) {
-	nss, err := lookupNS(zone, resolvers)
+func isAliyunNS(ctx context.Context, zone string, resolvers []string) (bool, error) {
+	nss, err := lookupNS(ctx, zone, resolvers)
 	if err != nil {
 		return false, err
 	}
@@ -126,9 +126,9 @@ func isAliyunNS(zone string, resolvers []string) (bool, error) {
 }
 
 // lookupNS 依次向 resolvers 查询 zone 的 NS 记录,返回第一个成功的结果
-func lookupNS(zone string, resolvers []string) ([]string, error) {
+func lookupNS(ctx context.Context, zone string, resolvers []string) ([]string, error) {
 	if len(resolvers) == 0 {
-		return systemLookupNS(zone)
+		return systemLookupNS(ctx, zone)
 	}
 
 	msg := new(dns.Msg).SetQuestion(dns.Fqdn(zone), dns.TypeNS)
@@ -136,7 +136,7 @@ func lookupNS(zone string, resolvers []string) ([]string, error) {
 
 	var lastErr error
 	for _, server := range resolvers {
-		resp, _, err := client.Exchange(msg, server)
+		resp, _, err := client.ExchangeContext(ctx, msg, server)
 		if err != nil {
 			lastErr = fmt.Errorf("向 %s 查询 %s 的 NS 失败: %w", server, zone, err)
 			continue

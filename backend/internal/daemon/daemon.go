@@ -96,7 +96,7 @@ func (d *Daemon) ExecuteTaskByID(ctx context.Context, taskID string) error {
 // 单独做一次的原因:并发续期时若每个任务各自注册,会重复向 CA 建账号,
 // 还会各自把不同的账号密钥写回同一行配置。
 func (d *Daemon) ensureACMEAccount(ctx context.Context, mgr *acme.Manager, settings *ent.AppSettings) (*acme.Account, error) {
-	account, err := mgr.EnsureAccount(settings.AcmeAccountKey, settings.AcmeRegistration)
+	account, err := mgr.EnsureAccount(ctx, settings.AcmeAccountKey, settings.AcmeRegistration)
 	if err != nil {
 		return nil, fmt.Errorf("准备 ACME 账号失败: %w", err)
 	}
@@ -660,7 +660,7 @@ func (d *Daemon) ensureCert(
 	}
 
 	tl.appendf("正在申请证书 (DNS-01)...")
-	result, err := acmeMgr.ObtainCert(acmeAccount, acme.ObtainOptions{
+	result, err := acmeMgr.ObtainCert(ctx, acmeAccount, acme.ObtainOptions{
 		Domains:         []string{dom.Domain},
 		AccessKeyID:     dnsAccount.AccessKeyID,
 		AccessKeySecret: dnsAccount.AccessKeySecret,

@@ -50,7 +50,7 @@ func SendToAllFeishuChannels(ctx context.Context, text string, logger *zap.Logge
 		return
 	}
 	for _, ch := range channels {
-		if err := notify.NewFeishuNotifier(ch.WebhookURL).SendText(text); err != nil {
+		if err := notify.NewFeishuNotifier(ch.WebhookURL).SendText(ctx, text); err != nil {
 			logger.Warn("飞书通知发送失败",
 				zap.String("channel", ch.Name),
 				zap.Error(err),

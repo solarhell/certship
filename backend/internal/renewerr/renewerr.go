@@ -15,7 +15,7 @@ import (
 	dara "github.com/alibabacloud-go/tea/dara"
 	tea "github.com/alibabacloud-go/tea/tea"
 	alioss "github.com/aliyun/alibabacloud-oss-go-sdk-v2/oss"
-	"github.com/go-acme/lego/v4/acme"
+	"github.com/go-acme/lego/v5/acme"
 
 	entdomain "github.com/solarhell/certship/pkg/ent/domain"
 )

@@ -1,9 +1,10 @@
 package notify
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/go-lark/lark"
+	"github.com/go-lark/lark/v2"
 )
 
 type FeishuNotifier struct {
@@ -14,9 +15,9 @@ func NewFeishuNotifier(webhookURL string) *FeishuNotifier {
 	return &FeishuNotifier{webhookURL: webhookURL}
 }
 
-func (f *FeishuNotifier) SendText(text string) error {
+func (f *FeishuNotifier) SendText(ctx context.Context, text string) error {
 	bot := lark.NewNotificationBot(f.webhookURL)
-	resp, err := bot.PostNotificationV2(lark.NewMsgBuffer(lark.MsgText).Text(text).Build())
+	resp, err := bot.PostNotification(ctx, lark.NewMsgBuffer(lark.MsgText).Text(text).Build())
 	if err != nil {
 		return err
 	}
