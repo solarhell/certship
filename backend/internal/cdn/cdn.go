@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	cdn "github.com/alibabacloud-go/cdn-20180510/v9/client"
+	cdn "github.com/alibabacloud-go/cdn-20180510/v10/client"
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/utils"
 	dara "github.com/alibabacloud-go/tea/dara"
 	tea "github.com/alibabacloud-go/tea/tea"

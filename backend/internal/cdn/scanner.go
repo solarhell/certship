@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	cdn "github.com/alibabacloud-go/cdn-20180510/v9/client"
+	cdn "github.com/alibabacloud-go/cdn-20180510/v10/client"
 	"go.uber.org/zap"
 
 	"github.com/solarhell/certship/internal/certtime"

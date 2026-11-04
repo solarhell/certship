@@ -3,24 +3,24 @@ module github.com/solarhell/certship
 go 1.27
 
 require (
-	connectrpc.com/connect v1.21.0
+	connectrpc.com/connect v1.21.1
 	connectrpc.com/cors v0.1.0
 	entgo.io/ent v0.14.6
 	github.com/alexedwards/argon2id v1.0.0
-	github.com/alibabacloud-go/cdn-20180510/v9 v9.0.0
+	github.com/alibabacloud-go/cdn-20180510/v10 v10.2.0
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.2.4
-	github.com/alibabacloud-go/tea v1.5.3
-	github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.6.0
-	github.com/dromara/carbon/v2 v2.6.17
+	github.com/alibabacloud-go/tea v1.5.4
+	github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.6.1
+	github.com/dromara/carbon/v2 v2.7.0
 	github.com/go-acme/alidns-20150109/v4 v4.7.0
 	github.com/go-acme/lego/v4 v4.35.2
 	github.com/go-lark/lark v1.16.0
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
-	github.com/jackc/pgx/v5 v5.11.0
+	github.com/jackc/pgx/v5 v5.12.0
 	github.com/knadh/koanf/parsers/toml/v2 v2.2.2
 	github.com/knadh/koanf/providers/file v1.2.1
-	github.com/knadh/koanf/v2 v2.3.7
+	github.com/knadh/koanf/v2 v2.4.1
 	github.com/miekg/dns v1.1.73
 	github.com/rs/cors v1.11.1
 	github.com/spf13/cobra v1.10.2
@@ -49,7 +49,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
-	github.com/jackc/puddle/v2 v2.2.2 // indirect
+	github.com/jackc/puddle/v2 v2.2.3 // indirect
 	github.com/json-iterator/go v1.1.13-0.20220915233716-71ac16282d12 // indirect
 	github.com/knadh/koanf/maps v0.1.2 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
@@ -69,7 +69,7 @@ require (
 	golang.org/x/net v0.57.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/text v0.40.0 // indirect
+	golang.org/x/text v0.41.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
 	gopkg.in/ini.v1 v1.67.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
