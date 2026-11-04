@@ -2,9 +2,8 @@ package renewtask
 
 import (
 	"context"
-	"fmt"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
 	"entgo.io/ent/dialect/sql"
 	"go.uber.org/zap"
 
@@ -31,14 +30,14 @@ type Server struct {
 	executor TaskExecutor
 }
 
-func (s *Server) ListRenewTasks(ctx context.Context, req *connect.Request[certshipv1.ListRenewTasksRequest]) (*connect.Response[certshipv1.ListRenewTasksResponse], error) {
+func (s *Server) ListRenewTasks(ctx context.Context, req *certshipv1.ListRenewTasksRequest) (*certshipv1.ListRenewTasksResponse, error) {
 	db := database.GetClient()
-	limit := model.NormalizeLimit(req.Msg.Limit)
+	limit := model.NormalizeLimit(req.Limit)
 
 	totalCount, err := db.RenewTask.Query().Count(ctx)
 	if err != nil {
 		s.logger.Error("查询任务总数失败", zap.Error(err))
-		return nil, connect.NewError(connect.CodeInternal, err)
+		return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
 	}
 
 	// 按创建时间降序（最新的排前面）
@@ -46,17 +45,17 @@ func (s *Server) ListRenewTasks(ctx context.Context, req *connect.Request[certsh
 		Order(renewtask.ByCreatedAt(sql.OrderDesc())).
 		Limit(int(limit + 1))
 
-	if req.Msg.Cursor != nil && *req.Msg.Cursor != "" {
-		cursorID, err := model.DecodeCursor(*req.Msg.Cursor)
+	if req.Cursor != nil && *req.Cursor != "" {
+		cursorID, err := model.DecodeCursor(*req.Cursor)
 		if err != nil {
-			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("无效的分页游标"))
+			return nil, connect.Errorf(connect.CodeInvalidArgument, "无效的分页游标")
 		}
 		lastRecord, err := db.RenewTask.Get(ctx, cursorID)
 		if err != nil {
 			if ent.IsNotFound(err) {
-				return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("游标无效：记录不存在"))
+				return nil, connect.Errorf(connect.CodeInvalidArgument, "游标无效：记录不存在")
 			}
-			return nil, connect.NewError(connect.CodeInternal, err)
+			return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
 		}
 		// keyset: (created_at DESC, id DESC)
 		query = query.Where(
@@ -73,7 +72,7 @@ func (s *Server) ListRenewTasks(ctx context.Context, req *connect.Request[certsh
 	tasks, err := query.All(ctx)
 	if err != nil {
 		s.logger.Error("查询续期任务失败", zap.Error(err))
-		return nil, connect.NewError(connect.CodeInternal, err)
+		return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
 	}
 
 	hasMore := len(tasks) > int(limit)
@@ -116,13 +115,13 @@ func (s *Server) ListRenewTasks(ctx context.Context, req *connect.Request[certsh
 		resp.NextCursor = &nc
 	}
 
-	return connect.NewResponse(resp), nil
+	return resp, nil
 }
 
-func (s *Server) CreateRenewTask(ctx context.Context, req *connect.Request[certshipv1.CreateRenewTaskRequest]) (*connect.Response[certshipv1.CreateRenewTaskResponse], error) {
-	domain := req.Msg.Domain
+func (s *Server) CreateRenewTask(ctx context.Context, req *certshipv1.CreateRenewTaskRequest) (*certshipv1.CreateRenewTaskResponse, error) {
+	domain := req.Domain
 	if domain == "" {
-		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("domain 不能为空"))
+		return nil, connect.Errorf(connect.CodeInvalidArgument, "domain 不能为空")
 	}
 
 	db := database.GetClient()
@@ -133,10 +132,10 @@ func (s *Server) CreateRenewTask(ctx context.Context, req *connect.Request[certs
 		).
 		Exist(ctx)
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
+		return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
 	}
 	if busy {
-		return nil, connect.NewError(connect.CodeAlreadyExists, fmt.Errorf("域名 %s 已有进行中的续期任务", domain))
+		return nil, connect.Errorf(connect.CodeAlreadyExists, "域名 %s 已有进行中的续期任务", domain)
 	}
 
 	// 手动触发是明确的人工意图:解除阻塞与退避,让这一次真的跑起来
@@ -156,7 +155,7 @@ func (s *Server) CreateRenewTask(ctx context.Context, req *connect.Request[certs
 		Save(ctx)
 	if err != nil {
 		s.logger.Error("创建续期任务失败", zap.Error(err))
-		return nil, connect.NewError(connect.CodeInternal, err)
+		return nil, connect.NewError(connect.CodeInternal, err.Error()).WithCause(err)
 	}
 
 	go func() {
@@ -165,5 +164,5 @@ func (s *Server) CreateRenewTask(ctx context.Context, req *connect.Request[certs
 		}
 	}()
 
-	return connect.NewResponse(&certshipv1.CreateRenewTaskResponse{Id: task.ID}), nil
+	return &certshipv1.CreateRenewTaskResponse{Id: task.ID}, nil
 }

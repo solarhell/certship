@@ -3,7 +3,7 @@ module github.com/solarhell/certship
 go 1.27
 
 require (
-	connectrpc.com/connect v1.21.1
+	connectrpc.com/connect/v2 v2.0.2
 	connectrpc.com/cors v0.1.0
 	entgo.io/ent v0.14.6
 	github.com/alexedwards/argon2id v1.0.0

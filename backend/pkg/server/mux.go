@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"net/http/pprof"
 
-	"connectrpc.com/connect"
+	"connectrpc.com/connect/v2"
+	"connectrpc.com/connect/v2/connecthttp"
 
 	"github.com/solarhell/certship/pkg/api/certship/v1/certshipv1connect"
 	"github.com/solarhell/certship/pkg/logic/appsettings"
@@ -31,14 +32,15 @@ func Setup(executor TaskExecutor) *http.ServeMux {
 	mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 
-	authInterceptor := connect.WithInterceptors(middleware.NewAuthInterceptor())
-
-	mux.Handle(certshipv1connect.NewAuthServiceHandler(auth.NewServer(), authInterceptor))
-	mux.Handle(certshipv1connect.NewCertificateServiceHandler(certificate.NewServer(), authInterceptor))
-	mux.Handle(certshipv1connect.NewCloudAccountServiceHandler(cloudaccount.NewServer(), authInterceptor))
-	mux.Handle(certshipv1connect.NewAppSettingsServiceHandler(appsettings.NewServer(), authInterceptor))
-	mux.Handle(certshipv1connect.NewNotificationChannelServiceHandler(notificationchannel.NewServer(), authInterceptor))
-	mux.Handle(certshipv1connect.NewRenewTaskServiceHandler(renewtask.NewServer(executor), authInterceptor))
+	server := connect.NewServer(middleware.NewAuthInterceptor())
+	certshipv1connect.RegisterAuthServiceHandler(server, auth.NewServer())
+	certshipv1connect.RegisterCertificateServiceHandler(server, certificate.NewServer())
+	certshipv1connect.RegisterCloudAccountServiceHandler(server, cloudaccount.NewServer())
+	certshipv1connect.RegisterAppSettingsServiceHandler(server, appsettings.NewServer())
+	certshipv1connect.RegisterNotificationChannelServiceHandler(server, notificationchannel.NewServer())
+	certshipv1connect.RegisterRenewTaskServiceHandler(server, renewtask.NewServer(executor))
+	// 保留 v1 的请求大小行为，避免升级后新增默认 4 MiB 限制。
+	connecthttp.Mount(mux, server, connecthttp.WithReadMaxBytes(0))
 
 	return mux
 }

@@ -5,171 +5,176 @@
 package certshipv1connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v1 "github.com/solarhell/certship/pkg/api/certship/v1"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// CertificateServiceName is the fully-qualified name of the CertificateService service.
 	CertificateServiceName = "certship.v1.CertificateService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// CertificateServiceListCertificatesProcedure is the fully-qualified name of the
-	// CertificateService's ListCertificates RPC.
+	// CertificateServiceListCertificatesProcedure is the procedure name of the CertificateService's
+	// ListCertificates RPC.
 	CertificateServiceListCertificatesProcedure = "/certship.v1.CertificateService/ListCertificates"
-	// CertificateServiceSetCertificateManagedProcedure is the fully-qualified name of the
+	// CertificateServiceSetCertificateManagedProcedure is the procedure name of the
 	// CertificateService's SetCertificateManaged RPC.
 	CertificateServiceSetCertificateManagedProcedure = "/certship.v1.CertificateService/SetCertificateManaged"
-	// CertificateServiceDeleteCertificateProcedure is the fully-qualified name of the
-	// CertificateService's DeleteCertificate RPC.
+	// CertificateServiceDeleteCertificateProcedure is the procedure name of the CertificateService's
+	// DeleteCertificate RPC.
 	CertificateServiceDeleteCertificateProcedure = "/certship.v1.CertificateService/DeleteCertificate"
+)
+
+var (
+	certificateServiceListCertificatesSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_certship_v1_certificate_proto.Services().ByName("CertificateService").Methods().ByName("ListCertificates"),
+			Procedure:  CertificateServiceListCertificatesProcedure,
+		}
+	})
+	certificateServiceSetCertificateManagedSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_certship_v1_certificate_proto.Services().ByName("CertificateService").Methods().ByName("SetCertificateManaged"),
+			Procedure:  CertificateServiceSetCertificateManagedProcedure,
+		}
+	})
+	certificateServiceDeleteCertificateSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_certship_v1_certificate_proto.Services().ByName("CertificateService").Methods().ByName("DeleteCertificate"),
+			Procedure:  CertificateServiceDeleteCertificateProcedure,
+		}
+	})
 )
 
 // CertificateServiceClient is a client for the certship.v1.CertificateService service.
 type CertificateServiceClient interface {
-	ListCertificates(context.Context, *connect.Request[v1.ListCertificatesRequest]) (*connect.Response[v1.ListCertificatesResponse], error)
+	ListCertificates(context.Context, *v1.ListCertificatesRequest) (*v1.ListCertificatesResponse, error)
 	// SetCertificateManaged 暂停 / 恢复由 certship 托管签发与续期。
 	// 用于"证书由别处管理"这类场景,不影响记录本身。
-	SetCertificateManaged(context.Context, *connect.Request[v1.SetCertificateManagedRequest]) (*connect.Response[v1.SetCertificateManagedResponse], error)
+	SetCertificateManaged(context.Context, *v1.SetCertificateManagedRequest) (*v1.SetCertificateManagedResponse, error)
 	// DeleteCertificate 删除一条已归档的域名记录。
 	// 只对 archived 开放:云上还在的域名删了也会被下一轮扫描重新写回来。
-	DeleteCertificate(context.Context, *connect.Request[v1.DeleteCertificateRequest]) (*connect.Response[v1.DeleteCertificateResponse], error)
+	DeleteCertificate(context.Context, *v1.DeleteCertificateRequest) (*v1.DeleteCertificateResponse, error)
 }
 
 // NewCertificateServiceClient constructs a client for the certship.v1.CertificateService service.
-// By default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped
-// responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
-// connect.WithGRPC() or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewCertificateServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) CertificateServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	certificateServiceMethods := v1.File_certship_v1_certificate_proto.Services().ByName("CertificateService").Methods()
-	return &certificateServiceClient{
-		listCertificates: connect.NewClient[v1.ListCertificatesRequest, v1.ListCertificatesResponse](
-			httpClient,
-			baseURL+CertificateServiceListCertificatesProcedure,
-			connect.WithSchema(certificateServiceMethods.ByName("ListCertificates")),
-			connect.WithClientOptions(opts...),
-		),
-		setCertificateManaged: connect.NewClient[v1.SetCertificateManagedRequest, v1.SetCertificateManagedResponse](
-			httpClient,
-			baseURL+CertificateServiceSetCertificateManagedProcedure,
-			connect.WithSchema(certificateServiceMethods.ByName("SetCertificateManaged")),
-			connect.WithClientOptions(opts...),
-		),
-		deleteCertificate: connect.NewClient[v1.DeleteCertificateRequest, v1.DeleteCertificateResponse](
-			httpClient,
-			baseURL+CertificateServiceDeleteCertificateProcedure,
-			connect.WithSchema(certificateServiceMethods.ByName("DeleteCertificate")),
-			connect.WithClientOptions(opts...),
-		),
-	}
-}
-
-// certificateServiceClient implements CertificateServiceClient.
-type certificateServiceClient struct {
-	listCertificates      *connect.Client[v1.ListCertificatesRequest, v1.ListCertificatesResponse]
-	setCertificateManaged *connect.Client[v1.SetCertificateManagedRequest, v1.SetCertificateManagedResponse]
-	deleteCertificate     *connect.Client[v1.DeleteCertificateRequest, v1.DeleteCertificateResponse]
-}
-
-// ListCertificates calls certship.v1.CertificateService.ListCertificates.
-func (c *certificateServiceClient) ListCertificates(ctx context.Context, req *connect.Request[v1.ListCertificatesRequest]) (*connect.Response[v1.ListCertificatesResponse], error) {
-	return c.listCertificates.CallUnary(ctx, req)
-}
-
-// SetCertificateManaged calls certship.v1.CertificateService.SetCertificateManaged.
-func (c *certificateServiceClient) SetCertificateManaged(ctx context.Context, req *connect.Request[v1.SetCertificateManagedRequest]) (*connect.Response[v1.SetCertificateManagedResponse], error) {
-	return c.setCertificateManaged.CallUnary(ctx, req)
-}
-
-// DeleteCertificate calls certship.v1.CertificateService.DeleteCertificate.
-func (c *certificateServiceClient) DeleteCertificate(ctx context.Context, req *connect.Request[v1.DeleteCertificateRequest]) (*connect.Response[v1.DeleteCertificateResponse], error) {
-	return c.deleteCertificate.CallUnary(ctx, req)
+// Multiple service clients may share a single connect.Client.
+func NewCertificateServiceClient(client *connect.Client) CertificateServiceClient {
+	return &certificateServiceClient{client: client}
 }
 
 // CertificateServiceHandler is an implementation of the certship.v1.CertificateService service.
 type CertificateServiceHandler interface {
-	ListCertificates(context.Context, *connect.Request[v1.ListCertificatesRequest]) (*connect.Response[v1.ListCertificatesResponse], error)
+	ListCertificates(context.Context, *v1.ListCertificatesRequest) (*v1.ListCertificatesResponse, error)
 	// SetCertificateManaged 暂停 / 恢复由 certship 托管签发与续期。
 	// 用于"证书由别处管理"这类场景,不影响记录本身。
-	SetCertificateManaged(context.Context, *connect.Request[v1.SetCertificateManagedRequest]) (*connect.Response[v1.SetCertificateManagedResponse], error)
+	SetCertificateManaged(context.Context, *v1.SetCertificateManagedRequest) (*v1.SetCertificateManagedResponse, error)
 	// DeleteCertificate 删除一条已归档的域名记录。
 	// 只对 archived 开放:云上还在的域名删了也会被下一轮扫描重新写回来。
-	DeleteCertificate(context.Context, *connect.Request[v1.DeleteCertificateRequest]) (*connect.Response[v1.DeleteCertificateResponse], error)
+	DeleteCertificate(context.Context, *v1.DeleteCertificateRequest) (*v1.DeleteCertificateResponse, error)
 }
 
-// NewCertificateServiceHandler builds an HTTP handler from the service implementation. It returns
-// the path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewCertificateServiceHandler(svc CertificateServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	certificateServiceMethods := v1.File_certship_v1_certificate_proto.Services().ByName("CertificateService").Methods()
-	certificateServiceListCertificatesHandler := connect.NewUnaryHandler(
-		CertificateServiceListCertificatesProcedure,
-		svc.ListCertificates,
-		connect.WithSchema(certificateServiceMethods.ByName("ListCertificates")),
-		connect.WithHandlerOptions(opts...),
+// RegisterCertificateServiceHandler registers svc as the certship.v1.CertificateService
+// implementation on server.
+func RegisterCertificateServiceHandler(server *connect.Server, svc CertificateServiceHandler) {
+	adapter := certificateServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: certificateServiceListCertificatesSpec(), Handler: adapter.listCertificates},
+		connect.Method{Spec: certificateServiceSetCertificateManagedSpec(), Handler: adapter.setCertificateManaged},
+		connect.Method{Spec: certificateServiceDeleteCertificateSpec(), Handler: adapter.deleteCertificate},
 	)
-	certificateServiceSetCertificateManagedHandler := connect.NewUnaryHandler(
-		CertificateServiceSetCertificateManagedProcedure,
-		svc.SetCertificateManaged,
-		connect.WithSchema(certificateServiceMethods.ByName("SetCertificateManaged")),
-		connect.WithHandlerOptions(opts...),
-	)
-	certificateServiceDeleteCertificateHandler := connect.NewUnaryHandler(
-		CertificateServiceDeleteCertificateProcedure,
-		svc.DeleteCertificate,
-		connect.WithSchema(certificateServiceMethods.ByName("DeleteCertificate")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/certship.v1.CertificateService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case CertificateServiceListCertificatesProcedure:
-			certificateServiceListCertificatesHandler.ServeHTTP(w, r)
-		case CertificateServiceSetCertificateManagedProcedure:
-			certificateServiceSetCertificateManagedHandler.ServeHTTP(w, r)
-		case CertificateServiceDeleteCertificateProcedure:
-			certificateServiceDeleteCertificateHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
 }
 
 // UnimplementedCertificateServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedCertificateServiceHandler struct{}
 
-func (UnimplementedCertificateServiceHandler) ListCertificates(context.Context, *connect.Request[v1.ListCertificatesRequest]) (*connect.Response[v1.ListCertificatesResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("certship.v1.CertificateService.ListCertificates is not implemented"))
+func (UnimplementedCertificateServiceHandler) ListCertificates(context.Context, *v1.ListCertificatesRequest) (*v1.ListCertificatesResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "certship.v1.CertificateService.ListCertificates is not implemented")
 }
 
-func (UnimplementedCertificateServiceHandler) SetCertificateManaged(context.Context, *connect.Request[v1.SetCertificateManagedRequest]) (*connect.Response[v1.SetCertificateManagedResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("certship.v1.CertificateService.SetCertificateManaged is not implemented"))
+func (UnimplementedCertificateServiceHandler) SetCertificateManaged(context.Context, *v1.SetCertificateManagedRequest) (*v1.SetCertificateManagedResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "certship.v1.CertificateService.SetCertificateManaged is not implemented")
 }
 
-func (UnimplementedCertificateServiceHandler) DeleteCertificate(context.Context, *connect.Request[v1.DeleteCertificateRequest]) (*connect.Response[v1.DeleteCertificateResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("certship.v1.CertificateService.DeleteCertificate is not implemented"))
+func (UnimplementedCertificateServiceHandler) DeleteCertificate(context.Context, *v1.DeleteCertificateRequest) (*v1.DeleteCertificateResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "certship.v1.CertificateService.DeleteCertificate is not implemented")
+}
+
+type certificateServiceClient struct {
+	client *connect.Client
+}
+
+func (c *certificateServiceClient) ListCertificates(ctx context.Context, req *v1.ListCertificatesRequest) (*v1.ListCertificatesResponse, error) {
+	var res v1.ListCertificatesResponse
+	if err := c.client.CallUnary(ctx, certificateServiceListCertificatesSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *certificateServiceClient) SetCertificateManaged(ctx context.Context, req *v1.SetCertificateManagedRequest) (*v1.SetCertificateManagedResponse, error) {
+	var res v1.SetCertificateManagedResponse
+	if err := c.client.CallUnary(ctx, certificateServiceSetCertificateManagedSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *certificateServiceClient) DeleteCertificate(ctx context.Context, req *v1.DeleteCertificateRequest) (*v1.DeleteCertificateResponse, error) {
+	var res v1.DeleteCertificateResponse
+	if err := c.client.CallUnary(ctx, certificateServiceDeleteCertificateSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type certificateServiceHandler struct{ svc CertificateServiceHandler }
+
+func (h certificateServiceHandler) listCertificates(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ListCertificatesRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListCertificates(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h certificateServiceHandler) setCertificateManaged(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.SetCertificateManagedRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.SetCertificateManaged(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h certificateServiceHandler) deleteCertificate(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.DeleteCertificateRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.DeleteCertificate(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }

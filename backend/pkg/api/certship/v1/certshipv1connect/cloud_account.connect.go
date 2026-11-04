@@ -5,221 +5,242 @@
 package certshipv1connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v1 "github.com/solarhell/certship/pkg/api/certship/v1"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// CloudAccountServiceName is the fully-qualified name of the CloudAccountService service.
 	CloudAccountServiceName = "certship.v1.CloudAccountService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// CloudAccountServiceListCloudAccountsProcedure is the fully-qualified name of the
-	// CloudAccountService's ListCloudAccounts RPC.
+	// CloudAccountServiceListCloudAccountsProcedure is the procedure name of the CloudAccountService's
+	// ListCloudAccounts RPC.
 	CloudAccountServiceListCloudAccountsProcedure = "/certship.v1.CloudAccountService/ListCloudAccounts"
-	// CloudAccountServiceCreateCloudAccountProcedure is the fully-qualified name of the
-	// CloudAccountService's CreateCloudAccount RPC.
+	// CloudAccountServiceCreateCloudAccountProcedure is the procedure name of the CloudAccountService's
+	// CreateCloudAccount RPC.
 	CloudAccountServiceCreateCloudAccountProcedure = "/certship.v1.CloudAccountService/CreateCloudAccount"
-	// CloudAccountServiceUpdateCloudAccountProcedure is the fully-qualified name of the
-	// CloudAccountService's UpdateCloudAccount RPC.
+	// CloudAccountServiceUpdateCloudAccountProcedure is the procedure name of the CloudAccountService's
+	// UpdateCloudAccount RPC.
 	CloudAccountServiceUpdateCloudAccountProcedure = "/certship.v1.CloudAccountService/UpdateCloudAccount"
-	// CloudAccountServiceDeleteCloudAccountProcedure is the fully-qualified name of the
-	// CloudAccountService's DeleteCloudAccount RPC.
+	// CloudAccountServiceDeleteCloudAccountProcedure is the procedure name of the CloudAccountService's
+	// DeleteCloudAccount RPC.
 	CloudAccountServiceDeleteCloudAccountProcedure = "/certship.v1.CloudAccountService/DeleteCloudAccount"
-	// CloudAccountServiceRescanCloudAccountProcedure is the fully-qualified name of the
-	// CloudAccountService's RescanCloudAccount RPC.
+	// CloudAccountServiceRescanCloudAccountProcedure is the procedure name of the CloudAccountService's
+	// RescanCloudAccount RPC.
 	CloudAccountServiceRescanCloudAccountProcedure = "/certship.v1.CloudAccountService/RescanCloudAccount"
+)
+
+var (
+	cloudAccountServiceListCloudAccountsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_certship_v1_cloud_account_proto.Services().ByName("CloudAccountService").Methods().ByName("ListCloudAccounts"),
+			Procedure:  CloudAccountServiceListCloudAccountsProcedure,
+		}
+	})
+	cloudAccountServiceCreateCloudAccountSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_certship_v1_cloud_account_proto.Services().ByName("CloudAccountService").Methods().ByName("CreateCloudAccount"),
+			Procedure:  CloudAccountServiceCreateCloudAccountProcedure,
+		}
+	})
+	cloudAccountServiceUpdateCloudAccountSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_certship_v1_cloud_account_proto.Services().ByName("CloudAccountService").Methods().ByName("UpdateCloudAccount"),
+			Procedure:  CloudAccountServiceUpdateCloudAccountProcedure,
+		}
+	})
+	cloudAccountServiceDeleteCloudAccountSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_certship_v1_cloud_account_proto.Services().ByName("CloudAccountService").Methods().ByName("DeleteCloudAccount"),
+			Procedure:  CloudAccountServiceDeleteCloudAccountProcedure,
+		}
+	})
+	cloudAccountServiceRescanCloudAccountSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_certship_v1_cloud_account_proto.Services().ByName("CloudAccountService").Methods().ByName("RescanCloudAccount"),
+			Procedure:  CloudAccountServiceRescanCloudAccountProcedure,
+		}
+	})
 )
 
 // CloudAccountServiceClient is a client for the certship.v1.CloudAccountService service.
 type CloudAccountServiceClient interface {
-	ListCloudAccounts(context.Context, *connect.Request[v1.ListCloudAccountsRequest]) (*connect.Response[v1.ListCloudAccountsResponse], error)
-	CreateCloudAccount(context.Context, *connect.Request[v1.CreateCloudAccountRequest]) (*connect.Response[v1.CreateCloudAccountResponse], error)
-	UpdateCloudAccount(context.Context, *connect.Request[v1.UpdateCloudAccountRequest]) (*connect.Response[v1.UpdateCloudAccountResponse], error)
-	DeleteCloudAccount(context.Context, *connect.Request[v1.DeleteCloudAccountRequest]) (*connect.Response[v1.DeleteCloudAccountResponse], error)
-	RescanCloudAccount(context.Context, *connect.Request[v1.RescanCloudAccountRequest]) (*connect.Response[v1.RescanCloudAccountResponse], error)
+	ListCloudAccounts(context.Context, *v1.ListCloudAccountsRequest) (*v1.ListCloudAccountsResponse, error)
+	CreateCloudAccount(context.Context, *v1.CreateCloudAccountRequest) (*v1.CreateCloudAccountResponse, error)
+	UpdateCloudAccount(context.Context, *v1.UpdateCloudAccountRequest) (*v1.UpdateCloudAccountResponse, error)
+	DeleteCloudAccount(context.Context, *v1.DeleteCloudAccountRequest) (*v1.DeleteCloudAccountResponse, error)
+	RescanCloudAccount(context.Context, *v1.RescanCloudAccountRequest) (*v1.RescanCloudAccountResponse, error)
 }
 
 // NewCloudAccountServiceClient constructs a client for the certship.v1.CloudAccountService service.
-// By default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped
-// responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
-// connect.WithGRPC() or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewCloudAccountServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) CloudAccountServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	cloudAccountServiceMethods := v1.File_certship_v1_cloud_account_proto.Services().ByName("CloudAccountService").Methods()
-	return &cloudAccountServiceClient{
-		listCloudAccounts: connect.NewClient[v1.ListCloudAccountsRequest, v1.ListCloudAccountsResponse](
-			httpClient,
-			baseURL+CloudAccountServiceListCloudAccountsProcedure,
-			connect.WithSchema(cloudAccountServiceMethods.ByName("ListCloudAccounts")),
-			connect.WithClientOptions(opts...),
-		),
-		createCloudAccount: connect.NewClient[v1.CreateCloudAccountRequest, v1.CreateCloudAccountResponse](
-			httpClient,
-			baseURL+CloudAccountServiceCreateCloudAccountProcedure,
-			connect.WithSchema(cloudAccountServiceMethods.ByName("CreateCloudAccount")),
-			connect.WithClientOptions(opts...),
-		),
-		updateCloudAccount: connect.NewClient[v1.UpdateCloudAccountRequest, v1.UpdateCloudAccountResponse](
-			httpClient,
-			baseURL+CloudAccountServiceUpdateCloudAccountProcedure,
-			connect.WithSchema(cloudAccountServiceMethods.ByName("UpdateCloudAccount")),
-			connect.WithClientOptions(opts...),
-		),
-		deleteCloudAccount: connect.NewClient[v1.DeleteCloudAccountRequest, v1.DeleteCloudAccountResponse](
-			httpClient,
-			baseURL+CloudAccountServiceDeleteCloudAccountProcedure,
-			connect.WithSchema(cloudAccountServiceMethods.ByName("DeleteCloudAccount")),
-			connect.WithClientOptions(opts...),
-		),
-		rescanCloudAccount: connect.NewClient[v1.RescanCloudAccountRequest, v1.RescanCloudAccountResponse](
-			httpClient,
-			baseURL+CloudAccountServiceRescanCloudAccountProcedure,
-			connect.WithSchema(cloudAccountServiceMethods.ByName("RescanCloudAccount")),
-			connect.WithClientOptions(opts...),
-		),
-	}
-}
-
-// cloudAccountServiceClient implements CloudAccountServiceClient.
-type cloudAccountServiceClient struct {
-	listCloudAccounts  *connect.Client[v1.ListCloudAccountsRequest, v1.ListCloudAccountsResponse]
-	createCloudAccount *connect.Client[v1.CreateCloudAccountRequest, v1.CreateCloudAccountResponse]
-	updateCloudAccount *connect.Client[v1.UpdateCloudAccountRequest, v1.UpdateCloudAccountResponse]
-	deleteCloudAccount *connect.Client[v1.DeleteCloudAccountRequest, v1.DeleteCloudAccountResponse]
-	rescanCloudAccount *connect.Client[v1.RescanCloudAccountRequest, v1.RescanCloudAccountResponse]
-}
-
-// ListCloudAccounts calls certship.v1.CloudAccountService.ListCloudAccounts.
-func (c *cloudAccountServiceClient) ListCloudAccounts(ctx context.Context, req *connect.Request[v1.ListCloudAccountsRequest]) (*connect.Response[v1.ListCloudAccountsResponse], error) {
-	return c.listCloudAccounts.CallUnary(ctx, req)
-}
-
-// CreateCloudAccount calls certship.v1.CloudAccountService.CreateCloudAccount.
-func (c *cloudAccountServiceClient) CreateCloudAccount(ctx context.Context, req *connect.Request[v1.CreateCloudAccountRequest]) (*connect.Response[v1.CreateCloudAccountResponse], error) {
-	return c.createCloudAccount.CallUnary(ctx, req)
-}
-
-// UpdateCloudAccount calls certship.v1.CloudAccountService.UpdateCloudAccount.
-func (c *cloudAccountServiceClient) UpdateCloudAccount(ctx context.Context, req *connect.Request[v1.UpdateCloudAccountRequest]) (*connect.Response[v1.UpdateCloudAccountResponse], error) {
-	return c.updateCloudAccount.CallUnary(ctx, req)
-}
-
-// DeleteCloudAccount calls certship.v1.CloudAccountService.DeleteCloudAccount.
-func (c *cloudAccountServiceClient) DeleteCloudAccount(ctx context.Context, req *connect.Request[v1.DeleteCloudAccountRequest]) (*connect.Response[v1.DeleteCloudAccountResponse], error) {
-	return c.deleteCloudAccount.CallUnary(ctx, req)
-}
-
-// RescanCloudAccount calls certship.v1.CloudAccountService.RescanCloudAccount.
-func (c *cloudAccountServiceClient) RescanCloudAccount(ctx context.Context, req *connect.Request[v1.RescanCloudAccountRequest]) (*connect.Response[v1.RescanCloudAccountResponse], error) {
-	return c.rescanCloudAccount.CallUnary(ctx, req)
+// Multiple service clients may share a single connect.Client.
+func NewCloudAccountServiceClient(client *connect.Client) CloudAccountServiceClient {
+	return &cloudAccountServiceClient{client: client}
 }
 
 // CloudAccountServiceHandler is an implementation of the certship.v1.CloudAccountService service.
 type CloudAccountServiceHandler interface {
-	ListCloudAccounts(context.Context, *connect.Request[v1.ListCloudAccountsRequest]) (*connect.Response[v1.ListCloudAccountsResponse], error)
-	CreateCloudAccount(context.Context, *connect.Request[v1.CreateCloudAccountRequest]) (*connect.Response[v1.CreateCloudAccountResponse], error)
-	UpdateCloudAccount(context.Context, *connect.Request[v1.UpdateCloudAccountRequest]) (*connect.Response[v1.UpdateCloudAccountResponse], error)
-	DeleteCloudAccount(context.Context, *connect.Request[v1.DeleteCloudAccountRequest]) (*connect.Response[v1.DeleteCloudAccountResponse], error)
-	RescanCloudAccount(context.Context, *connect.Request[v1.RescanCloudAccountRequest]) (*connect.Response[v1.RescanCloudAccountResponse], error)
+	ListCloudAccounts(context.Context, *v1.ListCloudAccountsRequest) (*v1.ListCloudAccountsResponse, error)
+	CreateCloudAccount(context.Context, *v1.CreateCloudAccountRequest) (*v1.CreateCloudAccountResponse, error)
+	UpdateCloudAccount(context.Context, *v1.UpdateCloudAccountRequest) (*v1.UpdateCloudAccountResponse, error)
+	DeleteCloudAccount(context.Context, *v1.DeleteCloudAccountRequest) (*v1.DeleteCloudAccountResponse, error)
+	RescanCloudAccount(context.Context, *v1.RescanCloudAccountRequest) (*v1.RescanCloudAccountResponse, error)
 }
 
-// NewCloudAccountServiceHandler builds an HTTP handler from the service implementation. It returns
-// the path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewCloudAccountServiceHandler(svc CloudAccountServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	cloudAccountServiceMethods := v1.File_certship_v1_cloud_account_proto.Services().ByName("CloudAccountService").Methods()
-	cloudAccountServiceListCloudAccountsHandler := connect.NewUnaryHandler(
-		CloudAccountServiceListCloudAccountsProcedure,
-		svc.ListCloudAccounts,
-		connect.WithSchema(cloudAccountServiceMethods.ByName("ListCloudAccounts")),
-		connect.WithHandlerOptions(opts...),
+// RegisterCloudAccountServiceHandler registers svc as the certship.v1.CloudAccountService
+// implementation on server.
+func RegisterCloudAccountServiceHandler(server *connect.Server, svc CloudAccountServiceHandler) {
+	adapter := cloudAccountServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: cloudAccountServiceListCloudAccountsSpec(), Handler: adapter.listCloudAccounts},
+		connect.Method{Spec: cloudAccountServiceCreateCloudAccountSpec(), Handler: adapter.createCloudAccount},
+		connect.Method{Spec: cloudAccountServiceUpdateCloudAccountSpec(), Handler: adapter.updateCloudAccount},
+		connect.Method{Spec: cloudAccountServiceDeleteCloudAccountSpec(), Handler: adapter.deleteCloudAccount},
+		connect.Method{Spec: cloudAccountServiceRescanCloudAccountSpec(), Handler: adapter.rescanCloudAccount},
 	)
-	cloudAccountServiceCreateCloudAccountHandler := connect.NewUnaryHandler(
-		CloudAccountServiceCreateCloudAccountProcedure,
-		svc.CreateCloudAccount,
-		connect.WithSchema(cloudAccountServiceMethods.ByName("CreateCloudAccount")),
-		connect.WithHandlerOptions(opts...),
-	)
-	cloudAccountServiceUpdateCloudAccountHandler := connect.NewUnaryHandler(
-		CloudAccountServiceUpdateCloudAccountProcedure,
-		svc.UpdateCloudAccount,
-		connect.WithSchema(cloudAccountServiceMethods.ByName("UpdateCloudAccount")),
-		connect.WithHandlerOptions(opts...),
-	)
-	cloudAccountServiceDeleteCloudAccountHandler := connect.NewUnaryHandler(
-		CloudAccountServiceDeleteCloudAccountProcedure,
-		svc.DeleteCloudAccount,
-		connect.WithSchema(cloudAccountServiceMethods.ByName("DeleteCloudAccount")),
-		connect.WithHandlerOptions(opts...),
-	)
-	cloudAccountServiceRescanCloudAccountHandler := connect.NewUnaryHandler(
-		CloudAccountServiceRescanCloudAccountProcedure,
-		svc.RescanCloudAccount,
-		connect.WithSchema(cloudAccountServiceMethods.ByName("RescanCloudAccount")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/certship.v1.CloudAccountService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case CloudAccountServiceListCloudAccountsProcedure:
-			cloudAccountServiceListCloudAccountsHandler.ServeHTTP(w, r)
-		case CloudAccountServiceCreateCloudAccountProcedure:
-			cloudAccountServiceCreateCloudAccountHandler.ServeHTTP(w, r)
-		case CloudAccountServiceUpdateCloudAccountProcedure:
-			cloudAccountServiceUpdateCloudAccountHandler.ServeHTTP(w, r)
-		case CloudAccountServiceDeleteCloudAccountProcedure:
-			cloudAccountServiceDeleteCloudAccountHandler.ServeHTTP(w, r)
-		case CloudAccountServiceRescanCloudAccountProcedure:
-			cloudAccountServiceRescanCloudAccountHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
 }
 
 // UnimplementedCloudAccountServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedCloudAccountServiceHandler struct{}
 
-func (UnimplementedCloudAccountServiceHandler) ListCloudAccounts(context.Context, *connect.Request[v1.ListCloudAccountsRequest]) (*connect.Response[v1.ListCloudAccountsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("certship.v1.CloudAccountService.ListCloudAccounts is not implemented"))
+func (UnimplementedCloudAccountServiceHandler) ListCloudAccounts(context.Context, *v1.ListCloudAccountsRequest) (*v1.ListCloudAccountsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "certship.v1.CloudAccountService.ListCloudAccounts is not implemented")
 }
 
-func (UnimplementedCloudAccountServiceHandler) CreateCloudAccount(context.Context, *connect.Request[v1.CreateCloudAccountRequest]) (*connect.Response[v1.CreateCloudAccountResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("certship.v1.CloudAccountService.CreateCloudAccount is not implemented"))
+func (UnimplementedCloudAccountServiceHandler) CreateCloudAccount(context.Context, *v1.CreateCloudAccountRequest) (*v1.CreateCloudAccountResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "certship.v1.CloudAccountService.CreateCloudAccount is not implemented")
 }
 
-func (UnimplementedCloudAccountServiceHandler) UpdateCloudAccount(context.Context, *connect.Request[v1.UpdateCloudAccountRequest]) (*connect.Response[v1.UpdateCloudAccountResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("certship.v1.CloudAccountService.UpdateCloudAccount is not implemented"))
+func (UnimplementedCloudAccountServiceHandler) UpdateCloudAccount(context.Context, *v1.UpdateCloudAccountRequest) (*v1.UpdateCloudAccountResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "certship.v1.CloudAccountService.UpdateCloudAccount is not implemented")
 }
 
-func (UnimplementedCloudAccountServiceHandler) DeleteCloudAccount(context.Context, *connect.Request[v1.DeleteCloudAccountRequest]) (*connect.Response[v1.DeleteCloudAccountResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("certship.v1.CloudAccountService.DeleteCloudAccount is not implemented"))
+func (UnimplementedCloudAccountServiceHandler) DeleteCloudAccount(context.Context, *v1.DeleteCloudAccountRequest) (*v1.DeleteCloudAccountResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "certship.v1.CloudAccountService.DeleteCloudAccount is not implemented")
 }
 
-func (UnimplementedCloudAccountServiceHandler) RescanCloudAccount(context.Context, *connect.Request[v1.RescanCloudAccountRequest]) (*connect.Response[v1.RescanCloudAccountResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("certship.v1.CloudAccountService.RescanCloudAccount is not implemented"))
+func (UnimplementedCloudAccountServiceHandler) RescanCloudAccount(context.Context, *v1.RescanCloudAccountRequest) (*v1.RescanCloudAccountResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "certship.v1.CloudAccountService.RescanCloudAccount is not implemented")
+}
+
+type cloudAccountServiceClient struct {
+	client *connect.Client
+}
+
+func (c *cloudAccountServiceClient) ListCloudAccounts(ctx context.Context, req *v1.ListCloudAccountsRequest) (*v1.ListCloudAccountsResponse, error) {
+	var res v1.ListCloudAccountsResponse
+	if err := c.client.CallUnary(ctx, cloudAccountServiceListCloudAccountsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *cloudAccountServiceClient) CreateCloudAccount(ctx context.Context, req *v1.CreateCloudAccountRequest) (*v1.CreateCloudAccountResponse, error) {
+	var res v1.CreateCloudAccountResponse
+	if err := c.client.CallUnary(ctx, cloudAccountServiceCreateCloudAccountSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *cloudAccountServiceClient) UpdateCloudAccount(ctx context.Context, req *v1.UpdateCloudAccountRequest) (*v1.UpdateCloudAccountResponse, error) {
+	var res v1.UpdateCloudAccountResponse
+	if err := c.client.CallUnary(ctx, cloudAccountServiceUpdateCloudAccountSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *cloudAccountServiceClient) DeleteCloudAccount(ctx context.Context, req *v1.DeleteCloudAccountRequest) (*v1.DeleteCloudAccountResponse, error) {
+	var res v1.DeleteCloudAccountResponse
+	if err := c.client.CallUnary(ctx, cloudAccountServiceDeleteCloudAccountSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *cloudAccountServiceClient) RescanCloudAccount(ctx context.Context, req *v1.RescanCloudAccountRequest) (*v1.RescanCloudAccountResponse, error) {
+	var res v1.RescanCloudAccountResponse
+	if err := c.client.CallUnary(ctx, cloudAccountServiceRescanCloudAccountSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type cloudAccountServiceHandler struct{ svc CloudAccountServiceHandler }
+
+func (h cloudAccountServiceHandler) listCloudAccounts(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ListCloudAccountsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ListCloudAccounts(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h cloudAccountServiceHandler) createCloudAccount(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.CreateCloudAccountRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.CreateCloudAccount(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h cloudAccountServiceHandler) updateCloudAccount(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.UpdateCloudAccountRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdateCloudAccount(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h cloudAccountServiceHandler) deleteCloudAccount(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.DeleteCloudAccountRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.DeleteCloudAccount(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h cloudAccountServiceHandler) rescanCloudAccount(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.RescanCloudAccountRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.RescanCloudAccount(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }

@@ -5,134 +5,131 @@
 package certshipv1connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v1 "github.com/solarhell/certship/pkg/api/certship/v1"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// AppSettingsServiceName is the fully-qualified name of the AppSettingsService service.
 	AppSettingsServiceName = "certship.v1.AppSettingsService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// AppSettingsServiceGetAppSettingsProcedure is the fully-qualified name of the AppSettingsService's
+	// AppSettingsServiceGetAppSettingsProcedure is the procedure name of the AppSettingsService's
 	// GetAppSettings RPC.
 	AppSettingsServiceGetAppSettingsProcedure = "/certship.v1.AppSettingsService/GetAppSettings"
-	// AppSettingsServiceUpdateAppSettingsProcedure is the fully-qualified name of the
-	// AppSettingsService's UpdateAppSettings RPC.
+	// AppSettingsServiceUpdateAppSettingsProcedure is the procedure name of the AppSettingsService's
+	// UpdateAppSettings RPC.
 	AppSettingsServiceUpdateAppSettingsProcedure = "/certship.v1.AppSettingsService/UpdateAppSettings"
+)
+
+var (
+	appSettingsServiceGetAppSettingsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_certship_v1_app_settings_proto.Services().ByName("AppSettingsService").Methods().ByName("GetAppSettings"),
+			Procedure:  AppSettingsServiceGetAppSettingsProcedure,
+		}
+	})
+	appSettingsServiceUpdateAppSettingsSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_certship_v1_app_settings_proto.Services().ByName("AppSettingsService").Methods().ByName("UpdateAppSettings"),
+			Procedure:  AppSettingsServiceUpdateAppSettingsProcedure,
+		}
+	})
 )
 
 // AppSettingsServiceClient is a client for the certship.v1.AppSettingsService service.
 type AppSettingsServiceClient interface {
-	GetAppSettings(context.Context, *connect.Request[v1.GetAppSettingsRequest]) (*connect.Response[v1.GetAppSettingsResponse], error)
-	UpdateAppSettings(context.Context, *connect.Request[v1.UpdateAppSettingsRequest]) (*connect.Response[v1.UpdateAppSettingsResponse], error)
+	GetAppSettings(context.Context, *v1.GetAppSettingsRequest) (*v1.GetAppSettingsResponse, error)
+	UpdateAppSettings(context.Context, *v1.UpdateAppSettingsRequest) (*v1.UpdateAppSettingsResponse, error)
 }
 
 // NewAppSettingsServiceClient constructs a client for the certship.v1.AppSettingsService service.
-// By default, it uses the Connect protocol with the binary Protobuf Codec, asks for gzipped
-// responses, and sends uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the
-// connect.WithGRPC() or connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewAppSettingsServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AppSettingsServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	appSettingsServiceMethods := v1.File_certship_v1_app_settings_proto.Services().ByName("AppSettingsService").Methods()
-	return &appSettingsServiceClient{
-		getAppSettings: connect.NewClient[v1.GetAppSettingsRequest, v1.GetAppSettingsResponse](
-			httpClient,
-			baseURL+AppSettingsServiceGetAppSettingsProcedure,
-			connect.WithSchema(appSettingsServiceMethods.ByName("GetAppSettings")),
-			connect.WithClientOptions(opts...),
-		),
-		updateAppSettings: connect.NewClient[v1.UpdateAppSettingsRequest, v1.UpdateAppSettingsResponse](
-			httpClient,
-			baseURL+AppSettingsServiceUpdateAppSettingsProcedure,
-			connect.WithSchema(appSettingsServiceMethods.ByName("UpdateAppSettings")),
-			connect.WithClientOptions(opts...),
-		),
-	}
-}
-
-// appSettingsServiceClient implements AppSettingsServiceClient.
-type appSettingsServiceClient struct {
-	getAppSettings    *connect.Client[v1.GetAppSettingsRequest, v1.GetAppSettingsResponse]
-	updateAppSettings *connect.Client[v1.UpdateAppSettingsRequest, v1.UpdateAppSettingsResponse]
-}
-
-// GetAppSettings calls certship.v1.AppSettingsService.GetAppSettings.
-func (c *appSettingsServiceClient) GetAppSettings(ctx context.Context, req *connect.Request[v1.GetAppSettingsRequest]) (*connect.Response[v1.GetAppSettingsResponse], error) {
-	return c.getAppSettings.CallUnary(ctx, req)
-}
-
-// UpdateAppSettings calls certship.v1.AppSettingsService.UpdateAppSettings.
-func (c *appSettingsServiceClient) UpdateAppSettings(ctx context.Context, req *connect.Request[v1.UpdateAppSettingsRequest]) (*connect.Response[v1.UpdateAppSettingsResponse], error) {
-	return c.updateAppSettings.CallUnary(ctx, req)
+// Multiple service clients may share a single connect.Client.
+func NewAppSettingsServiceClient(client *connect.Client) AppSettingsServiceClient {
+	return &appSettingsServiceClient{client: client}
 }
 
 // AppSettingsServiceHandler is an implementation of the certship.v1.AppSettingsService service.
 type AppSettingsServiceHandler interface {
-	GetAppSettings(context.Context, *connect.Request[v1.GetAppSettingsRequest]) (*connect.Response[v1.GetAppSettingsResponse], error)
-	UpdateAppSettings(context.Context, *connect.Request[v1.UpdateAppSettingsRequest]) (*connect.Response[v1.UpdateAppSettingsResponse], error)
+	GetAppSettings(context.Context, *v1.GetAppSettingsRequest) (*v1.GetAppSettingsResponse, error)
+	UpdateAppSettings(context.Context, *v1.UpdateAppSettingsRequest) (*v1.UpdateAppSettingsResponse, error)
 }
 
-// NewAppSettingsServiceHandler builds an HTTP handler from the service implementation. It returns
-// the path on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewAppSettingsServiceHandler(svc AppSettingsServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	appSettingsServiceMethods := v1.File_certship_v1_app_settings_proto.Services().ByName("AppSettingsService").Methods()
-	appSettingsServiceGetAppSettingsHandler := connect.NewUnaryHandler(
-		AppSettingsServiceGetAppSettingsProcedure,
-		svc.GetAppSettings,
-		connect.WithSchema(appSettingsServiceMethods.ByName("GetAppSettings")),
-		connect.WithHandlerOptions(opts...),
+// RegisterAppSettingsServiceHandler registers svc as the certship.v1.AppSettingsService
+// implementation on server.
+func RegisterAppSettingsServiceHandler(server *connect.Server, svc AppSettingsServiceHandler) {
+	adapter := appSettingsServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: appSettingsServiceGetAppSettingsSpec(), Handler: adapter.getAppSettings},
+		connect.Method{Spec: appSettingsServiceUpdateAppSettingsSpec(), Handler: adapter.updateAppSettings},
 	)
-	appSettingsServiceUpdateAppSettingsHandler := connect.NewUnaryHandler(
-		AppSettingsServiceUpdateAppSettingsProcedure,
-		svc.UpdateAppSettings,
-		connect.WithSchema(appSettingsServiceMethods.ByName("UpdateAppSettings")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/certship.v1.AppSettingsService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case AppSettingsServiceGetAppSettingsProcedure:
-			appSettingsServiceGetAppSettingsHandler.ServeHTTP(w, r)
-		case AppSettingsServiceUpdateAppSettingsProcedure:
-			appSettingsServiceUpdateAppSettingsHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
 }
 
 // UnimplementedAppSettingsServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedAppSettingsServiceHandler struct{}
 
-func (UnimplementedAppSettingsServiceHandler) GetAppSettings(context.Context, *connect.Request[v1.GetAppSettingsRequest]) (*connect.Response[v1.GetAppSettingsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("certship.v1.AppSettingsService.GetAppSettings is not implemented"))
+func (UnimplementedAppSettingsServiceHandler) GetAppSettings(context.Context, *v1.GetAppSettingsRequest) (*v1.GetAppSettingsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "certship.v1.AppSettingsService.GetAppSettings is not implemented")
 }
 
-func (UnimplementedAppSettingsServiceHandler) UpdateAppSettings(context.Context, *connect.Request[v1.UpdateAppSettingsRequest]) (*connect.Response[v1.UpdateAppSettingsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("certship.v1.AppSettingsService.UpdateAppSettings is not implemented"))
+func (UnimplementedAppSettingsServiceHandler) UpdateAppSettings(context.Context, *v1.UpdateAppSettingsRequest) (*v1.UpdateAppSettingsResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "certship.v1.AppSettingsService.UpdateAppSettings is not implemented")
+}
+
+type appSettingsServiceClient struct {
+	client *connect.Client
+}
+
+func (c *appSettingsServiceClient) GetAppSettings(ctx context.Context, req *v1.GetAppSettingsRequest) (*v1.GetAppSettingsResponse, error) {
+	var res v1.GetAppSettingsResponse
+	if err := c.client.CallUnary(ctx, appSettingsServiceGetAppSettingsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *appSettingsServiceClient) UpdateAppSettings(ctx context.Context, req *v1.UpdateAppSettingsRequest) (*v1.UpdateAppSettingsResponse, error) {
+	var res v1.UpdateAppSettingsResponse
+	if err := c.client.CallUnary(ctx, appSettingsServiceUpdateAppSettingsSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type appSettingsServiceHandler struct{ svc AppSettingsServiceHandler }
+
+func (h appSettingsServiceHandler) getAppSettings(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.GetAppSettingsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.GetAppSettings(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h appSettingsServiceHandler) updateAppSettings(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.UpdateAppSettingsRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.UpdateAppSettings(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }

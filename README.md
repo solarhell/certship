@@ -178,6 +178,8 @@ frontend/
 
 ## 开发
 
+RPC 后端使用 [Connect Go v2](https://connectrpc.com/docs/go/migrating-to-v2/)，`backend/buf.gen.yaml` 固定 Connect 生成器版本，重新生成接口时应与 `go.mod` 中的运行时版本同步更新。
+
 ```bash
 # 后端 lint（go vet + golangci-lint + staticcheck）
 cd backend && just lint

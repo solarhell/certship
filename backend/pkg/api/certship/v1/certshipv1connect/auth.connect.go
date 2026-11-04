@@ -5,133 +5,128 @@
 package certshipv1connect
 
 import (
-	connect "connectrpc.com/connect"
+	connect "connectrpc.com/connect/v2"
 	context "context"
-	errors "errors"
 	v1 "github.com/solarhell/certship/pkg/api/certship/v1"
-	http "net/http"
-	strings "strings"
+	sync "sync"
 )
-
-// This is a compile-time assertion to ensure that this generated file and the connect package are
-// compatible. If you get a compiler error that this constant is not defined, this code was
-// generated with a version of connect newer than the one compiled into your binary. You can fix the
-// problem by either regenerating this code with an older version of connect or updating the connect
-// version compiled into your binary.
-const _ = connect.IsAtLeastVersion1_13_0
 
 const (
 	// AuthServiceName is the fully-qualified name of the AuthService service.
 	AuthServiceName = "certship.v1.AuthService"
 )
 
-// These constants are the fully-qualified names of the RPCs defined in this package. They're
-// exposed at runtime as Spec.Procedure and as the final two segments of the HTTP route.
+// These constants are the procedure names of the RPCs defined in this package. They're exposed at
+// runtime as Spec.Procedure and as the final two segments of the HTTP route.
 //
 // Note that these are different from the fully-qualified method names used by
 // google.golang.org/protobuf/reflect/protoreflect. To convert from these constants to
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// AuthServiceLoginProcedure is the fully-qualified name of the AuthService's Login RPC.
+	// AuthServiceLoginProcedure is the procedure name of the AuthService's Login RPC.
 	AuthServiceLoginProcedure = "/certship.v1.AuthService/Login"
-	// AuthServiceChangePasswordProcedure is the fully-qualified name of the AuthService's
-	// ChangePassword RPC.
+	// AuthServiceChangePasswordProcedure is the procedure name of the AuthService's ChangePassword RPC.
 	AuthServiceChangePasswordProcedure = "/certship.v1.AuthService/ChangePassword"
+)
+
+var (
+	authServiceLoginSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_certship_v1_auth_proto.Services().ByName("AuthService").Methods().ByName("Login"),
+			Procedure:  AuthServiceLoginProcedure,
+		}
+	})
+	authServiceChangePasswordSpec = sync.OnceValue(func() connect.Spec {
+		return connect.Spec{
+			StreamType: connect.StreamTypeUnary,
+			Schema:     v1.File_certship_v1_auth_proto.Services().ByName("AuthService").Methods().ByName("ChangePassword"),
+			Procedure:  AuthServiceChangePasswordProcedure,
+		}
+	})
 )
 
 // AuthServiceClient is a client for the certship.v1.AuthService service.
 type AuthServiceClient interface {
-	Login(context.Context, *connect.Request[v1.LoginRequest]) (*connect.Response[v1.LoginResponse], error)
-	ChangePassword(context.Context, *connect.Request[v1.ChangePasswordRequest]) (*connect.Response[v1.ChangePasswordResponse], error)
+	Login(context.Context, *v1.LoginRequest) (*v1.LoginResponse, error)
+	ChangePassword(context.Context, *v1.ChangePasswordRequest) (*v1.ChangePasswordResponse, error)
 }
 
-// NewAuthServiceClient constructs a client for the certship.v1.AuthService service. By default, it
-// uses the Connect protocol with the binary Protobuf Codec, asks for gzipped responses, and sends
-// uncompressed requests. To use the gRPC or gRPC-Web protocols, supply the connect.WithGRPC() or
-// connect.WithGRPCWeb() options.
-//
-// The URL supplied here should be the base URL for the Connect or gRPC server (for example,
-// http://api.acme.com or https://acme.com/grpc).
-func NewAuthServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) AuthServiceClient {
-	baseURL = strings.TrimRight(baseURL, "/")
-	authServiceMethods := v1.File_certship_v1_auth_proto.Services().ByName("AuthService").Methods()
-	return &authServiceClient{
-		login: connect.NewClient[v1.LoginRequest, v1.LoginResponse](
-			httpClient,
-			baseURL+AuthServiceLoginProcedure,
-			connect.WithSchema(authServiceMethods.ByName("Login")),
-			connect.WithClientOptions(opts...),
-		),
-		changePassword: connect.NewClient[v1.ChangePasswordRequest, v1.ChangePasswordResponse](
-			httpClient,
-			baseURL+AuthServiceChangePasswordProcedure,
-			connect.WithSchema(authServiceMethods.ByName("ChangePassword")),
-			connect.WithClientOptions(opts...),
-		),
-	}
-}
-
-// authServiceClient implements AuthServiceClient.
-type authServiceClient struct {
-	login          *connect.Client[v1.LoginRequest, v1.LoginResponse]
-	changePassword *connect.Client[v1.ChangePasswordRequest, v1.ChangePasswordResponse]
-}
-
-// Login calls certship.v1.AuthService.Login.
-func (c *authServiceClient) Login(ctx context.Context, req *connect.Request[v1.LoginRequest]) (*connect.Response[v1.LoginResponse], error) {
-	return c.login.CallUnary(ctx, req)
-}
-
-// ChangePassword calls certship.v1.AuthService.ChangePassword.
-func (c *authServiceClient) ChangePassword(ctx context.Context, req *connect.Request[v1.ChangePasswordRequest]) (*connect.Response[v1.ChangePasswordResponse], error) {
-	return c.changePassword.CallUnary(ctx, req)
+// NewAuthServiceClient constructs a client for the certship.v1.AuthService service. Multiple
+// service clients may share a single connect.Client.
+func NewAuthServiceClient(client *connect.Client) AuthServiceClient {
+	return &authServiceClient{client: client}
 }
 
 // AuthServiceHandler is an implementation of the certship.v1.AuthService service.
 type AuthServiceHandler interface {
-	Login(context.Context, *connect.Request[v1.LoginRequest]) (*connect.Response[v1.LoginResponse], error)
-	ChangePassword(context.Context, *connect.Request[v1.ChangePasswordRequest]) (*connect.Response[v1.ChangePasswordResponse], error)
+	Login(context.Context, *v1.LoginRequest) (*v1.LoginResponse, error)
+	ChangePassword(context.Context, *v1.ChangePasswordRequest) (*v1.ChangePasswordResponse, error)
 }
 
-// NewAuthServiceHandler builds an HTTP handler from the service implementation. It returns the path
-// on which to mount the handler and the handler itself.
-//
-// By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
-// and JSON codecs. They also support gzip compression.
-func NewAuthServiceHandler(svc AuthServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	authServiceMethods := v1.File_certship_v1_auth_proto.Services().ByName("AuthService").Methods()
-	authServiceLoginHandler := connect.NewUnaryHandler(
-		AuthServiceLoginProcedure,
-		svc.Login,
-		connect.WithSchema(authServiceMethods.ByName("Login")),
-		connect.WithHandlerOptions(opts...),
+// RegisterAuthServiceHandler registers svc as the certship.v1.AuthService implementation on server.
+func RegisterAuthServiceHandler(server *connect.Server, svc AuthServiceHandler) {
+	adapter := authServiceHandler{svc: svc}
+	server.Register(
+		connect.Method{Spec: authServiceLoginSpec(), Handler: adapter.login},
+		connect.Method{Spec: authServiceChangePasswordSpec(), Handler: adapter.changePassword},
 	)
-	authServiceChangePasswordHandler := connect.NewUnaryHandler(
-		AuthServiceChangePasswordProcedure,
-		svc.ChangePassword,
-		connect.WithSchema(authServiceMethods.ByName("ChangePassword")),
-		connect.WithHandlerOptions(opts...),
-	)
-	return "/certship.v1.AuthService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case AuthServiceLoginProcedure:
-			authServiceLoginHandler.ServeHTTP(w, r)
-		case AuthServiceChangePasswordProcedure:
-			authServiceChangePasswordHandler.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
 }
 
 // UnimplementedAuthServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedAuthServiceHandler struct{}
 
-func (UnimplementedAuthServiceHandler) Login(context.Context, *connect.Request[v1.LoginRequest]) (*connect.Response[v1.LoginResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("certship.v1.AuthService.Login is not implemented"))
+func (UnimplementedAuthServiceHandler) Login(context.Context, *v1.LoginRequest) (*v1.LoginResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "certship.v1.AuthService.Login is not implemented")
 }
 
-func (UnimplementedAuthServiceHandler) ChangePassword(context.Context, *connect.Request[v1.ChangePasswordRequest]) (*connect.Response[v1.ChangePasswordResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("certship.v1.AuthService.ChangePassword is not implemented"))
+func (UnimplementedAuthServiceHandler) ChangePassword(context.Context, *v1.ChangePasswordRequest) (*v1.ChangePasswordResponse, error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, "certship.v1.AuthService.ChangePassword is not implemented")
+}
+
+type authServiceClient struct {
+	client *connect.Client
+}
+
+func (c *authServiceClient) Login(ctx context.Context, req *v1.LoginRequest) (*v1.LoginResponse, error) {
+	var res v1.LoginResponse
+	if err := c.client.CallUnary(ctx, authServiceLoginSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+func (c *authServiceClient) ChangePassword(ctx context.Context, req *v1.ChangePasswordRequest) (*v1.ChangePasswordResponse, error) {
+	var res v1.ChangePasswordResponse
+	if err := c.client.CallUnary(ctx, authServiceChangePasswordSpec(), req, &res); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
+
+type authServiceHandler struct{ svc AuthServiceHandler }
+
+func (h authServiceHandler) login(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.LoginRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.Login(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
+}
+
+func (h authServiceHandler) changePassword(ctx context.Context, _ connect.Spec, stream connect.ServerStream) error {
+	var req v1.ChangePasswordRequest
+	if err := stream.Receive(&req); err != nil {
+		return err
+	}
+	res, err := h.svc.ChangePassword(ctx, &req)
+	if err != nil {
+		return err
+	}
+	return stream.Send(res)
 }
