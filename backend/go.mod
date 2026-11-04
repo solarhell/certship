@@ -20,7 +20,7 @@ require (
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/knadh/koanf/parsers/toml/v2 v2.2.2
 	github.com/knadh/koanf/providers/file v1.2.1
-	github.com/knadh/koanf/v2 v2.3.6
+	github.com/knadh/koanf/v2 v2.3.7
 	github.com/miekg/dns v1.1.73
 	github.com/rs/cors v1.11.1
 	github.com/spf13/cobra v1.10.2
