@@ -4,8 +4,6 @@ import (
 	"errors"
 	"strings"
 	"testing"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 func TestNewHashesRemainArgon2id(t *testing.T) {
@@ -25,20 +23,13 @@ func TestNewHashesRemainArgon2id(t *testing.T) {
 	}
 }
 
-func TestLegacyBcryptCredentials(t *testing.T) {
-	const plain = "legacy fixture password"
-	encoded, err := bcrypt.GenerateFromPassword([]byte(plain), bcrypt.MinCost)
-	if err != nil {
-		t.Fatal(err)
-	}
+func TestBcryptHashesAreNotSupported(t *testing.T) {
+	const encoded = "$2a$04$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy"
 	for _, variant := range []string{"$2a$", "$2b$", "$2y$"} {
 		t.Run(variant, func(t *testing.T) {
-			hash := variant + string(encoded[4:])
-			if err := Verify(hash, plain); err != nil {
-				t.Fatalf("existing bcrypt password rejected: %v", err)
-			}
-			if err := Verify(hash, "incorrect fixture password"); !errors.Is(err, ErrMismatched) {
-				t.Fatalf("wrong password must be a normal mismatch: %v", err)
+			hash := variant + encoded[4:]
+			if err := Verify(hash, "fixture password"); err == nil || errors.Is(err, ErrMismatched) {
+				t.Fatalf("unsupported bcrypt hash must fail parsing: %v", err)
 			}
 		})
 	}
