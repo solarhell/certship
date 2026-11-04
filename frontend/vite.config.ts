@@ -1,9 +1,9 @@
-import { defineConfig } from "vite-plus";
+import { defineConfig, lazyPlugins } from "vite-plus";
 import react from "@vitejs/plugin-react";
 import path from "node:path";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: lazyPlugins(() => [react()]),
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "src"),
@@ -11,8 +11,13 @@ export default defineConfig({
   },
   lint: {
     ignorePatterns: ["dist/**"],
+    plugins: ["react", "typescript", "oxc"],
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
-    rules: { "vite-plus/prefer-vite-plus-imports": "error" },
+    rules: {
+      "vite-plus/prefer-vite-plus-imports": "error",
+      "react/rules-of-hooks": "error",
+      "react/only-export-components": ["warn", { allowConstantExport: true }],
+    },
     options: {
       typeAware: true,
       typeCheck: true,

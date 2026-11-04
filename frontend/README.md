@@ -1,73 +1,28 @@
-# React + TypeScript + Vite
+# CertShip 前端
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript 管理界面，使用 Vite+ 统一管理开发、构建、格式化与 lint。
 
-Currently, two official plugins are available:
+## 开发与验证
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+vp install --frozen-lockfile
+vp dev
 
-## React Compiler
+# 格式、lint 和类型检查
+vp check
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+# 执行 TypeScript 项目构建检查，再生成生产资源
+vp run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+开发服务器监听 `3000`，将 `/certship.v1` 请求代理到 `http://127.0.0.1:8080`。
+生产环境若前后端不同源，在 `.env.production.local` 配置 `VITE_API_BASE`。
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+## 工具链约定
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
-```
+- 配置参考 [create-vite-plus](https://github.com/voidzero-dev/vite-plus/tree/main/packages/create-vite-plus) 的 Application 生成流程：先使用 Vite React + TypeScript 模板，再应用 Vite+ 工具链配置；保留项目的路径别名、API 代理和严格类型检查。
+- `tsconfig.app.json` 使用 bundler 模式；`tsconfig.node.json` 使用 NodeNext 模式检查 Vite 配置。
+- lint 使用 Vite+ 内置 Oxlint，启用 React Hooks、React Refresh 与类型感知检查，无需另装 ESLint 或 Oxlint。
+- `vite` 指向 `@voidzero-dev/vite-plus-core`，版本与 `vite-plus` 在 `pnpm-workspace.yaml` 的 catalog 中同步维护。
+- 使用 `vp` 管理依赖；`vp run build` 执行 `package.json` 中的构建脚本，`vp build` 只运行打包步骤。
+- React Compiler 未启用。目前没有前端测试文件。
